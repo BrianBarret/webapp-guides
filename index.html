@@ -409,6 +409,10 @@
               <span>Plein</span>
             </button>
           </div>
+
+          <button type="button" id="btn-send-dmd2-riding" onclick="exportDayToDMD2()" class="w-full py-3 px-4 rounded-2xl bg-ink text-white font-bold text-xs shadow-sm active:scale-[0.99] transition">
+            Envoyer ma trace J1 + POI vers DMD2
+          </button>
         </div>
       </div>
     </section>
@@ -1026,6 +1030,8 @@
       const day = RGA_DAYS[state.dayIndex];
       document.getElementById('reader-subtitle').textContent = `${day.code} · ${day.route}${day.km ? ' · ' + day.km + ' km' : ''}`;
       document.getElementById('btn-send-dmd2').textContent = `Envoyer ma trace ${day.code} + POI vers DMD2`;
+      const btnRidingDmd = document.getElementById('btn-send-dmd2-riding');
+      if (btnRidingDmd) btnRidingDmd.textContent = `Envoyer ma trace ${day.code} + POI vers DMD2`;
 
       // Pastilles de jours
       const pills = document.getElementById('day-pills');
