@@ -832,15 +832,21 @@
     }
 
     function toggleFullscreen() {
+      const tip = 'Astuce : Menu ⋮ → "Installer l\'application" pour masquer la barre d\'adresse.';
+      if (!document.documentElement.requestFullscreen) {
+        showToast(tip);
+        return;
+      }
       try {
         if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen();
-          showToast('Plein écran activé');
+          Promise.resolve(document.documentElement.requestFullscreen())
+            .then(() => showToast('Plein écran activé'))
+            .catch(() => showToast(tip));
         } else {
-          document.exitFullscreen();
+          Promise.resolve(document.exitFullscreen()).catch(() => {});
         }
       } catch (e) {
-        showToast('Astuce : Menu ⋮ → "Ajouter à l\'écran d\'accueil" pour masquer la barre.');
+        showToast(tip);
       }
     }
 
@@ -1629,18 +1635,44 @@ ${trkXml}
     }
 
     function downloadSwFile() {
-      const swCode = `const CACHE_NAME = 'lav-pwa-v1';
+      const swCode = `const CACHE_NAME = 'lav-pwa-v2';
 const ASSETS = ['./', './index.html', './manifest.json', './logo-greg.webp'];
+
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)).catch(() => {}));
   self.skipWaiting();
 });
-self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+// Stratégie "Réseau d'abord, cache si hors-ligne" :
+// - Avec réseau : charge toujours le dernier index.html et met à jour le cache.
+// - Hors-ligne : ouvre instantanément la copie enregistrée.
 self.addEventListener('fetch', e => {
-  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('./index.html'))));
+  if (e.request.method !== 'GET') return;
+  const url = new URL(e.request.url);
+  if (url.origin !== self.location.origin) return;
+
+  e.respondWith(
+    fetch(e.request)
+      .then(res => {
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(e.request, copy));
+        }
+        return res;
+      })
+      .catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
+  );
 });`;
       triggerDownload('sw.js', swCode, 'application/javascript');
-      showToast('sw.js téléchargé');
+      showToast('sw.js (réseau d\'abord) téléchargé');
     }
 
     window.addEventListener('beforeinstallprompt', (e) => {
