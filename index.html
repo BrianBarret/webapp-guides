@@ -35,9 +35,9 @@
     };
   </script>
 
-  <!-- Leaflet (Carte interactive) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet via CDN Cloudflare rapide + defer (ne bloque jamais l'ouverture mobile) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -457,6 +457,38 @@
         <button type="button" onclick="confirmPurchase()" class="w-full py-3.5 rounded-2xl bg-sign text-ink font-display font-bold text-sm">
           Payer & débloquer immédiatement
         </button>
+      </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODALE : AVERTISSEMENT TELECHARGEMENT GPX OUVERT          -->
+    <!-- ========================================================= -->
+    <div id="modal-gpx-warning" class="hidden absolute inset-0 z-50 bg-black/50 backdrop-blur-[1px] flex items-end sm:items-center justify-center p-3">
+      <div class="bg-white rounded-3xl w-full max-w-md p-5 shadow-2xl space-y-3.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200">GPX ouvert · Usage personnel</span>
+          <button type="button" onclick="closeModal('modal-gpx-warning')" class="w-8 h-8 rounded-full bg-paper text-ink font-bold">✕</button>
+        </div>
+
+        <div>
+          <h3 id="gpx-warn-title" class="font-display font-extrabold text-lg text-ink"></h3>
+          <p class="text-xs text-muted mt-1">Compatible GPS moto (TomTom, Garmin, DMD2, OsmAnd, Calimoto).</p>
+        </div>
+
+        <div class="rounded-2xl bg-[#fbf0d5] p-3.5 text-xs text-[#5c3d00] space-y-1.5 leading-relaxed">
+          <p class="font-bold m-0">Avertissement avant téléchargement :</p>
+          <p class="m-0">Ce fichier GPX est strictement réservé à votre usage personnel. Pour protéger le travail de Greg, votre numéro de commande (<strong>#LAV-2027-4812</strong>) est inscrit dans les métadonnées du fichier.</p>
+          <p class="m-0">Note : un fichier GPX exporté ne reçoit plus les alertes de cols fermés ni les mises à jour communautaires en direct.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button type="button" onclick="closeModal('modal-gpx-warning')" class="py-3 rounded-2xl bg-paper border border-slate-200 text-ink font-semibold text-xs">
+            Annuler
+          </button>
+          <button type="button" onclick="confirmOpenGpxDownload()" class="py-3 rounded-2xl bg-ink text-white font-display font-bold text-xs">
+            Télécharger le GPX
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1028,6 +1060,7 @@
       ownedGuideIds: ['rga', 'vercors', 'ardeche', 'corse-terres'],
       updatedGuideIds: [],
       checkoutGuideId: null,
+      pendingGpxDownload: null,
       currentDay: 1,
       rideMode: false,
       readerTab: 'resto',
@@ -1344,10 +1377,19 @@
     // =========================================================================
     let leafletMap = null;
     let mapLayerGroup = null;
+    let mapRetryCount = 0;
 
     function initOrUpdateMap() {
       const container = document.getElementById('map-container');
-      if (!container || typeof L === 'undefined') return;
+      if (!container) return;
+      if (typeof L === 'undefined') {
+        if (mapRetryCount < 20) {
+          mapRetryCount++;
+          setTimeout(initOrUpdateMap, 250);
+        }
+        return;
+      }
+      mapRetryCount = 0;
 
       if (!leafletMap) {
         leafletMap = L.map('map-container', {
@@ -1971,9 +2013,20 @@ ${trkpts}
     }
 
     function downloadOpenGpx(guideId, guideName) {
+      state.pendingGpxDownload = { guideId, guideName };
+      const titleEl = document.getElementById('gpx-warn-title');
+      if (titleEl) titleEl.textContent = `Exporter « ${guideName} »`;
+      openModal('modal-gpx-warning');
+    }
+
+    function confirmOpenGpxDownload() {
+      if (!state.pendingGpxDownload) return;
+      const { guideId, guideName } = state.pendingGpxDownload;
       const gpx = buildGpxXml(RGA_DAYS[1], 'LAV-2027-4812');
       triggerDownload(gpx, `LesApprentisVoyageurs_${guideId}.gpx`, 'application/gpx+xml');
-      showToast(`GPX ouvert téléchargé pour ${guideName}`);
+      closeModal('modal-gpx-warning');
+      state.pendingGpxDownload = null;
+      showToast(`GPX ouvert téléchargé pour ${guideName} (commande #LAV-2027-4812)`);
     }
 
     // =========================================================================
