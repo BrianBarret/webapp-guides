@@ -10,6 +10,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
+  <!-- Leaflet CSS (Carte gratuite et légère) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -75,6 +78,42 @@
 
     .sheet-transition {
       transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), height 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Styles de la carte Leaflet & marqueurs personnalisés */
+    .leaflet-container {
+      background-color: #eaefe3 !important;
+      font-family: "Source Sans 3", system-ui, sans-serif !important;
+    }
+    .leaflet-control-attribution {
+      font-size: 9px !important;
+      background: rgba(255, 255, 255, 0.78) !important;
+      padding: 1px 5px !important;
+      border-radius: 6px 0 0 0;
+    }
+    .av-poi-pin {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      border: 3px solid #ffffff;
+      box-shadow: 0 3px 10px rgba(17, 24, 28, 0.28);
+      transition: transform 0.15s ease;
+    }
+    .av-poi-pin:hover {
+      transform: scale(1.12);
+    }
+    .av-poi-label {
+      background: rgba(255, 255, 255, 0.94);
+      color: #1b252b;
+      font-weight: 700;
+      font-size: 10.5px;
+      line-height: 1.1;
+      padding: 2px 6px;
+      border-radius: 7px;
+      border: 1px solid rgba(27, 37, 43, 0.15);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+      white-space: nowrap;
     }
 
     @media (max-width: 767px) {
@@ -318,22 +357,9 @@
     <!-- ÉCRAN 4 : LECTEUR COMPLET DU GUIDE RGA ALLER-RETOUR (J0 à J6)       -->
     <!-- =================================================================== -->
     <div id="screen-reader" class="hidden flex-1 flex flex-col overflow-hidden bg-mapbg relative">
-      <!-- Zone Carte SVG interactive (style OpenStreetMap/vectoriel) -->
+      <!-- Zone Carte OpenStreetMap interactive (Leaflet) -->
       <div id="map-container" class="relative w-full flex-1 bg-mapbg overflow-hidden">
-        <svg id="route-map-svg" class="w-full h-full object-cover" viewBox="0 0 400 520" preserveAspectRatio="xMidYMid slice" aria-label="Carte stylisée de l'étape">
-          <rect width="400" height="520" fill="#eaefe3" />
-          <path d="M-20,120 Q90,70 190,115 T420,90 L420,0 L-20,0 Z" fill="#e1e8d8" opacity="0.7" />
-          <path d="M-20,380 Q130,310 250,360 T420,320 L420,520 L-20,520 Z" fill="#e2e9d9" opacity="0.65" />
-          <path d="M-10,210 C80,180 150,230 240,190 C310,160 360,185 415,170" fill="none" stroke="#d5decb" stroke-width="1.5" />
-          <path d="M-10,280 C95,250 185,305 280,265 C340,240 375,260 415,250" fill="none" stroke="#d5decb" stroke-width="1.5" />
-          <ellipse cx="92" cy="95" rx="44" ry="20" fill="#cde0ee" opacity="0.92" />
-          <ellipse cx="320" cy="395" rx="34" ry="15" fill="#cde0ee" opacity="0.7" />
-          <path d="M40,0 L125,180 L90,340 L170,520" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.55" />
-          <path d="M350,0 L285,155 L345,300" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.5" />
-          <path id="map-route-halo" d="M-10,185 C80,165 160,130 235,105 C300,82 350,65 415,45" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" />
-          <path id="map-route-line" d="M-10,185 C80,165 160,130 235,105 C300,82 350,65 415,45" fill="none" stroke="#1f5fbf" stroke-width="5.5" stroke-linecap="round" />
-          <g id="map-pois-layer"></g>
-        </svg>
+        <div id="leaflet-map" class="w-full h-full z-0" aria-label="Carte interactive OpenStreetMap de l'étape"></div>
 
         <!-- Bandeau supérieur flottant du Lecteur -->
         <div class="absolute top-0 inset-x-0 z-20 pt-2.5 px-3 pointer-events-none">
@@ -358,43 +384,45 @@
               </button>
 
               <button type="button" onclick="openMobileSimSheet()" class="md:hidden w-7 h-7 rounded-full bg-white text-ink border border-slate-200 flex items-center justify-center shadow-sm" aria-label="Options démo">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-              </button>
-            </div>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+            </button>
           </div>
 
-          <!-- Sélecteur de jours J0–J6 -->
+          <!-- Sélecteur de jours (J0 à J6) -->
           <div id="day-selector" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 pointer-events-auto"></div>
 
-          <!-- Bandeau Mise à jour validée par Greg -->
-          <div id="guide-update-banner" class="hidden mt-1.5 pointer-events-auto bg-ok text-white rounded-2xl px-3 py-2 shadow-md flex items-center justify-between gap-2">
-            <div class="text-xs font-semibold leading-tight">✓ Mise à jour du guide validée par Greg !</div>
-            <button type="button" onclick="applyGuideUpdate()" class="shrink-0 bg-white text-ok font-bold text-[11px] px-2.5 py-1 rounded-xl active:scale-95 transition">Actualiser</button>
+          <!-- Bannière mise à jour validée par Greg -->
+          <div id="update-banner" class="hidden mt-1.5 bg-cta text-white rounded-2xl px-3 py-2 shadow-md flex items-center justify-between gap-2 pointer-events-auto">
+            <div class="text-xs leading-snug">
+              <span class="font-bold text-sign">✨ Mise à jour validée par Greg</span>
+              <span class="text-slate-200 block text-[11px]">Un signalement a été intégré au guide.</span>
+            </div>
+            <button type="button" onclick="applyGuideUpdate()" class="shrink-0 px-2.5 py-1.5 rounded-xl bg-sign text-cta font-display font-bold text-xs active:scale-95 transition">Mettre à jour</button>
           </div>
 
-          <!-- HUD MODE EN ROULANT -->
-          <div id="driving-hud-top" class="hidden mt-2 pointer-events-auto bg-cta/95 backdrop-blur-md text-white rounded-2xl p-3.5 shadow-lg border border-white/10">
-            <div class="flex items-start justify-between gap-2">
-              <div>
-                <div id="hud-day-title" class="text-[11px] font-bold uppercase tracking-wider text-sign">J1 · Dim. 21 juin</div>
-                <div id="hud-route-title" class="font-display font-extrabold text-lg leading-tight mt-0.5">Thonon → Val-Cenis</div>
+          <!-- HUD Mode En roulant -->
+          <div id="driving-hud-top" class="hidden mt-2 bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-md border border-slate-200/80 pointer-events-auto">
+            <div class="flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div id="hud-day-title" class="text-[11px] font-bold uppercase tracking-wider text-route">J1 · Dim. 21 juin</div>
+                <div id="hud-route-title" class="font-display font-extrabold text-base text-ink truncate">Thonon → Val-Cenis / Bessans</div>
               </div>
-              <div class="text-right">
-                <div id="hud-km-left" class="font-display font-extrabold text-xl leading-none text-white">157 km</div>
-                <div class="text-[11px] text-slate-300 mt-0.5">restants étape</div>
+              <div class="text-right shrink-0">
+                <div id="hud-km-left" class="font-display font-extrabold text-xl text-ink leading-none">157 km</div>
+                <div class="text-[11px] text-muted font-medium">restants</div>
               </div>
             </div>
-            <div id="hud-alert-strip" class="hidden mt-2.5 pt-2 border-t border-white/15 flex items-center gap-1.5 text-xs text-amber-300 font-semibold">
+            <div id="hud-alert-strip" class="hidden mt-2 pt-2 border-t border-slate-100 flex items-center gap-1.5 text-xs font-semibold text-danger">
               <span>⚠️</span>
-              <span id="hud-alert-text" class="truncate"></span>
+              <span id="hud-alert-text" class="truncate">Alerte col</span>
             </div>
           </div>
         </div>
 
-        <!-- Contrôles bas Mode En roulant (3 gros boutons gants moto) -->
-        <div id="driving-controls-bottom" class="hidden absolute bottom-0 inset-x-0 z-20 p-3.5 pb-5 bg-gradient-to-t from-mapbg via-mapbg/90 to-transparent">
+        <!-- Contrôles bas Mode En roulant (3 gros boutons gants moto + marge barre geste Android) -->
+        <div id="driving-controls-bottom" class="hidden absolute bottom-0 inset-x-0 z-20 px-3.5 pt-4 pb-[calc(env(safe-area-inset-bottom,0px)+28px)] bg-gradient-to-t from-mapbg via-mapbg/95 to-transparent">
           <div class="grid grid-cols-3 gap-2.5 mb-2.5">
-            <button type="button" onclick="jumpFromDriving('resto')" class="flex flex-col items-center justify-center min-h-[86px] rounded-2xl bg-white border-2 border-ok/30 shadow-md p-2 active:scale-95 transition">
+            <button type="button" onclick="jumpFromDriving('resto')" class="flex flex-col items-center justify-center min-h-[84px] rounded-2xl bg-white border-2 border-ok/30 shadow-md p-2 active:scale-95 transition">
               <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-[#e3f2e9] text-ok mb-1">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2M7 2v20M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
               </span>
@@ -402,7 +430,7 @@
               <span id="drv-dist-resto" class="text-[11px] font-semibold text-ok mt-0.5">au col</span>
             </button>
 
-            <button type="button" onclick="jumpFromDriving('logement')" class="flex flex-col items-center justify-center min-h-[86px] rounded-2xl bg-white border-2 border-route/30 shadow-md p-2 active:scale-95 transition">
+            <button type="button" onclick="jumpFromDriving('logement')" class="flex flex-col items-center justify-center min-h-[84px] rounded-2xl bg-white border-2 border-route/30 shadow-md p-2 active:scale-95 transition">
               <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-[#e5eefb] text-route mb-1">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v11m0-4h18m0 4v-6a2 2 0 00-2-2H5a2 2 0 00-2 2m4-2V7a2 2 0 012-2h2a2 2 0 012 2v3"/></svg>
               </span>
@@ -410,7 +438,7 @@
               <span id="drv-dist-logement" class="text-[11px] font-semibold text-route mt-0.5">157 km</span>
             </button>
 
-            <button type="button" onclick="jumpFromDriving('carburant')" class="flex flex-col items-center justify-center min-h-[86px] rounded-2xl bg-sign border-2 border-[#dca400] shadow-md p-2 active:scale-95 transition">
+            <button type="button" onclick="jumpFromDriving('carburant')" class="flex flex-col items-center justify-center min-h-[84px] rounded-2xl bg-sign border-2 border-[#dca400] shadow-md p-2 active:scale-95 transition">
               <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-cta/10 text-cta mb-1">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 22V5a2 2 0 012-2h8a2 2 0 012 2v17M3 22h12M15 9h2a2 2 0 012 2v5a2 2 0 002 2v0a2 2 0 002-2V9.83a2 2 0 00-.59-1.42L19 5M6 7h6v5H6V7z"/></svg>
               </span>
@@ -427,7 +455,7 @@
       </div>
 
       <!-- Feuille blanche Mode « À l'arrêt » -->
-      <section id="stopped-sheet" class="sheet-transition relative z-30 -mt-7 bg-white rounded-t-[26px] shadow-[0_-8px_28px_rgba(17,24,28,0.12)] flex flex-col h-[73%]">
+      <section id="stopped-sheet" class="sheet-transition relative z-30 -mt-7 bg-white rounded-t-[26px] shadow-[0_-8px_28px_rgba(17,24,28,0.12)] flex flex-col h-[72%]">
         <button type="button" onclick="setAppMode('driving')" title="Replier pour passer en mode En roulant" class="w-full pt-2.5 pb-1.5 flex justify-center cursor-pointer focus:outline-none">
           <span class="w-10 h-1 rounded-full bg-slate-300"></span>
         </button>
@@ -466,8 +494,8 @@
 
         <div id="sheet-scroll-body" class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4"></div>
 
-        <!-- Bouton CTA noir épinglé en bas -->
-        <div class="px-4 pt-2 pb-4 bg-white border-t border-slate-100">
+        <!-- Bouton CTA noir épinglé en bas (remonté au-dessus de la barre de swipe Android) -->
+        <div class="px-4 pt-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+28px)] bg-white border-t border-slate-100">
           <button id="main-dmd-cta" type="button" onclick="exportDmdGpx()" class="w-full h-[52px] rounded-2xl bg-cta hover:bg-slate-800 text-white font-display font-bold text-[15px] tracking-tight shadow-md flex items-center justify-center gap-2 active:scale-[0.98] transition">
             <span id="main-dmd-cta-text">Envoyer trace J1 + POI vers DMD2</span>
           </button>
@@ -682,15 +710,18 @@
     </div>
 
     <!-- =================================================================== -->
-    <!-- TOAST DE NOTIFICATION NON-INTRUSIF                                  -->
+    <!-- TOAST DE NOTIFICATION NON BLOQUANT                                  -->
     <!-- =================================================================== -->
-    <div id="toast-box" class="pointer-events-none fixed md:absolute bottom-20 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[368px] opacity-0 translate-y-3 transition-all duration-300">
-      <div class="bg-cta text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-xl border border-white/10 flex items-center gap-2.5">
-        <span id="toast-icon" class="text-base shrink-0">✅</span>
-        <span id="toast-msg" class="leading-snug"></span>
+    <div id="toast-box" role="status" aria-live="polite" class="pointer-events-none opacity-0 translate-y-3 transition-all duration-200 absolute bottom-24 inset-x-4 z-50 flex justify-center">
+      <div class="bg-cta text-white text-xs font-semibold px-3.5 py-2.5 rounded-2xl shadow-lg flex items-center gap-2 max-w-[360px]">
+        <span id="toast-icon">✅</span>
+        <span id="toast-msg">Notification</span>
       </div>
     </div>
   </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <!-- ===================================================================== -->
   <!-- SCRIPT APPLICATIF : 27 VRAIS GUIDES + RGA COMPLET (J0–J6)             -->
@@ -740,11 +771,14 @@
     const RGA_GUIDE = [
       {
         id: 'J0', offset: 0, label: 'J0', shortTitle: 'Liaison Thonon-les-Bains', kmDay: 0, duration: 'Liaison', kmRemaining: 0,
-        routeSvg: 'M20,160 C110,145 190,110 290,95 C340,88 375,78 405,70', coords: { lat: 46.3705, lng: 6.4797 },
-        poisSvg: [
-          { type: 'carburant', x: 165, y: 122, label: 'Intermarché' },
-          { type: 'resto', x: 268, y: 100, label: 'Etable du Savoyard' },
-          { type: 'logement', x: 325, y: 88, label: 'Camping St Disdille' },
+        coords: { lat: 46.3705, lng: 6.4797 },
+        trackCoords: [
+          [46.352, 6.445], [46.364, 6.462], [46.3705, 6.4797], [46.382, 6.501], [46.389, 6.512]
+        ],
+        poisMap: [
+          { type: 'carburant', lat: 46.3665, lng: 6.4690, label: 'Intermarché' },
+          { type: 'resto', lat: 46.3865, lng: 6.5065, label: 'Etable du Savoyard' },
+          { type: 'logement', lat: 46.3890, lng: 6.5120, label: 'Camping St Disdille' },
         ],
         resto: {
           distLabel: 'sur place',
@@ -805,12 +839,16 @@
       },
       {
         id: 'J1', offset: 1, label: 'J1', shortTitle: 'Thonon → Val-Cenis / Bessans', kmDay: 264, duration: '5h45', kmRemaining: 157,
-        routeSvg: 'M-10,175 C75,152 165,120 235,98 C300,76 355,62 415,42', coords: { lat: 45.8722, lng: 6.4644 },
-        poisSvg: [
-          { type: 'resto', x: 185, y: 118, label: 'La Porte Des Aravis' },
-          { type: 'carburant', x: 278, y: 84, label: 'Bourg-St-Maurice' },
-          { type: 'alert', x: 325, y: 69, label: "Col de l'Iseran" },
-          { type: 'logement', x: 365, y: 55, label: 'ALPAZUR Bessans' },
+        coords: { lat: 45.8722, lng: 6.4644 },
+        trackCoords: [
+          [46.3705, 6.4797], [46.1585, 6.6695], [46.0117, 6.4461], [45.8722, 6.4644],
+          [45.7586, 6.5333], [45.6914, 6.6919], [45.6186, 6.7686], [45.4171, 7.0308], [45.3204, 6.9936]
+        ],
+        poisMap: [
+          { type: 'resto', lat: 45.8722, lng: 6.4644, label: 'La Porte Des Aravis' },
+          { type: 'carburant', lat: 45.6186, lng: 6.7686, label: 'Bourg-St-Maurice' },
+          { type: 'alert', lat: 45.4171, lng: 7.0308, label: "Col de l'Iseran" },
+          { type: 'logement', lat: 45.3204, lng: 6.9936, label: 'ALPAZUR Bessans' },
         ],
         resto: {
           distLabel: 'au col',
@@ -891,12 +929,16 @@
       },
       {
         id: 'J2', offset: 2, label: 'J2', shortTitle: 'Val-Cenis → Jausiers', kmDay: 215, duration: '5h00', kmRemaining: 141,
-        routeSvg: 'M-10,130 C90,175 180,105 265,135 C330,158 370,115 415,85', coords: { lat: 45.0641, lng: 6.4077 },
-        poisSvg: [
-          { type: 'alert', x: 135, y: 136, label: 'Col du Galibier' },
-          { type: 'carburant', x: 220, y: 124, label: 'Briançon' },
-          { type: 'resto', x: 245, y: 129, label: 'Casa Portugal' },
-          { type: 'logement', x: 362, y: 118, label: 'La Mexicaine' },
+        coords: { lat: 45.0641, lng: 6.4077 },
+        trackCoords: [
+          [45.3204, 6.9936], [45.1912, 6.4446], [45.0641, 6.4077], [45.0352, 6.4050],
+          [44.8984, 6.6436], [44.8199, 6.7351], [44.5390, 6.7026], [44.5048, 6.7876], [44.4182, 6.7330]
+        ],
+        poisMap: [
+          { type: 'alert', lat: 45.0641, lng: 6.4077, label: 'Col du Galibier' },
+          { type: 'carburant', lat: 44.8920, lng: 6.6350, label: 'Briançon Carrefour' },
+          { type: 'resto', lat: 44.8950, lng: 6.6390, label: 'Casa Portugal' },
+          { type: 'logement', lat: 44.4182, lng: 6.7330, label: 'La Mexicaine' },
         ],
         resto: {
           distLabel: '39 km',
@@ -967,12 +1009,16 @@
       },
       {
         id: 'J3', offset: 3, label: 'J3', shortTitle: 'Jausiers → Menton → Levens', kmDay: 242, duration: '6h00', kmRemaining: 162,
-        routeSvg: 'M-10,95 C85,115 160,175 250,145 C320,120 365,165 415,150', coords: { lat: 44.0117, lng: 7.3075 },
-        poisSvg: [
-          { type: 'carburant', x: 108, y: 126, label: 'St-Étienne-de-Tinée' },
-          { type: 'resto', x: 195, y: 155, label: 'RDV Vésubien' },
-          { type: 'carburant', x: 295, y: 136, label: 'Menton Carei' },
-          { type: 'logement', x: 368, y: 156, label: 'Hôtel La Vigneraie' },
+        coords: { lat: 44.0117, lng: 7.3075 },
+        trackCoords: [
+          [44.4182, 6.7330], [44.3267, 6.8075], [44.2564, 6.9247], [44.0672, 7.1258],
+          [44.0117, 7.3075], [43.9781, 7.3917], [43.7745, 7.5043], [43.8797, 7.4125], [43.8606, 7.2248]
+        ],
+        poisMap: [
+          { type: 'carburant', lat: 44.2564, lng: 6.9247, label: 'St-Étienne-de-Tinée' },
+          { type: 'resto', lat: 44.0117, lng: 7.3075, label: 'RDV Vésubien' },
+          { type: 'carburant', lat: 43.7785, lng: 7.4950, label: 'Menton Carei' },
+          { type: 'logement', lat: 43.8606, lng: 7.2248, label: 'Hôtel La Vigneraie' },
         ],
         resto: {
           distLabel: '18 km',
@@ -1046,11 +1092,15 @@
       },
       {
         id: 'J4', offset: 4, label: 'J4', shortTitle: 'Levens → Savines-le-Lac', kmDay: 245, duration: '5h45', kmRemaining: 135,
-        routeSvg: 'M-10,165 C95,120 170,155 245,110 C315,70 365,95 415,65', coords: { lat: 44.0956, lng: 6.9292 },
-        poisSvg: [
-          { type: 'carburant', x: 185, y: 135, label: 'Relais Valberg' },
-          { type: 'resto', x: 268, y: 98, label: 'Pique-nique Champs' },
-          { type: 'logement', x: 365, y: 78, label: 'Les Sources Savines' },
+        coords: { lat: 44.0956, lng: 6.9292 },
+        trackCoords: [
+          [43.8606, 7.2248], [44.0250, 6.9950], [44.0956, 7.0405], [44.0956, 6.9292],
+          [44.1780, 6.7010], [44.2969, 6.5944], [44.5256, 6.4044]
+        ],
+        poisMap: [
+          { type: 'carburant', lat: 44.0956, lng: 6.9292, label: 'Relais Valberg' },
+          { type: 'resto', lat: 44.1780, lng: 6.7010, label: 'Pique-nique Champs' },
+          { type: 'logement', lat: 44.5256, lng: 6.4044, label: 'Les Sources Savines' },
         ],
         resto: {
           distLabel: '52 km',
@@ -1120,12 +1170,16 @@
       },
       {
         id: 'J5', offset: 5, label: 'J5', shortTitle: 'Savines → Fontanil-Cornillon', kmDay: 236, duration: '5h00', kmRemaining: 109,
-        routeSvg: 'M-10,145 C80,100 175,160 255,115 C325,75 370,110 415,85', coords: { lat: 44.8358, lng: 5.4022 },
-        poisSvg: [
-          { type: 'carburant', x: 75, y: 122, label: 'Leclerc Gap' },
-          { type: 'resto', x: 215, y: 132, label: 'Col du Rousset' },
-          { type: 'carburant', x: 318, y: 94, label: 'Échirolles' },
-          { type: 'logement', x: 368, y: 98, label: 'Logis Le Néron' },
+        coords: { lat: 44.8358, lng: 5.4022 },
+        trackCoords: [
+          [44.5256, 6.4044], [44.5594, 6.0798], [44.6850, 5.5250], [44.8358, 5.4022],
+          [44.8975, 5.4014], [45.0706, 5.5503], [45.1497, 5.7167], [45.2558, 5.6656]
+        ],
+        poisMap: [
+          { type: 'carburant', lat: 44.5594, lng: 6.0798, label: 'Leclerc Gap' },
+          { type: 'resto', lat: 44.8358, lng: 5.4022, label: 'Col du Rousset' },
+          { type: 'carburant', lat: 45.1497, lng: 5.7167, label: 'Échirolles' },
+          { type: 'logement', lat: 45.2558, lng: 5.6656, label: 'Logis Le Néron' },
         ],
         resto: {
           distLabel: '42 km',
@@ -1201,11 +1255,15 @@
       },
       {
         id: 'J6', offset: 6, label: 'J6', shortTitle: 'Fontanil → Thonon-les-Bains', kmDay: 230, duration: '5h30', kmRemaining: 98,
-        routeSvg: 'M-10,165 C85,150 155,105 235,112 C310,118 355,80 415,58', coords: { lat: 45.7989, lng: 6.1031 },
-        poisSvg: [
-          { type: 'resto', x: 228, y: 112, label: 'Le Châtillon Semnoz' },
-          { type: 'carburant', x: 282, y: 108, label: 'Intermarché Annecy' },
-          { type: 'logement', x: 368, y: 74, label: 'Thonon-les-Bains' },
+        coords: { lat: 45.7989, lng: 6.1031 },
+        trackCoords: [
+          [45.2558, 5.6656], [45.4631, 5.9258], [45.6836, 5.9756], [45.7647, 6.0508],
+          [45.7989, 6.1031], [45.9080, 6.1180], [46.0669, 6.3133], [46.3705, 6.4797]
+        ],
+        poisMap: [
+          { type: 'resto', lat: 45.7989, lng: 6.1031, label: 'Le Châtillon Semnoz' },
+          { type: 'carburant', lat: 45.9080, lng: 6.1180, label: 'Intermarché Annecy' },
+          { type: 'logement', lat: 46.3890, lng: 6.5120, label: 'Thonon-les-Bains' },
         ],
         resto: {
           distLabel: '28 km',
@@ -1742,6 +1800,9 @@
         renderModeLayout();
         renderSheetContent();
         renderMainCta();
+        if (leafletMap) {
+          setTimeout(() => leafletMap.invalidateSize(), 60);
+        }
       }
       updateBadges();
     }
@@ -1749,75 +1810,118 @@
     function syncSimControls() {
       const deskDate = document.getElementById('sim-start-date');
       const mobDate = document.getElementById('mobile-start-date');
-      if (deskDate && deskDate.value !== state.startDate) deskDate.value = state.startDate;
-      if (mobDate && mobDate.value !== state.startDate) mobDate.value = state.startDate;
+      if (deskDate) deskDate.value = state.startDate;
+      if (mobDate) mobDate.value = state.startDate;
 
-      document.getElementById('app-mode-icon').textContent = state.appMode === 'driving' ? '🛑' : '🏍️';
-      document.getElementById('app-mode-label').textContent = state.appMode === 'driving' ? "À l'arrêt" : 'En roulant';
-
-      const btnOff = document.getElementById('btn-sim-offline');
-      const dotOff = document.getElementById('dot-sim-offline');
-      const lblOff = document.getElementById('label-sim-offline');
-      const appOffPill = document.getElementById('app-offline-pill');
-      const hubOffPill = document.getElementById('hub-offline-pill');
-      const queuedCount = state.reports.filter((r) => r.status === 'queued').length;
-
-      if (state.isOffline) {
-        btnOff.className = 'flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-bold border border-danger/30 bg-[#f9e1df] text-danger transition';
-        dotOff.className = 'w-2 h-2 rounded-full bg-danger';
-        lblOff.textContent = queuedCount > 0 ? `Hors-ligne (${queuedCount} en file)` : 'Hors-ligne';
-        appOffPill.classList.remove('hidden');
-        appOffPill.classList.add('flex');
-        hubOffPill.classList.remove('hidden');
-        hubOffPill.classList.add('flex');
-      } else {
-        btnOff.className = 'flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-semibold border border-slate-200 bg-white text-ink hover:bg-paper transition';
-        dotOff.className = 'w-2 h-2 rounded-full bg-ok';
-        lblOff.textContent = 'En ligne';
-        appOffPill.classList.add('hidden');
-        appOffPill.classList.remove('flex');
-        hubOffPill.classList.add('hidden');
-        hubOffPill.classList.remove('flex');
+      const dot = document.getElementById('dot-sim-offline');
+      const lbl = document.getElementById('label-sim-offline');
+      const btn = document.getElementById('btn-sim-offline');
+      if (dot && lbl && btn) {
+        if (state.isOffline) {
+          dot.className = 'w-2 h-2 rounded-full bg-danger';
+          lbl.textContent = 'Hors-ligne';
+          btn.className = 'flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-semibold border border-danger/30 bg-[#f9e1df] text-danger transition';
+        } else {
+          dot.className = 'w-2 h-2 rounded-full bg-ok';
+          lbl.textContent = 'En ligne';
+          btn.className = 'flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-semibold border border-slate-200 bg-white text-ink transition';
+        }
       }
 
-      const qBadge = document.getElementById('offline-queue-count');
-      if (queuedCount > 0) {
-        qBadge.textContent = queuedCount;
-        qBadge.classList.remove('hidden');
-      } else {
-        qBadge.classList.add('hidden');
+      const hubPill = document.getElementById('hub-offline-pill');
+      if (hubPill) {
+        hubPill.classList.toggle('hidden', !state.isOffline);
+        hubPill.classList.toggle('flex', state.isOffline);
       }
 
-      document.getElementById('guide-version-pill').textContent = state.guideVersion;
-      document.getElementById('guide-update-banner').classList.toggle('hidden', !state.hasPendingGuideUpdate);
+      const appPill = document.getElementById('app-offline-pill');
+      const qCount = document.getElementById('offline-queue-count');
+      const queuedLen = state.reports.filter((r) => r.status === 'queued').length;
+      if (appPill) {
+        appPill.classList.toggle('hidden', !state.isOffline);
+        appPill.classList.toggle('flex', state.isOffline);
+      }
+      if (qCount) {
+        qCount.textContent = queuedLen;
+        qCount.classList.toggle('hidden', queuedLen === 0);
+      }
+
+      const modeIcon = document.getElementById('app-mode-icon');
+      const modeLbl = document.getElementById('app-mode-label');
+      const modeBtn = document.getElementById('app-mode-pill');
+      if (modeIcon && modeLbl && modeBtn) {
+        if (state.appMode === 'driving') {
+          modeIcon.textContent = '🛑';
+          modeLbl.textContent = "À l'arrêt";
+          modeBtn.className = 'flex items-center gap-1 bg-sign text-cta shadow-sm text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition';
+        } else {
+          modeIcon.textContent = '🏍️';
+          modeLbl.textContent = 'En roulant';
+          modeBtn.className = 'flex items-center gap-1 bg-cta text-white shadow-sm text-[11px] font-bold px-2.5 py-1 rounded-full active:scale-95 transition';
+        }
+      }
+
+      const vPill = document.getElementById('guide-version-pill');
+      if (vPill) vPill.textContent = state.guideVersion;
+
+      const uBan = document.getElementById('update-banner');
+      if (uBan) {
+        uBan.classList.toggle('hidden', !state.hasPendingGuideUpdate);
+        uBan.classList.toggle('flex', state.hasPendingGuideUpdate);
+      }
     }
 
     function renderDaySelector() {
       const container = document.getElementById('day-selector');
+      if (!container) return;
       container.innerHTML = RGA_GUIDE.map((day) => {
+        const active = day.id === state.activeDayId;
         const dt = getDayDate(day.offset);
         const alerts = getAutoAlertsForDay(day);
-        const isActive = day.id === state.activeDayId;
-        const hasDanger = alerts.some((a) => a.severity === 'danger');
         return `
-          <button type="button" onclick="selectDay('${day.id}')"
-            class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-sm border transition active:scale-95 ${
-              isActive ? 'bg-cta text-white border-cta' : 'bg-white/95 text-ink border-slate-200/90 hover:bg-white'
-            }">
+          <button type="button" onclick="selectDay('${day.id}')" class="shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold border shadow-xs transition active:scale-95 ${
+            active ? 'bg-cta text-white border-cta' : 'bg-white/95 text-ink border-slate-200/80 hover:bg-white'
+          }">
             <span>${day.label}</span>
-            <span class="${isActive ? 'text-sign' : 'text-muted'} font-semibold text-[11px]">${formatShortDate(dt)}</span>
-            ${alerts.length ? `<span class="w-2 h-2 rounded-full ${hasDanger ? 'bg-danger' : 'bg-sign'}"></span>` : ''}
+            <span class="${active ? 'text-slate-300' : 'text-muted'} font-medium text-[11px]">${dt.getDate()}/${String(dt.getMonth() + 1).padStart(2, '0')}</span>
+            ${alerts.length ? '<span class="w-2 h-2 rounded-full bg-danger" title="Alerte sur cette étape"></span>' : ''}
           </button>
         `;
       }).join('');
     }
 
-    function renderMap() {
-      const day = getCurrentDay();
-      document.getElementById('map-route-halo').setAttribute('d', day.routeSvg);
-      document.getElementById('map-route-line').setAttribute('d', day.routeSvg);
+    let leafletMap = null;
+    let leafletLayerGroup = null;
+    let lastFittedDayMode = '';
 
-      const poisLayer = document.getElementById('map-pois-layer');
+    function initLeafletMapIfNeeded() {
+      if (leafletMap || typeof L === 'undefined') return;
+      const el = document.getElementById('leaflet-map');
+      if (!el) return;
+
+      leafletMap = L.map(el, {
+        zoomControl: false,
+        attributionControl: true,
+        tap: true,
+      }).setView([45.8722, 6.4644], 9);
+
+      // Tuiles Carto Voyager (OpenStreetMap sans blocage de Referer ni clé API)
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd',
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+      }).addTo(leafletMap);
+
+      leafletLayerGroup = L.layerGroup().addTo(leafletMap);
+    }
+
+    function renderMap() {
+      initLeafletMapIfNeeded();
+      if (!leafletMap || !leafletLayerGroup) return;
+
+      const day = getCurrentDay();
+      leafletLayerGroup.clearLayers();
+
       const colorMap = {
         resto: '#1d7a46',
         logement: '#1f5fbf',
@@ -1825,33 +1929,72 @@
         alert: '#b3261e',
       };
 
-      const poisHtml = day.poisSvg
-        .map((p) => {
-          const fill = colorMap[p.type] || '#1f5fbf';
-          const targetTab = p.type === 'alert' ? 'roadbook' : p.type;
-          const isCurrent = state.activeTab === p.type;
-          const r = isCurrent ? 10 : 7.5;
-          return `
-            <g class="cursor-pointer" onclick="clickMapPoi('${targetTab}', '${p.label.replace(/'/g, "\\'")}')">
-              ${isCurrent ? `<circle cx="${p.x}" cy="${p.y}" r="16" fill="${fill}" opacity="0.22" class="gps-ring" />` : ''}
-              <circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${fill}" stroke="#ffffff" stroke-width="3" />
-              <text x="${p.x}" y="${p.y - 14}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1b252b" stroke="#ffffff" stroke-width="3" paint-order="stroke">${p.label}</text>
-            </g>
-          `;
-        })
-        .join('');
+      // Halo blanc + trace bleue de l'étape
+      if (day.trackCoords && day.trackCoords.length > 1) {
+        L.polyline(day.trackCoords, {
+          color: '#ffffff',
+          weight: 9,
+          opacity: 0.9,
+          lineCap: 'round',
+          lineJoin: 'round',
+        }).addTo(leafletLayerGroup);
+
+        L.polyline(day.trackCoords, {
+          color: '#1f5fbf',
+          weight: 5,
+          opacity: 1,
+          lineCap: 'round',
+          lineJoin: 'round',
+        }).addTo(leafletLayerGroup);
+      }
 
       // Position simulée du motard sur la trace
-      const gpsX = day.poisSvg[0]?.x ? Math.max(48, day.poisSvg[0].x - 52) : 90;
-      const gpsY = day.poisSvg[0]?.y ? day.poisSvg[0].y + 18 : 145;
-      const gpsMarker = `
-        <g>
-          <circle cx="${gpsX}" cy="${gpsY}" r="14" fill="#1f5fbf" opacity="0.25" class="gps-ring" />
-          <circle cx="${gpsX}" cy="${gpsY}" r="7" fill="#1f5fbf" stroke="#ffffff" stroke-width="3" />
-        </g>
-      `;
+      const riderPos = day.trackCoords?.[1] || [day.coords.lat, day.coords.lng];
+      const riderIcon = L.divIcon({
+        className: '',
+        html: `<div style="position:relative;width:24px;height:24px;display:flex;align-items:center;justify-content:center;">
+                 <span class="gps-ring" style="position:absolute;width:24px;height:24px;border-radius:9999px;background:#1f5fbf;"></span>
+                 <span style="position:relative;width:13px;height:13px;border-radius:9999px;background:#1f5fbf;border:3px solid #ffffff;box-shadow:0 2px 6px rgba(0,0,0,0.35);"></span>
+               </div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+      });
+      L.marker(riderPos, { icon: riderIcon, interactive: false }).addTo(leafletLayerGroup);
 
-      poisLayer.innerHTML = gpsMarker + poisHtml;
+      // Marqueurs POI interactifs
+      (day.poisMap || []).forEach((p) => {
+        const fill = colorMap[p.type] || '#1f5fbf';
+        const targetTab = p.type === 'alert' ? 'roadbook' : p.type;
+        const isCurrent = state.activeTab === p.type;
+        const size = isCurrent ? 22 : 17;
+
+        const poiIcon = L.divIcon({
+          className: '',
+          html: `<div style="display:flex;flex-direction:column;align-items:center;transform:translate(-50%,-100%);">
+                   <span class="av-poi-label" style="margin-bottom:3px;">${p.label}</span>
+                   <span class="av-poi-pin" style="width:${size}px;height:${size}px;background:${fill};"></span>
+                 </div>`,
+          iconSize: [0, 0],
+          iconAnchor: [0, 0],
+        });
+
+        const marker = L.marker([p.lat, p.lng], { icon: poiIcon }).addTo(leafletLayerGroup);
+        marker.on('click', () => clickMapPoi(targetTab, p.label));
+      });
+
+      // Ajuster le cadrage au changement de jour ou de mode (en tenant compte de la feuille du bas)
+      const fitKey = `${day.id}-${state.appMode}`;
+      if (lastFittedDayMode !== fitKey && day.trackCoords?.length) {
+        lastFittedDayMode = fitKey;
+        const bounds = L.latLngBounds(day.trackCoords);
+        const padBottom = state.appMode === 'stopped' ? 370 : 185;
+        leafletMap.invalidateSize();
+        leafletMap.fitBounds(bounds, {
+          paddingTopLeft: [24, 95],
+          paddingBottomRight: [24, padBottom],
+          maxZoom: 12,
+        });
+      }
     }
 
     function renderModeLayout() {
@@ -2471,16 +2614,25 @@
     }
 
     /**
-     * Tente d'ouvrir le tiroir de partage natif (Android / iOS) avec le fichier GPX
-     * afin de sélectionner directement DMD2 ou OsmAnd en 2 appuis.
-     * Repli automatique vers un téléchargement classique sur PC ou navigateur non compatible.
+     * Tente d'ouvrir le tiroir de partage natif (Android / iOS) avec le fichier GPX.
+     * Note Android Chrome : la liste blanche Web Share autorise `text/xml` / `.xml`
+     * mais bloque souvent l'extension `.gpx`. DMD2 et OsmAnd lisent directement le GPX
+     * même nommé `.gpx.xml` (format GPX 1.1 standard).
      */
-    async function shareOrDownloadGpx(gpxContent, filename, title, text) {
+    async function shareOrDownloadGpx(gpxContent, baseName, title, text) {
+      const gpxFilename = `${baseName}.gpx`;
+      const shareXmlFilename = `${baseName}.gpx.xml`;
+
       if (typeof navigator !== 'undefined' && typeof navigator.share === 'function' && typeof File === 'function') {
-        const mimeCandidates = ['application/gpx+xml', 'text/xml'];
-        for (const mime of mimeCandidates) {
+        const attempts = [
+          { name: gpxFilename, type: 'application/gpx+xml' },
+          { name: shareXmlFilename, type: 'text/xml' },
+          { name: shareXmlFilename, type: 'text/plain' },
+        ];
+
+        for (const item of attempts) {
           try {
-            const file = new File([gpxContent], filename, { type: mime });
+            const file = new File([gpxContent], item.name, { type: item.type });
             if (typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] })) {
               await navigator.share({
                 files: [file],
@@ -2497,7 +2649,7 @@
         }
       }
 
-      triggerGpxDownload(gpxContent, filename);
+      triggerGpxDownload(gpxContent, gpxFilename);
       return 'downloaded';
     }
 
@@ -2533,10 +2685,10 @@
       const wptsXml = waypoints.map((w) => `  <wpt lat="${w.lat}" lon="${w.lon}">\n    <name>${escapeXml(w.name)}</name>\n    <desc>${escapeXml(w.desc)}</desc>\n    <sym>${escapeXml(w.sym)}</sym>\n  </wpt>`).join('\n');
       const gpx = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Les Apprentis Voyageurs PWA" xmlns="http://www.topografix.com/GPX/1/1">\n  <metadata>\n    <name>RGA ${escapeXml(day.id)} - ${escapeXml(day.shortTitle)}</name>\n    <desc>GPX fusionne (trace + POI avec telephones) pour DMD2. Commande: CMD-AV-2026-8419</desc>\n  </metadata>\n${wptsXml}\n  <trk>\n    <name>Trace ${escapeXml(day.id)}</name>\n    <trkseg>\n${trkpts}\n    </trkseg>\n  </trk>\n</gpx>`;
 
-      const filename = `RGA_${day.id}_DMD2_fusionne.gpx`;
+      const baseName = `RGA_${day.id}_DMD2_fusionne`;
       const result = await shareOrDownloadGpx(
         gpx,
-        filename,
+        baseName,
         `RGA ${day.id} — ${day.shortTitle}`,
         `Trace ${day.id} + ${waypoints.length} POI (restos, station, hébergement) prêts pour DMD2 / OsmAnd.`
       );
@@ -2546,7 +2698,7 @@
       } else if (result === 'aborted') {
         showToast('ℹ️', 'Partage annulé.');
       } else {
-        showToast('🧭', `GPX fusionné ${day.id} (${waypoints.length} POI) téléchargé — appuyez sur « Ouvrir » pour DMD2.`);
+        showToast('🧭', `GPX ${day.id} (${waypoints.length} POI) téléchargé — appuyez sur « Ouvrir » en bas pour DMD2.`);
       }
     }
 
