@@ -1,0 +1,17 @@
+{
+  "name": "Les Apprentis Voyageurs — Guides Moto",
+  "short_name": "Apprentis Moto",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#182026",
+  "theme_color": "#182026",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./logo-greg.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    }
+  ]
+}
