@@ -642,10 +642,10 @@
        2. CATALOGUE COMPLET DES 28 GUIDES (LIENS BOUTIQUE OFFICIELS)
        ========================================================= */
     const CATALOG_GUIDES = [
-      { id: 'vercors', title: 'Le Vercors sur un weekend', region: 'france', days: '2 jours', km: '~500 km', price: 'Offert', owned: true, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/le-vercors-sur-un-weekend/' },
+      { id: 'vercors', title: 'Le Vercors sur un weekend (v2)', region: 'france', days: '2 jours (+J0/J3)', km: '504 km', price: 'Offert', owned: true, ready: true, dataUrl: './guides/vercors/guide.json', url: 'https://lesapprentisvoyageurs.fr/produit/le-vercors-sur-un-weekend/' },
       { id: 'rga', title: 'La RGA Aller-Retour (v2027-1)', region: 'france', days: '6 jours (+J0/J7)', km: '1 477 km', price: '36,40 €', owned: true, ready: true, dataUrl: './guides/rga/guide.json', url: 'https://lesapprentisvoyageurs.fr/produit/la-rga-a-moto-road-trip-de-6-jours-dans-les-alpes/' },
       { id: 'ardeche', title: 'Ardèche : 42 cols sur 3 jours', region: 'france', days: '3 jours', km: '750 km', price: '21,80 €', owned: true, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-en-ardeche-en-42-cols-sur-3-jours/' },
-      { id: 'cevennes', title: 'Le meilleur des Cévennes', region: 'france', days: '3 jours', km: '~750 km', price: '21,80 €', owned: true, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/le-meilleur-des-cevennes-a-moto/' },
+      { id: 'cevennes', title: 'Le meilleur des Cévennes (v2)', region: 'france', days: '3 jours (+J0/J4)', km: '779 km', price: '21,80 €', owned: true, ready: true, dataUrl: './guides/cevennes/guide.json', url: 'https://lesapprentisvoyageurs.fr/produit/le-meilleur-des-cevennes-a-moto/' },
       { id: 'auvergne', title: 'Auvergne sur 3 jours (+Livradois)', region: 'france', days: '3 jours', km: '~800 km', price: '21,80 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-en-auvergne-sur-3-jours-a-moto-livradois/' },
       { id: 'drome', title: 'Cols de la Drôme', region: 'france', days: '4 jours', km: '~950 km', price: '21,80 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-cols-de-la-drome/' },
       { id: 'verdon', title: 'Entre Verdon et Ventoux', region: 'france', days: '3 jours', km: '~800 km', price: '21,80 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/entre-verdon-et-ventoux-road-trip-moto/' },
@@ -1568,7 +1568,7 @@
           </div>
 
           <div class="space-y-2">
-            ${stepsHtml}
+            ${stepsHtml || `<div class="bg-slate-50 rounded-2xl p-4 text-xs text-muted text-center">Journée libre / retour maison (${escHtml(day.code)}).</div>`}
           </div>
         </div>
 

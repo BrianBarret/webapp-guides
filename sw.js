@@ -1,10 +1,12 @@
-const CACHE_NAME = 'lav-pwa-v6';
+const CACHE_NAME = 'lav-pwa-v7';
 const APP_ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './logo-greg.webp',
-  './guides/rga/guide.json'
+  './guides/rga/guide.json',
+  './guides/vercors/guide.json',
+  './guides/cevennes/guide.json'
 ];
 const EXTERNAL_ASSETS = [
   'https://cdn.tailwindcss.com',
