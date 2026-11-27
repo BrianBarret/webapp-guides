@@ -1774,14 +1774,6 @@ self.addEventListener('fetch', e => {
       triggerDownload('sw.js', swCode, 'application/javascript');
       showToast('sw.js (délai 3s + cache externe) téléchargé');
     }
-        return res;
-      })
-      .catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
-  );
-});`;
-      triggerDownload('sw.js', swCode, 'application/javascript');
-      showToast('sw.js (réseau d\'abord) téléchargé');
-    }
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
