@@ -1790,20 +1790,38 @@
        9. EXPORT GPX RÉEL (TRACE HAUTE PRÉCISION + POI MIXÉS POUR DMD2)
        ========================================================= */
     function collectDayWaypoints(day) {
-      const seen = new Set();
+      const byCoord = new Map();
       const out = [];
-      const pushWpt = (lat, lng, name, desc, sym) => {
-        if (typeof lat !== 'number' || typeof lng !== 'number') return;
-        const key = `${lat.toFixed(5)}_${lng.toFixed(5)}_${String(name || '').toLowerCase()}`;
-        if (seen.has(key)) return;
-        seen.add(key);
-        out.push({ lat, lng, name, desc: desc || '', sym: sym || '' });
+      const coordKey = (lat, lng) => `${lat.toFixed(4)}_${lng.toFixed(4)}`;
+
+      // 1. Partir des vrais waypoints du fichier Points GPS (noms et symboles exacts, zéro doublon)
+      (day.gpxWaypoints || []).forEach(w => {
+        if (typeof w.lat !== 'number' || typeof w.lng !== 'number') return;
+        const k = coordKey(w.lat, w.lng);
+        if (byCoord.has(k)) return;
+        const item = { lat: w.lat, lng: w.lng, name: w.name, desc: w.desc || '', sym: w.sym || '' };
+        byCoord.set(k, item);
+        out.push(item);
+      });
+
+      // 2. Enrichir la description avec la note/téléphone Excel (sans jamais créer de point en double)
+      const enrichFromExcel = (list) => {
+        (list || []).forEach(p => {
+          if (typeof p.lat !== 'number' || typeof p.lng !== 'number') return;
+          const k = coordKey(p.lat, p.lng);
+          const existing = byCoord.get(k);
+          const extra = [p.phone, p.note].filter(Boolean).join(' · ');
+          if (existing) {
+            if (extra && !existing.desc.includes(extra)) {
+              existing.desc = existing.desc ? `${existing.desc} · ${extra}` : extra;
+            }
+          }
+        });
       };
 
-      (day.gpxWaypoints || []).forEach(w => pushWpt(w.lat, w.lng, w.name, w.desc, w.sym));
-      (day.restos || []).forEach(r => pushWpt(r.lat, r.lng, `[Resto] ${r.name}`, r.note, ''));
-      (day.lodgings || []).forEach(l => pushWpt(l.lat, l.lng, `[Nuit] ${l.name}`, l.note, ''));
-      (day.fuel || []).forEach(f => pushWpt(f.lat, f.lng, `[Carb.] ${f.name}`, f.note, ''));
+      enrichFromExcel(day.restos);
+      enrichFromExcel(day.lodgings);
+      enrichFromExcel(day.fuel);
 
       return out;
     }

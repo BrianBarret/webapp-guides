@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lav-pwa-v5';
+const CACHE_NAME = 'lav-pwa-v6';
 const APP_ASSETS = [
   './',
   './index.html',
