@@ -575,6 +575,8 @@
     };
 
     let state = loadLocal();
+    // Toujours repartir en réseau réel au démarrage pour éviter de rester bloqué en mode simulé
+    state.offline = false;
     let leafletLoaded = false;
     let mapInstance = null;
     let mapLayerGroup = null;
@@ -815,12 +817,34 @@
        ========================================================= */
     function showToast(msg) {
       const el = document.getElementById('toast');
-      el.textContent = msg;
+      el.textContent = String(msg ?? '');
       el.classList.remove('opacity-0', 'translate-y-2');
       clearTimeout(window.__toastTimer);
       window.__toastTimer = setTimeout(() => {
         el.classList.add('opacity-0', 'translate-y-2');
       }, 2600);
+    }
+
+    // Échappement HTML systématique pour éviter toute injection XSS
+    function escHtml(val) {
+      return String(val ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[ch]));
+    }
+
+    // Échappement XML strict pour la génération des fichiers GPX
+    function escXml(val) {
+      return String(val ?? '').replace(/[<>&'"]/g, ch => ({
+        '<': '&lt;',
+        '>': '&gt;',
+        '&': '&amp;',
+        "'": '&apos;',
+        '"': '&quot;'
+      }[ch]));
     }
 
     function applyPreferences() {
@@ -1000,7 +1024,7 @@
 
       const list = document.getElementById('catalog-list');
       if (!filtered.length) {
-        list.innerHTML = `<div class="text-center py-8 text-xs text-muted">Aucun guide trouvé pour "${q}".</div>`;
+        list.innerHTML = `<div class="text-center py-8 text-xs text-muted">Aucun guide trouvé pour "${escHtml(q)}".</div>`;
         return;
       }
 
@@ -1009,15 +1033,15 @@
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5 mb-0.5">
               <span class="text-[11px]">${g.region === 'france' ? '🇫🇷' : '🌍'}</span>
-              <span class="text-[11px] font-semibold text-muted">${g.days} · ${g.km}</span>
+              <span class="text-[11px] font-semibold text-muted">${escHtml(g.days)} · ${escHtml(g.km)}</span>
               ${g.owned ? '<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-ok text-[10px] font-bold">Déjà dans vos guides</span>' : ''}
             </div>
-            <h3 class="font-bold text-sm text-ink leading-snug">${g.title}</h3>
-            <p class="text-xs font-extrabold text-amber-700 mt-0.5">${g.price}</p>
+            <h3 class="font-bold text-sm text-ink leading-snug">${escHtml(g.title)}</h3>
+            <p class="text-xs font-extrabold text-amber-700 mt-0.5">${escHtml(g.price)}</p>
           </div>
           ${g.owned
             ? `<button type="button" onclick="${g.ready ? "showScreen('reader')" : "showScreen('library')"}" class="px-3.5 py-2.5 rounded-xl bg-ink text-white text-xs font-bold shrink-0">Ouvrir</button>`
-            : `<a href="${g.url}" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2.5 rounded-xl bg-sign text-ink text-xs font-extrabold shrink-0 text-center">Voir sur ma boutique ↗</a>`
+            : `<a href="${escHtml(g.url)}" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2.5 rounded-xl bg-sign text-ink text-xs font-extrabold shrink-0 text-center">Voir sur ma boutique ↗</a>`
           }
         </article>
       `).join('');
@@ -1126,20 +1150,20 @@
 
     function renderPlaceCard(item, badgePrefix) {
       const extraNote = state.approvedNotes[item.name]
-        ? `<p class="text-[11px] font-semibold text-ok mt-1">✓ Mise à jour Greg : ${state.approvedNotes[item.name]}</p>`
+        ? `<p class="text-[11px] font-semibold text-ok mt-1">✓ Mise à jour Greg : ${escHtml(state.approvedNotes[item.name])}</p>`
         : '';
 
       if (item.choice) {
         return `
           <div class="rounded-2xl border-2 border-sign bg-white p-3.5 flex items-center justify-between gap-3">
             <div class="min-w-0 flex-1">
-              <p class="text-xs font-bold text-ink">${badgePrefix}${item.time ? ', ' + item.time : ''}</p>
-              <h4 class="font-display font-extrabold text-base text-ink leading-snug mt-0.5">${item.name}</h4>
-              <p class="text-xs text-muted mt-0.5">${item.note} ${item.phone ? '· ' + item.phone : ''}</p>
+              <p class="text-xs font-bold text-ink">${escHtml(badgePrefix)}${item.time ? ', ' + escHtml(item.time) : ''}</p>
+              <h4 class="font-display font-extrabold text-base text-ink leading-snug mt-0.5">${escHtml(item.name)}</h4>
+              <p class="text-xs text-muted mt-0.5">${escHtml(item.note)} ${item.phone ? '· ' + escHtml(item.phone) : ''}</p>
               ${extraNote}
             </div>
             ${item.phone ? `
-              <a href="tel:${item.phone.replace(/\s+/g, '')}" aria-label="Appeler ${item.name}" class="phone-btn w-11 h-11 rounded-2xl border border-slate-200 bg-white text-ink flex items-center justify-center shrink-0 shadow-sm active:scale-95">
+              <a href="tel:${escHtml(item.phone.replace(/\s+/g, ''))}" aria-label="Appeler ${escHtml(item.name)}" class="phone-btn w-11 h-11 rounded-2xl border border-slate-200 bg-white text-ink flex items-center justify-center shrink-0 shadow-sm active:scale-95">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .95.68l1.5 4.49a1 1 0 0 1-.5 1.21l-2.26 1.13a11.04 11.04 0 0 0 5.52 5.52l1.13-2.26a1 1 0 0 1 1.21-.5l4.49 1.5a1 1 0 0 1 .68.95V19a2 2 0 0 1-2 2h-1C9.72 21 3 14.28 3 6V5z"/></svg>
               </a>
             ` : ''}
@@ -1150,12 +1174,12 @@
       return `
         <div class="py-3 border-b border-slate-200/80 flex items-center justify-between gap-3">
           <div class="min-w-0 flex-1">
-            <h4 class="font-bold text-sm text-ink">${item.name}</h4>
-            <p class="text-xs text-muted mt-0.5">${item.note} ${item.phone ? '· ' + item.phone : ''}</p>
+            <h4 class="font-bold text-sm text-ink">${escHtml(item.name)}</h4>
+            <p class="text-xs text-muted mt-0.5">${escHtml(item.note)} ${item.phone ? '· ' + escHtml(item.phone) : ''}</p>
             ${extraNote}
           </div>
           ${item.phone ? `
-            <a href="tel:${item.phone.replace(/\s+/g, '')}" aria-label="Appeler ${item.name}" class="phone-btn w-11 h-11 rounded-2xl border border-slate-200 bg-white text-ink flex items-center justify-center shrink-0">
+            <a href="tel:${escHtml(item.phone.replace(/\s+/g, ''))}" aria-label="Appeler ${escHtml(item.name)}" class="phone-btn w-11 h-11 rounded-2xl border border-slate-200 bg-white text-ink flex items-center justify-center shrink-0">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .95.68l1.5 4.49a1 1 0 0 1-.5 1.21l-2.26 1.13a11.04 11.04 0 0 0 5.52 5.52l1.13-2.26a1 1 0 0 1 1.21-.5l4.49 1.5a1 1 0 0 1 .68.95V19a2 2 0 0 1-2 2h-1C9.72 21 3 14.28 3 6V5z"/></svg>
             </a>
           ` : ''}
@@ -1489,24 +1513,54 @@
         ...day.restos.map(r => ({ name: `[Resto] ${r.name}`, desc: r.note, lat: r.lat, lng: r.lng })),
         ...day.lodgings.map(l => ({ name: `[Dodo] ${l.name}`, desc: l.note, lat: l.lat, lng: l.lng })),
         ...day.fuel.map(f => ({ name: `[Essence] ${f.name}`, desc: f.note, lat: f.lat, lng: f.lng }))
-      ].filter(w => w.lat && w.lng);
+      ].filter(w => typeof w.lat === 'number' && typeof w.lng === 'number');
 
       const wptXml = wpts.map(w =>
-        `  <wpt lat="${w.lat}" lon="${w.lng}"><name>${w.name.replace(/&/g, '&amp;')}</name><desc>${(w.desc || '').replace(/&/g, '&amp;')}</desc></wpt>`
+        `  <wpt lat="${escXml(w.lat)}" lon="${escXml(w.lng)}"><name>${escXml(w.name)}</name><desc>${escXml(w.desc || '')}</desc></wpt>`
       ).join('\n');
 
-      const trkXml = (day.coords || []).map(c => `      <trkpt lat="${c[0]}" lon="${c[1]}"></trkpt>`).join('\n');
+      const trkXml = (day.coords || []).map(c => `      <trkpt lat="${escXml(c[0])}" lon="${escXml(c[1])}"></trkpt>`).join('\n');
 
       return `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="Les Apprentis Voyageurs — Commande #LAV-2027-4812" xmlns="http://www.topografix.com/GPX/1/1">
-  <metadata><name>RGA ${day.code} — ${day.route}</name></metadata>
+  <metadata><name>${escXml(`RGA ${day.code} — ${day.route}`)}</name></metadata>
 ${wptXml}
   <trk>
-    <name>RGA ${day.code} — ${day.route}</name>
+    <name>${escXml(`RGA ${day.code} — ${day.route}`)}</name>
     <trkseg>
 ${trkXml}
     </trkseg>
   </trk>
+</gpx>`;
+    }
+
+    function buildFullGuideGpxXml(guideTitle, daysList) {
+      const allWpts = [];
+      const allTracks = [];
+
+      (daysList || []).forEach(d => {
+        const wpts = [
+          ...(d.restos || []).map(r => ({ name: `${d.code} [Resto] ${r.name}`, desc: r.note, lat: r.lat, lng: r.lng })),
+          ...(d.lodgings || []).map(l => ({ name: `${d.code} [Dodo] ${l.name}`, desc: l.note, lat: l.lat, lng: l.lng })),
+          ...(d.fuel || []).map(f => ({ name: `${d.code} [Essence] ${f.name}`, desc: f.note, lat: f.lat, lng: f.lng }))
+        ].filter(w => typeof w.lat === 'number' && typeof w.lng === 'number');
+        allWpts.push(...wpts);
+
+        const segs = (d.coords || []).map(c => `      <trkpt lat="${escXml(c[0])}" lon="${escXml(c[1])}"></trkpt>`).join('\n');
+        if (segs) {
+          allTracks.push(`  <trk>\n    <name>${escXml(`${d.code} — ${d.route}`)}</name>\n    <trkseg>\n${segs}\n    </trkseg>\n  </trk>`);
+        }
+      });
+
+      const wptXml = allWpts.map(w =>
+        `  <wpt lat="${escXml(w.lat)}" lon="${escXml(w.lng)}"><name>${escXml(w.name)}</name><desc>${escXml(w.desc || '')}</desc></wpt>`
+      ).join('\n');
+
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Les Apprentis Voyageurs — Commande #LAV-2027-4812" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata><name>${escXml(`${guideTitle} — Intégrale`)}</name></metadata>
+${wptXml}
+${allTracks.join('\n')}
 </gpx>`;
     }
 
@@ -1538,10 +1592,10 @@ ${trkXml}
 
     function confirmDownloadFullGPX() {
       closeModal('modal-gpx-warn');
-      const gpx = buildGpxXml(RGA_DAYS[1]);
+      const gpx = buildFullGuideGpxXml(pendingGpxGuideTitle, RGA_DAYS);
       const safe = pendingGpxGuideTitle.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-      triggerDownload(`LAV_${safe}_LAV20274812.gpx`, gpx, 'application/gpx+xml');
-      showToast('Fichier GPX complet téléchargé (#LAV-2027-4812)');
+      triggerDownload(`LAV_${safe}_Complet_LAV20274812.gpx`, gpx, 'application/gpx+xml');
+      showToast('Fichier GPX complet (J0–J6) téléchargé (#LAV-2027-4812)');
     }
 
     /* =========================================================
@@ -1566,7 +1620,7 @@ ${trkXml}
         ...day.fuel.map(f => f.name),
         `Route / Cols (${day.code})`
       ];
-      select.innerHTML = places.map(p => `<option value="${p}">${p}</option>`).join('');
+      select.innerHTML = places.map(p => `<option value="${escHtml(p)}">${escHtml(p)}</option>`).join('');
       document.getElementById('report-note').value = '';
       document.getElementById('modal-report').classList.remove('hidden');
     }
@@ -1605,16 +1659,16 @@ ${trkXml}
         list.innerHTML = state.reports.map(r => `
           <div class="rounded-2xl border border-slate-200 p-3 space-y-2 bg-slate-50">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-extrabold text-ink">${r.day} · ${r.place}</span>
+              <span class="text-xs font-extrabold text-ink">${escHtml(r.day)} · ${escHtml(r.place)}</span>
               <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${r.status === 'approved' ? 'bg-emerald-100 text-ok' : 'bg-amber-100 text-amber-800'}">
                 ${r.status === 'approved' ? 'Publié' : 'En attente'}
               </span>
             </div>
-            <p class="text-xs text-ink">${r.note}</p>
+            <p class="text-xs text-ink">${escHtml(r.note)}</p>
             ${r.status === 'pending' ? `
               <div class="grid grid-cols-2 gap-2">
-                <button type="button" onclick="moderateReport('${r.id}', true)" class="py-2 rounded-xl bg-ok text-white text-xs font-bold">✓ Approuver</button>
-                <button type="button" onclick="moderateReport('${r.id}', false)" class="py-2 rounded-xl bg-white border border-slate-200 text-ink text-xs font-bold">Ignorer</button>
+                <button type="button" onclick="moderateReport('${escHtml(r.id)}', true)" class="py-2 rounded-xl bg-ok text-white text-xs font-bold">✓ Approuver</button>
+                <button type="button" onclick="moderateReport('${escHtml(r.id)}', false)" class="py-2 rounded-xl bg-white border border-slate-200 text-ink text-xs font-bold">Ignorer</button>
               </div>
             ` : ''}
           </div>
@@ -1644,6 +1698,8 @@ ${trkXml}
        ========================================================= */
     function downloadManifestFile() {
       const manifest = {
+        id: './',
+        scope: './',
         name: 'Les Apprentis Voyageurs — Guides Moto',
         short_name: 'Apprentis Moto',
         start_url: './index.html',
@@ -1652,7 +1708,9 @@ ${trkXml}
         theme_color: '#182026',
         orientation: 'portrait',
         icons: [
-          { src: './logo-greg.webp', sizes: '512x512', type: 'image/webp', purpose: 'any maskable' }
+          { src: './logo-greg.webp', sizes: '192x192', type: 'image/webp', purpose: 'any' },
+          { src: './logo-greg.webp', sizes: '512x512', type: 'image/webp', purpose: 'any' },
+          { src: './logo-greg.webp', sizes: '512x512', type: 'image/webp', purpose: 'maskable' }
         ]
       };
       triggerDownload('manifest.json', JSON.stringify(manifest, null, 2), 'application/json');
@@ -1660,11 +1718,18 @@ ${trkXml}
     }
 
     function downloadSwFile() {
-      const swCode = `const CACHE_NAME = 'lav-pwa-v2';
+      const swCode = `const CACHE_NAME = 'lav-pwa-v3';
 const ASSETS = ['./', './index.html', './manifest.json', './logo-greg.webp'];
+const NET_TIMEOUT_MS = 3000;
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(ASSETS)).catch(() => {}));
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(async c => {
+      for (const url of ASSETS) {
+        try { await c.add(url); } catch (err) { /* Asset optionnel */ }
+      }
+    })
+  );
   self.skipWaiting();
 });
 
@@ -1676,21 +1741,39 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Stratégie "Réseau d'abord, cache si hors-ligne" :
-// - Avec réseau : charge toujours le dernier index.html et met à jour le cache.
-// - Hors-ligne : ouvre instantanément la copie enregistrée.
+// Stratégie "Réseau d'abord avec délai 3s en montagne, repli sur le cache" :
+// Met aussi en cache les ressources externes (Tailwind, Leaflet, polices, tuiles)
+// pour préserver la mise en page et la carte même sans réseau.
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  const url = new URL(e.request.url);
-  if (url.origin !== self.location.origin) return;
+  const reqUrl = new URL(e.request.url);
+  if (reqUrl.pathname.includes('/wp-json/')) return;
+
+  const netPromise = fetch(e.request)
+    .then(res => {
+      if (res && (res.ok || res.type === 'opaque')) {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then(c => c.put(e.request, copy)).catch(() => {});
+      }
+      return res;
+    });
+
+  const timeoutPromise = new Promise(resolve => {
+    setTimeout(async () => {
+      const cached = await caches.match(e.request);
+      if (cached) resolve(cached);
+    }, NET_TIMEOUT_MS);
+  });
 
   e.respondWith(
-    fetch(e.request)
-      .then(res => {
-        if (res && res.ok) {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then(c => c.put(e.request, copy));
-        }
+    Promise.race([netPromise, timeoutPromise])
+      .then(r => r || netPromise)
+      .catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
+  );
+});`;
+      triggerDownload('sw.js', swCode, 'application/javascript');
+      showToast('sw.js (délai 3s + cache externe) téléchargé');
+    }
         return res;
       })
       .catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
