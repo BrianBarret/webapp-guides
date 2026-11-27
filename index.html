@@ -164,6 +164,15 @@
     #toast {
       transition: opacity 0.2s ease, transform 0.2s ease;
     }
+
+    /* Bloc note dépliable */
+    details.note-box > summary {
+      list-style: none;
+      cursor: pointer;
+    }
+    details.note-box > summary::-webkit-details-marker {
+      display: none;
+    }
   </style>
 </head>
 <body class="flex items-center justify-center">
@@ -302,13 +311,13 @@
     </section>
 
     <!-- =========================================================
-         ÉCRAN 4 : LECTEUR DU GUIDE (LA RGA ALLER-RETOUR)
+         ÉCRAN 4 : LECTEUR DU GUIDE (LA RGA ALLER-RETOUR v2027-1)
          ========================================================= -->
     <section id="screen-reader" class="hidden flex-1 relative overflow-hidden">
       <!-- Carte Leaflet plein fond -->
       <div id="rga-map"></div>
 
-      <!-- Bandeau flottant du haut sur 2 lignes (zéro chevauchement en A+) -->
+      <!-- Bandeau flottant du haut sur 2 lignes -->
       <div class="absolute top-2.5 left-2.5 right-2.5 z-[450] space-y-2 pointer-events-none">
         <div class="bg-white/95 rounded-2xl shadow-md border border-slate-200/90 p-2.5 pointer-events-auto space-y-2">
           <!-- Ligne 1 : Retour + Titre complet + En roulant -->
@@ -317,28 +326,30 @@
               ←
             </button>
             <div class="min-w-0 flex-1">
-              <h2 class="font-display font-extrabold text-sm text-ink truncate leading-tight">La RGA Aller-Retour</h2>
-              <p id="reader-subtitle" class="text-[11px] text-muted truncate">J1 · Thonon → Val d'Isère · 245 km</p>
+              <h2 class="font-display font-extrabold text-sm text-ink truncate leading-tight">La RGA Aller-Retour (v2027-1)</h2>
+              <p id="reader-subtitle" class="text-[11px] text-muted truncate">264km - 5h45 : début de la RGA</p>
             </div>
             <button type="button" id="btn-riding-mode" onclick="toggleRidingMode()" class="px-3.5 py-2.5 rounded-xl bg-ink text-white text-xs font-bold shrink-0 shadow-sm active:scale-95">
               En roulant
             </button>
           </div>
-          <!-- Ligne 2 : État réseau + Outils rapides -->
-          <div class="flex items-center justify-between gap-1.5 pt-1 border-t border-slate-100">
-            <span id="reader-net-badge" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-ok border border-emerald-200 text-[11px] font-bold">
+          <!-- Ligne 2 : État réseau + Choix date J1 + Outils rapides -->
+          <div class="flex items-center justify-between gap-1.5 pt-1 border-t border-slate-100 flex-wrap">
+            <span id="reader-net-badge" class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-50 text-ok border border-emerald-200 text-[11px] font-bold">
               ● Prêt hors-ligne
             </span>
-            <div class="flex items-center gap-1">
-              <button type="button" onclick="toggleLargeUI()" class="btn-a-toggle px-2.5 py-1.5 rounded-lg bg-slate-100 text-ink text-xs font-bold">A+</button>
-              <button type="button" onclick="toggleDarkUI()" class="btn-dark-toggle px-2.5 py-1.5 rounded-lg bg-slate-100 text-ink text-xs font-bold" title="Mode nuit">☾</button>
-              <button type="button" onclick="toggleFullscreen()" class="px-2.5 py-1.5 rounded-lg bg-slate-100 text-ink text-xs font-bold" title="Plein écran">⛶</button>
-              <button type="button" onclick="openDemoModal()" class="px-2.5 py-1.5 rounded-lg bg-slate-100 text-ink text-xs font-bold">Démo</button>
+            <div class="flex items-center gap-1 flex-wrap">
+              <label for="j1-start-date" class="sr-only">Date de départ J1</label>
+              <input id="j1-start-date" type="date" onchange="setJ1StartDate(this.value)" title="Choisir la date du Jour 1 (J1) pour extrapoler J0 à J7" class="px-2 py-1 rounded-lg bg-slate-100 border border-slate-200 text-[11px] font-bold text-ink focus:outline-none focus:border-sign" />
+              <button type="button" onclick="toggleLargeUI()" class="btn-a-toggle px-2 py-1.5 rounded-lg bg-slate-100 text-ink text-xs font-bold">A+</button>
+              <button type="button" onclick="toggleDarkUI()" class="btn-dark-toggle px-2 py-1.5 rounded-lg bg-slate-100 text-ink text-xs font-bold" title="Mode nuit">☾</button>
+              <button type="button" onclick="toggleFullscreen()" class="px-2 py-1.5 rounded-lg bg-slate-100 text-ink text-xs font-bold" title="Plein écran">⛶</button>
+              <button type="button" onclick="openDemoModal()" class="px-2 py-1.5 rounded-lg bg-slate-100 text-ink text-xs font-bold">Démo</button>
             </div>
           </div>
         </div>
 
-        <!-- Sélecteur des jours J0 à J6 -->
+        <!-- Sélecteur des jours J0 à J7 -->
         <div id="day-pills" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pointer-events-auto pb-0.5"></div>
       </div>
 
@@ -382,13 +393,13 @@
           </div>
         </div>
 
-        <!-- MODE EN ROULANT : Prochaine étape + 3 gros boutons -->
+        <!-- MODE EN ROULANT : Prochaine étape + 3 gros boutons + DMD2 -->
         <div id="panel-riding" class="hidden flex-1 flex flex-col justify-between px-4 pb-5">
           <div id="riding-next-box" class="bg-amber-50 border border-sign rounded-2xl p-3 flex items-center justify-between gap-2">
             <div class="min-w-0">
               <p class="text-[11px] font-bold uppercase tracking-wide text-amber-800">Prochaine étape</p>
-              <p id="riding-next-title" class="text-sm font-extrabold text-ink truncate">Col des Aravis · Déjeuner</p>
-              <p id="riding-next-sub" class="text-xs text-muted truncate">La Porte Des Aravis · 04 50 02 47 15</p>
+              <p id="riding-next-title" class="text-sm font-extrabold text-ink truncate">Col des Aravis · Repas du midi</p>
+              <p id="riding-next-sub" class="text-xs text-muted truncate">"La Porte Des Aravis" · +33 4 50 02 47 15</p>
             </div>
             <button type="button" onclick="toggleRidingMode()" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-ink shrink-0">
               Détails ↑
@@ -420,7 +431,6 @@
     <!-- =========================================================
          MODALES : DÉMO / PWA, SIGNALEMENT, MODÉRATION GREG, GPX
          ========================================================= -->
-    <!-- Modale Démo & Outils -->
     <div id="modal-demo" class="hidden fixed inset-0 z-[900] bg-black/50 flex items-end sm:items-center justify-center p-3">
       <div class="bg-white w-full max-w-[400px] rounded-3xl p-4 space-y-3 shadow-xl max-h-[88dvh] overflow-y-auto">
         <div class="flex items-center justify-between">
@@ -475,7 +485,6 @@
       </div>
     </div>
 
-    <!-- Modale Signaler un changement -->
     <div id="modal-report" class="hidden fixed inset-0 z-[900] bg-black/50 flex items-end sm:items-center justify-center p-3">
       <div class="bg-white w-full max-w-[400px] rounded-3xl p-4 space-y-3 shadow-xl">
         <div class="flex items-center justify-between">
@@ -487,7 +496,7 @@
         </p>
         <form onsubmit="submitReport(event)" class="space-y-2.5">
           <select id="report-place" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm font-medium"></select>
-          <textarea id="report-note" rows="3" required placeholder="Ex : Fermé le mardi cette saison, ou nouveau numéro..." class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></textarea>
+          <textarea id="report-note" rows="3" required placeholder="Ex : Fermé en début de semaine, ou nouveau numéro..." class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></textarea>
           <button type="submit" class="w-full py-3 rounded-xl bg-sign text-ink font-extrabold text-sm">
             Envoyer mon signalement à Greg
           </button>
@@ -495,7 +504,6 @@
       </div>
     </div>
 
-    <!-- Modale Modération Greg -->
     <div id="modal-greg" class="hidden fixed inset-0 z-[900] bg-black/50 flex items-end sm:items-center justify-center p-3">
       <div class="bg-white w-full max-w-[400px] rounded-3xl p-4 space-y-3 shadow-xl max-h-[85dvh] overflow-y-auto">
         <div class="flex items-center justify-between">
@@ -512,7 +520,6 @@
       </div>
     </div>
 
-    <!-- Modale Avertissement GPX Ouvert -->
     <div id="modal-gpx-warn" class="hidden fixed inset-0 z-[900] bg-black/50 flex items-end sm:items-center justify-center p-3">
       <div class="bg-white w-full max-w-[400px] rounded-3xl p-4 space-y-3 shadow-xl">
         <div class="flex items-center justify-between">
@@ -546,7 +553,7 @@
     /* =========================================================
        1. ÉTAT GLOBAL & STOCKAGE LOCAL
        ========================================================= */
-    const STORAGE_KEY = 'lav_rga_pwa_v4';
+    const STORAGE_KEY = 'lav_rga_pwa_v2027_1';
 
     const DEFAULT_STATE = {
       loggedIn: false,
@@ -554,6 +561,7 @@
       largeUI: false,
       darkUI: false,
       ridingMode: false,
+      j1StartDate: '',
       dayIndex: 1,
       activeTab: 'resto',
       restoFilter: 'all',
@@ -561,13 +569,13 @@
       autonomyKm: 250,
       lastFillKm: 0,
       budgetDuo: false,
-      budgets: {}, // { 'J0': { hotel:0, food:0, fuel:0, other:0 }, ... }
+      budgets: {},
       reports: [
         {
           id: 'rep-init-1',
           day: 'J1',
           place: 'La Porte Des Aravis',
-          note: 'Terrasse ouverte dès 11h30, parking moto stable devant la porte.',
+          note: 'Au col : vérifiez les horaires d\'ouverture selon la saison.',
           status: 'pending'
         }
       ],
@@ -575,13 +583,13 @@
     };
 
     let state = loadLocal();
-    // Toujours repartir en réseau réel au démarrage pour éviter de rester bloqué en mode simulé
     state.offline = false;
     let leafletLoaded = false;
     let mapInstance = null;
     let mapLayerGroup = null;
     let deferredInstallPrompt = null;
     let pendingGpxGuideTitle = 'La RGA Aller-Retour';
+    let expandAllNotes = false;
 
     function loadLocal() {
       try {
@@ -602,13 +610,33 @@
       }
     }
 
+    function getExtrapolatedDate(dayIndex) {
+      if (!state.j1StartDate) return '';
+      const parts = String(state.j1StartDate).split('-').map(Number);
+      if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return '';
+      // J1 correspond à dayIndex === 1 ; J0 correspond à dayIndex - 1 = -1 jour
+      const baseUtc = Date.UTC(parts[0], parts[1] - 1, parts[2] + (dayIndex - 1));
+      const d = new Date(baseUtc);
+      const dd = String(d.getUTCDate()).padStart(2, '0');
+      const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+      return `${dd}/${mm}`;
+    }
+
+    function setJ1StartDate(val) {
+      state.j1StartDate = val || '';
+      saveLocal();
+      if (document.getElementById('screen-reader') && !document.getElementById('screen-reader').classList.contains('hidden')) {
+        renderReader();
+      }
+      showToast(state.j1StartDate ? 'Dates J0 à J7 mises à jour depuis J1' : 'Dates réinitialisées');
+    }
+
     /* =========================================================
        2. CATALOGUE COMPLET DES 28 GUIDES (LIENS BOUTIQUE OFFICIELS)
        ========================================================= */
     const CATALOG_GUIDES = [
-      // FRANCE (19)
       { id: 'vercors', title: 'Le Vercors sur un weekend', region: 'france', days: '2 jours', km: '~500 km', price: 'Offert', owned: true, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/le-vercors-sur-un-weekend/' },
-      { id: 'rga', title: 'La RGA Aller-Retour (Alpes)', region: 'france', days: '6 jours', km: '~1 500 km', price: '36,40 €', owned: true, ready: true, url: 'https://lesapprentisvoyageurs.fr/produit/la-rga-a-moto-road-trip-de-6-jours-dans-les-alpes/' },
+      { id: 'rga', title: 'La RGA Aller-Retour (v2027-1)', region: 'france', days: '7 jours', km: '1 477 km', price: '36,40 €', owned: true, ready: true, url: 'https://lesapprentisvoyageurs.fr/produit/la-rga-a-moto-road-trip-de-6-jours-dans-les-alpes/' },
       { id: 'ardeche', title: 'Ardèche : 42 cols sur 3 jours', region: 'france', days: '3 jours', km: '750 km', price: '21,80 €', owned: true, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-en-ardeche-en-42-cols-sur-3-jours/' },
       { id: 'cevennes', title: 'Le meilleur des Cévennes', region: 'france', days: '3 jours', km: '~750 km', price: '21,80 €', owned: true, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/le-meilleur-des-cevennes-a-moto/' },
       { id: 'auvergne', title: 'Auvergne sur 3 jours (+Livradois)', region: 'france', days: '3 jours', km: '~800 km', price: '21,80 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-en-auvergne-sur-3-jours-a-moto-livradois/' },
@@ -626,7 +654,6 @@
       { id: 'corse-terres', title: 'Corse par les terres', region: 'france', days: '5 jours', km: '~1 100 km', price: '36,40 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/la-corse-a-moto-par-les-terres-oserez-vous-laventure/' },
       { id: 'dtf-ouest', title: 'Demi-Tour de France : OUEST', region: 'france', days: '12 jours', km: '~4 000 km', price: '43,70 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/demi-tour-de-france-a-moto-partie-ouest/' },
       { id: 'dtf-est', title: 'Demi-Tour de France : EST', region: 'france', days: '12 jours', km: '~3 900 km', price: '43,70 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/demi-tour-de-france-a-moto-en-12-jours-lest/' },
-      // EUROPE & MAROC (9)
       { id: 'sardaigne-sauvage', title: 'Sardaigne sauvage sur 6 jours', region: 'europe', days: '6 jours', km: '~1 400 km', price: '36,40 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-en-sardaigne-sauvage-sur-6-jours/' },
       { id: 'sardaigne-tour', title: 'Tour de Sardaigne à moto', region: 'europe', days: '8 jours', km: '~1 700 km', price: '36,40 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/tour-de-sardaigne-a-moto/' },
       { id: 'dolomites', title: 'Dolomites en Italie', region: 'europe', days: '5 jours', km: '~1 150 km', price: '36,40 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/dolomites-en-italie-a-moto/' },
@@ -639,175 +666,1327 @@
     ];
 
     /* =========================================================
-       3. DONNÉES COMPLÈTES DU GUIDE PILOTE : LA RGA (J0 À J6)
+       3. DONNÉES INTÉGRALES DU TABLEAU / GUIDE RGA v2027-1 (J0 À J7)
        ========================================================= */
     const RGA_DAYS = [
       {
-        code: 'J0', date: 'Jeu. 15 juil.', route: 'Arrivée à Thonon-les-Bains', km: 0, dur: 'Installation',
+        code: 'J0',
+        route: 'Jour de liaison vers Thonon-les-Bains',
+        km: 0,
+        totalKm: 0,
+        dur: 'Liaison',
         coords: [[46.3709, 6.4797], [46.3755, 6.4840]],
-        nextStop: { title: 'Mise en place à Thonon-les-Bains', sub: 'Plein prêt pour demain matin' },
+        nextStop: { title: 'Se rendre à Thonon-les-Bains', sub: 'Faire le plein (Intermarché par exemple) · Repas "L\'Etable du Savoyard"' },
         shortcut: null,
         restos: [
-          { meal: 'soir', choice: true, time: '19:30', name: 'Brasserie du Port', note: 'Face au Léman, simple et copieux.', phone: '04 50 71 18 22', lat: 46.3761, lng: 6.4754 },
-          { meal: 'soir', choice: false, name: 'Le Comptoir de Thonon', note: 'Burgers maison, service rapide.', phone: '04 50 70 41 19', lat: 46.3712, lng: 6.4805 }
+          {
+            meal: 'soir',
+            choice: true,
+            time: 'Repas du soir',
+            name: 'L\'Etable du Savoyard',
+            note: 'Thonon-les-Bains · Fermé en début de semaine, pour vérifier : tèl. au +33 4 50 71 05 56. A deux pas du camping.',
+            phone: '+33 4 50 71 05 56',
+            lat: 46.3761,
+            lng: 6.4754
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Alternative centre',
+            name: 'Il Vesuvio (italien)',
+            note: 'Dans le centre : Il Vesuvio (italien).',
+            phone: null,
+            lat: 46.3722,
+            lng: 6.4792
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Alternative',
+            name: 'Bistrot le Cousin Michel !!!',
+            note: 'Ou "Bistrot le Cousin Michel" !!! Spécialités savoyardes.',
+            phone: null,
+            lat: 46.3715,
+            lng: 6.4785
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Si un dimanche',
+            name: 'la bruschetta',
+            note: 'Si un dimanche : "la bruschetta".',
+            phone: null,
+            lat: 46.3708,
+            lng: 6.4778
+          }
         ],
         lodgings: [
-          { choice: true, name: 'Hôtel du Léman — Thonon', note: 'Parking moto fermé dans la cour.', phone: '04 50 71 22 45', lat: 46.3725, lng: 6.4789 },
-          { choice: false, name: 'Ibis Budget Thonon', note: 'Économique, pratique à 5 min du départ.', phone: '08 92 68 09 42', lat: 46.3652, lng: 6.4621 }
+          {
+            choice: true,
+            name: 'Camping de Saint Disdille',
+            note: 'Camping *** situé au bord du Lac Leman. Il propose aussi hébergements insolites et bungalows. +33 4 50 71 14 11.',
+            phone: '+33 4 50 71 14 11',
+            lat: 46.3834,
+            lng: 6.5015
+          },
+          {
+            choice: false,
+            name: 'Camping Parc de la Dranse',
+            note: 'Sinon aussi le Camping Parc de la Dranse (+33 6 37 26 68 42).',
+            phone: '+33 6 37 26 68 42',
+            lat: 46.3698,
+            lng: 6.4420
+          },
+          {
+            choice: false,
+            name: 'Hôtel Arc en Ciel',
+            note: 'Hôtel : Hôtel Arc en Ciel (+33 4 50 71 90 63) : excellent rapport qualité-prix, garage en sécurité pour les motos.',
+            phone: '+33 4 50 71 90 63',
+            lat: 46.3725,
+            lng: 6.4789
+          },
+          {
+            choice: false,
+            name: 'Zenitude Hôtel-Résidences Les Terrasses du Lac',
+            note: 'Zenitude Hôtel-Résidences Les Terrasses du Lac (+33 4 50 74 13 51) : + loin, - cher, - classe, parking à demander.',
+            phone: '+33 4 50 74 13 51',
+            lat: 46.3780,
+            lng: 6.4920
+          },
+          {
+            choice: false,
+            name: 'Hôtel Restaurant Les Cygnes',
+            note: 'Hôtel Restaurant Les Cygnes (+33 4 50 75 01 01) : au bord du lac, très classe ! Demander avant si le parking est dispo.',
+            phone: '+33 4 50 75 01 01',
+            lat: 46.3752,
+            lng: 6.4765
+          }
         ],
         fuel: [
-          { km: 0, name: 'TotalEnergies — Sortie Thonon', note: 'Faites impérativement le plein la veille ou au départ à 8h30.', lat: 46.3638, lng: 6.4895 }
+          {
+            km: 0,
+            name: 'Stations à Thonon-les-Bains (Intermarché par exemple)',
+            note: 'Il y a plusieurs stations à Thonon, elles sont repérées sur le fichier des points GPS. Intermarché par exemple.',
+            lat: 46.3638,
+            lng: 6.4895
+          }
         ],
-        fuelAdvice: 'Je vous conseille de faire le plein complet à Thonon la veille au soir pour partir sereinement vers les Gets dès le matin.',
+        fuelAdvice: 'Pour partir avec le plein demain matin. Selon la saison, si vous souhaitez dormir à l\'hôtel, il faudra peut-être réserver. Si vous faites du camping, avec les différentes adresses que je vous propose, il y aura toujours une place pour vous !',
         steps: [
-          { time: '17:00', title: 'Installation à Thonon-les-Bains', detail: 'Vérification pression des pneus, graissage chaîne et plein complet.' },
-          { time: '19:30', title: 'Dîner au port', detail: 'Vue sur le lac avant d\'attaquer les premiers cols alpins.' }
+          {
+            time: '',
+            title: 'Se rendre à Thonon-les-Bains',
+            detail: 'Jour de liaison vers Thonon-les-Bains.',
+            note: 'Selon la saison, si vous souhaitez dormir à l\'hôtel, il faudra peut-être réserver. Si vous faites du camping, avec les différentes adresses que je vous propose, il y aura toujours une place pour vous !'
+          },
+          {
+            time: '',
+            title: 'Faire le plein · Thonon-les-Bains',
+            detail: 'Il y a plusieurs stations à Thonon, elles sont repérées sur le fichier des points GPS. Intermarché par exemple.',
+            note: 'Pour partir avec le plein demain matin.'
+          },
+          {
+            time: '',
+            title: 'Repas du soir à "L\'Etable du Savoyard"',
+            detail: 'Fermé en début de semaine, pour vérifier : tèl. au +33 4 50 71 05 56. A deux pas du camping.',
+            note: 'Dans le centre : Il Vesuvio (italien). Ou "Bistrot le Cousin Michel" !!! Spécialités savoyardes. Si un dimanche : "la bruschetta".'
+          },
+          {
+            time: '',
+            title: 'Nuit à "Camping de Saint Disdille"',
+            detail: 'Camping *** situé au bord du Lac Leman. Il propose aussi hébergements insolites et bungalows. +33 4 50 71 14 11. Sinon aussi le Camping Parc de la Dranse (+33 6 37 26 68 42).',
+            note: 'Hôtel : Hôtel Arc en Ciel (+33 4 50 71 90 63) : excellent rapport qualité-prix, garage en sécurité pour les motos. Zenitude Hôtel-Résidences Les Terrasses du Lac (+33 4 50 74 13 51) : + loin, - cher, - classe, parking à demander. Hôtel Restaurant Les Cygnes (+33 4 50 75 01 01) : au bord du lac, très classe ! Demander avant si le parking est dispo.'
+          }
         ]
       },
       {
-        code: 'J1', date: 'Ven. 16 juil.', route: 'Thonon → Val d\'Isère', km: 245, dur: '6h15',
-        coords: [[46.3709, 6.4797], [46.1591, 6.6698], [45.9935, 6.4638], [45.8725, 6.4633], [45.7445, 6.5559], [45.6144, 6.7689], [45.4480, 6.9797]],
-        nextStop: { title: 'Col des Aravis · Déjeuner', sub: 'La Porte Des Aravis · 04 50 02 47 15' },
-        shortcut: { gain: '-42 km · -1h05', text: 'Si pluie ou fatigue après La Clusaz : rejoignez Albertville puis Bourg-Saint-Maurice par la vallée au lieu du Cormet de Roselend.' },
+        code: 'J1',
+        route: '264km - 5h45 : début de la RGA',
+        km: 264,
+        totalKm: 259,
+        dur: '5h45',
+        coords: [[46.3709, 6.4797], [46.1591, 6.6698], [45.9935, 6.4638], [45.8725, 6.4633], [45.7445, 6.5559], [45.6144, 6.7689], [45.2800, 6.8900]],
+        nextStop: { title: 'Départ plaque km 0 RGA (09:45) → Col des Gets', sub: 'Repas midi "La Porte Des Aravis" · +33 4 50 02 47 15' },
+        shortcut: null,
         restos: [
-          { meal: 'midi', choice: true, time: '12:30 à 13:30', name: 'La Porte Des Aravis', note: 'Au col. Parking plat devant.', phone: '04 50 02 47 15', lat: 45.8725, lng: 6.4633 },
-          { meal: 'midi', choice: false, name: 'L\'Garni (La Clusaz)', note: 'Très bien et rapide.', phone: '06 76 87 44 08', lat: 45.9042, lng: 6.4234 },
-          { meal: 'soir', choice: true, time: '19:45', name: 'La Corniche — Val d\'Isère', note: 'Cuisine savoyarde généreuse, accueil motards top.', phone: '04 79 06 02 89', lat: 45.4488, lng: 6.9781 },
-          { meal: 'soir', choice: false, name: 'Brasserie Le Garage', note: 'Bonne ambiance, burgers et plats du jour.', phone: '04 79 06 14 20', lat: 45.4472, lng: 6.9802 }
+          {
+            meal: 'midi',
+            choice: true,
+            time: '12:30 à 13:30',
+            name: 'La Porte Des Aravis',
+            note: 'La Clusaz · Au col. Tèl. : +33 4 50 02 47 15. Si pic-nic, Carrefour et U Express dans La Clusaz.',
+            phone: '+33 4 50 02 47 15',
+            lat: 45.8725,
+            lng: 6.4633
+          },
+          {
+            meal: 'midi',
+            choice: false,
+            time: 'Sinon (midi)',
+            name: 'L\'garni',
+            note: 'Sinon : "L\'garni" (0676874408) : très bien et rapide.',
+            phone: '06 76 87 44 08',
+            lat: 45.9042,
+            lng: 6.4234
+          },
+          {
+            meal: 'midi',
+            choice: false,
+            time: 'Sinon (midi)',
+            name: 'La Ferme',
+            note: '"La Ferme" (0450025050) : un grand classique.',
+            phone: '04 50 02 50 50',
+            lat: 45.9035,
+            lng: 6.4220
+          },
+          {
+            meal: 'midi',
+            choice: false,
+            time: 'Sinon (midi)',
+            name: 'La Scierie',
+            note: '"La Scierie" (0450633468) : très classe !',
+            phone: '04 50 63 34 68',
+            lat: 45.9050,
+            lng: 6.4250
+          },
+          {
+            meal: 'midi',
+            choice: false,
+            time: 'Sinon (midi)',
+            name: 'le Relais des Joux',
+            note: 'Ou "le Relais des Joux".',
+            phone: null,
+            lat: 45.8850,
+            lng: 6.4450
+          },
+          {
+            meal: 'soir',
+            choice: true,
+            time: 'Repas du soir',
+            name: 'Repas du soir à l\'hôtel ("Le Napoleon")',
+            note: 'Val-Cenis / Bessans · "Le Napoleon" (0479059047).',
+            phone: '04 79 05 90 47',
+            lat: 45.2820,
+            lng: 6.8910
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Sur Bessans',
+            name: 'la Bocona',
+            note: 'Sur Bessans : restaurant "la Bocona" (fermé en début de semaine : 0479050788).',
+            phone: '04 79 05 07 88',
+            lat: 45.2845,
+            lng: 6.9950
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Sur Bessans',
+            name: 'Pizzeria des Cim\'',
+            note: 'Aussi la Pizzeria des Cim\' : 0629185435.',
+            phone: '06 29 18 54 35',
+            lat: 45.2838,
+            lng: 6.9942
+          }
         ],
         lodgings: [
-          { choice: true, name: 'Hôtel Avancher — Val d\'Isère', note: 'Garage couvert gratuit pour les motos.', phone: '04 79 06 02 00', lat: 45.4494, lng: 6.9772 },
-          { choice: false, name: 'Chalet Skadi (Centre)', note: 'Confortable, proche des restos à pied.', phone: '04 79 06 11 55', lat: 45.4479, lng: 6.9815 }
+          {
+            choice: true,
+            name: 'ALPAZUR Hôtel-restaurant',
+            note: 'Val-Cenis / Bessans · 04 79 20 35 43.',
+            phone: '04 79 20 35 43',
+            lat: 45.2815,
+            lng: 6.8905
+          },
+          {
+            choice: false,
+            name: 'Hotel Restaurant La Vanoise',
+            note: 'Sinon : Hotel Restaurant La Vanoise (+33 4 79 05 96 79).',
+            phone: '+33 4 79 05 96 79',
+            lat: 45.2830,
+            lng: 6.9940
+          },
+          {
+            choice: false,
+            name: 'Hôtel Le Glacier des Evettes (Bonneval-sur-Arc)',
+            note: 'Si complet, un peu avant à Bonneval-sur-Arc : Hôtel Le Glacier des Evettes (+33 4 79 05 94 06).',
+            phone: '+33 4 79 05 94 06',
+            lat: 45.3712,
+            lng: 7.0462
+          },
+          {
+            choice: false,
+            name: 'Camping de l\'Illaz',
+            note: 'Ou "Camping de l\'Illaz", simple, mais pas cher et beau cadre. Tél. : +33 6 45 89 02 32.',
+            phone: '+33 6 45 89 02 32',
+            lat: 45.2860,
+            lng: 6.9970
+          }
         ],
         fuel: [
-          { km: 112, name: 'Carrefour Contact — La Clusaz', note: '24h/24 CB. Utile pour les petits réservoirs.', lat: 45.9061, lng: 6.4210 },
-          { km: 198, name: 'Super U — Bourg-Saint-Maurice', note: 'Dernière grosse station bon marché avant la montée vers Val d\'Isère.', lat: 45.6164, lng: 6.7675 }
+          {
+            km: 189,
+            name: 'Intermarché ou Super U — Bourg-Saint-Maurice',
+            note: 'Intermarché ou Super U. Les stations sont dans le fichier des points GPS. (Plein 189 km).',
+            lat: 45.6164,
+            lng: 6.7675
+          }
         ],
-        fuelAdvice: 'Je vous conseille vivement de faire le plein à Bourg-Saint-Maurice (km 198) : vous attaquerez l\'Iseran demain matin avec le réservoir plein.',
+        fuelAdvice: 'Faire le plein à Bourg-Saint-Maurice (km 189) : Intermarché ou Super U, stations repérées dans le fichier des points GPS.',
         steps: [
-          { time: '08:30', title: 'Départ Thonon → Col des Gets & Colombière', detail: 'Mise en jambes progressive sur de superbes routes de montagne.' },
-          { time: '12:30', title: 'Déjeuner au Col des Aravis', detail: 'Vue directe sur le Mont-Blanc par temps clair.' },
-          { time: '15:15', title: 'Cormet de Roselend', detail: 'Arrêt photo obligatoire au barrage, bitume propre.' },
-          { time: '17:30', title: 'Arrivée à Val d\'Isère', detail: 'Repos bien mérité avant le toit de la RGA demain.' }
+          {
+            time: '9:30',
+            title: 'Départ hébergement · Thonon-les-Bains',
+            detail: 'Itinéraire : 0min. - 0km - Total : 0km · Avec le petit déjeuner pris !',
+            note: null
+          },
+          {
+            time: '09:45 → 10:00',
+            title: 'Départ depuis la plaque du km 0 de la "RGA"',
+            detail: 'Itinéraire : 0min. - 0km - Total : 0km · Rosace Kilomètre Zéro Route des Grandes Alpes - Thonon-les-Bains.',
+            note: 'Devant la mairie. Pour officialiser le départ !'
+          },
+          {
+            time: '10:45',
+            title: 'Col des Gets · Les Gets',
+            detail: 'Itinéraire : 43min. - 37km - Total : 37km',
+            note: 'Le Col des Gets culmine à 1163m. Il sera le premier col que vous gravirez sur la Route des Grandes Alpes. Il se trouve au cœur de la Station des Gets. Il assure la liaison routière entre la vallée de la Dranse au nord et la vallée du Giffre au sud.'
+          },
+          {
+            time: '11:45',
+            title: 'Col de la Colombière',
+            detail: 'Itinéraire : 55min. - 40km - Total : 77km',
+            note: 'Le col de la Colombière situé dans le massif alpin des Bornes, en Haute-Savoie, monte à 1618m d\'altitude. Il est supposé être ouvert de juin à octobre. Il relie Le Grand-Bornand à la vallée de l\'Arve.'
+          },
+          {
+            time: '12:30',
+            title: 'Col des Aravis',
+            detail: 'Itinéraire : 35min. - 25km - Total : 102km',
+            note: 'Le Col des Aravis grimpe à 1486m. Il est à cheval sur la Savoie et la Haute-Savoie. Il a 2 versants bien distincts, et à son sommet, vous pourrez profiter d\'une belle vue sur le Mont Blanc.'
+          },
+          {
+            time: '12:30 → 13:30',
+            title: 'Repas du midi à "La Porte Des Aravis" · La Clusaz',
+            detail: 'Au col. Tèl. : +33 4 50 02 47 15. Si pic-nic, Carrefour et U Express dans La Clusaz.',
+            note: 'Sinon : "L\'garni" (0676874408) : très bien et rapide, "La Ferme" (0450025050) : un grand classique, "La Scierie" (0450633468) : très classe ! Ou "le Relais des Joux".'
+          },
+          {
+            time: '14:30',
+            title: 'Col des Saisies',
+            detail: 'Itinéraire : 45min. - 28km - Total : 130km',
+            note: 'Le Col des Saisies culmine à 1658m. Il va permettre le passage entre la Vallée du Doron et la Vallée de l\'Arly. Il est en plein milieu d\'une station de ski. Sur place vous aurez un panorama exceptionnel sur les Massifs du Mont Blanc et des Aravis dans un décor assez champêtre.'
+          },
+          {
+            time: '15:30 → 15:45',
+            title: 'Cormet de Roselend',
+            detail: 'Itinéraire : 1h - 39km - Total : 169km',
+            note: 'Le Cormet de Roselend vous mènera à 1968 m. 2 versants relient les vallées du Beaufortin et de la Tarentaise. Ne pas manquer d\'aller voir le Barrage de Roselend et son lac en contre-bas. Pause photo immanquable !'
+          },
+          {
+            time: '',
+            title: 'Faire le plein · Bourg-Saint-Maurice',
+            detail: 'Itinéraire : 0min. - 0km - Total : 189km · Intermarché ou Super U. Les stations sont dans le fichier des points GPS.',
+            note: null
+          },
+          {
+            time: '17:15',
+            title: 'Col de l\'Iseran',
+            detail: 'Itinéraire : 1h30 - 67km - Total : 236km',
+            note: 'Le Col de l\'Iseran est le plus haut col routier des Alpes, avec 2764m (oui la cime de la Bonette n\'est pas une route de col...). C\'est le toit de cette Route des Grandes Alpes ! Pas loin de 50 km d\'ascension, dans des décors splendides !'
+          },
+          {
+            time: '17:15 → 17:45',
+            title: 'Rejoindre l\'hébergement',
+            detail: 'Itinéraire : 30min. - 23km - Total : 259km',
+            note: null
+          },
+          {
+            time: '',
+            title: 'Repas du soir à l\'hôtel · Val-Cenis / Bessans',
+            detail: '"Le Napoleon" (0479059047).',
+            note: 'Sur Bessans : restaurant "la Bocona" (fermé en début de semaine : 0479050788). Aussi la Pizzeria des Cim\' : 0629185435.'
+          },
+          {
+            time: '',
+            title: 'Nuit à "ALPAZUR Hôtel-restaurant"',
+            detail: '04 79 20 35 43.',
+            note: 'Sinon : Hotel Restaurant La Vanoise (+33 4 79 05 96 79). Si complet, un peu avant à Bonneval-sur-Arc : Hôtel Le Glacier des Evettes (+33 4 79 05 94 06). Ou "Camping de l\'Illaz", simple, mais pas cher et beau cadre. Tél. : +33 6 45 89 02 32.'
+          }
         ]
       },
       {
-        code: 'J2', date: 'Sam. 17 juil.', route: 'Val d\'Isère → Briançon', km: 220, dur: '5h45',
-        coords: [[45.4480, 6.9797], [45.4170, 7.0308], [45.2800, 6.8900], [45.2060, 6.4470], [45.0641, 6.4077], [44.8984, 6.6436]],
-        nextStop: { title: 'Col de l\'Iseran (2 770 m)', sub: 'Pause café au sommet puis Télégraphe & Galibier' },
-        shortcut: { gain: '-30 km · -45 min', text: 'Si le Galibier est dans le brouillard, passez par le tunnel du Galibier (ou rejoignez Modane → Col du Mont-Cenis).' },
+        code: 'J2',
+        route: '215km - 5h00',
+        km: 215,
+        totalKm: 489,
+        dur: '5h00',
+        coords: [[45.2800, 6.8900], [45.2060, 6.4470], [45.0641, 6.4077], [45.0355, 6.4036], [44.8984, 6.6436], [44.8199, 6.7351], [44.5204, 6.7044], [44.3612, 6.6335]],
+        nextStop: { title: 'Col du Télégraphe → Col du Galibier → Lautaret', sub: 'Repas midi "Casa Portugal" · +33 9 54 30 20 44' },
+        shortcut: null,
         restos: [
-          { meal: 'midi', choice: true, time: '12:30', name: 'Auberge du Télégraphe — Valloire', note: 'Terrasse au soleil, plats rapides pour repartir vers le Galibier.', phone: '04 79 59 01 44', lat: 45.1653, lng: 6.4285 },
-          { meal: 'soir', choice: true, time: '19:30', name: 'Le Péché Gourmand — Briançon', note: 'Dans la vieille ville fortifiée, très bonne table.', phone: '04 92 21 15 80', lat: 44.8998, lng: 6.6431 }
+          {
+            meal: 'midi',
+            choice: true,
+            time: 'Repas du midi',
+            name: 'Casa Portugal',
+            note: 'Briançon · Resto portugais sympa. Tèl. : +33 9 54 30 20 44. Dans la zone du Carrefour, il y a une station essence, un Décathlon et de quoi manger.',
+            phone: '+33 9 54 30 20 44',
+            lat: 44.8955,
+            lng: 6.6365
+          },
+          {
+            meal: 'soir',
+            choice: true,
+            time: 'Repas du soir',
+            name: '"LA SONNAILLE"',
+            note: 'Jausiers · "LA SONNAILLE" (0492363887).',
+            phone: '04 92 36 38 87',
+            lat: 44.4182,
+            lng: 6.7330
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Snacking rapide',
+            name: '"La P\'tite Loupiote"',
+            note: '"La P\'tite Loupiote" si ouvert pour du snacking rapide (0679304536).',
+            phone: '06 79 30 45 36',
+            lat: 44.4185,
+            lng: 6.7325
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Resto & pizzeria',
+            name: '"Bar des Arcades"',
+            note: '"Bar des Arcades" fait resto et pizzeria (0492810637), avis inégaux.',
+            phone: '04 92 81 06 37',
+            lat: 44.4178,
+            lng: 6.7334
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Alternative',
+            name: 'Restaurant Le Piolet',
+            note: 'Ou "Restaurant Le Piolet" (+33 4 92 84 61 66) mais pas toujours ouvert. Pour manger à l\'hébergement ou au camping, on peut faire des courses au Proxi "Epicerie de Jausiers".',
+            phone: '+33 4 92 84 61 66',
+            lat: 44.4180,
+            lng: 6.7320
+          }
         ],
         lodgings: [
-          { choice: true, name: 'Hôtel de la Chaussée — Briançon', note: 'Accueil motards habitué, parking sécurisé.', phone: '04 92 21 10 37', lat: 44.8965, lng: 6.6392 },
-          { choice: false, name: 'Suite Home Briançon', note: 'Moderne, parking souterrain.', phone: '04 92 44 26 26', lat: 44.8910, lng: 6.6330 }
+          {
+            choice: true,
+            name: 'La Mexicaine: Bed & Breakfast',
+            note: 'Jausiers · Excellent hébergement, très bon accueil, petit déj très complet. Piscine ! Parking fermé dans la cours. Tèl. : 0492846963. En été difficile de n\'avoir qu\'une nuit…',
+            phone: '04 92 84 69 63',
+            lat: 44.4190,
+            lng: 6.7340
+          },
+          {
+            choice: false,
+            name: '"L’Ardoisière - Gîte d\'étape"',
+            note: 'Sinon "L’Ardoisière - Gîte d\'étape" (+33 4 92 32 03 82).',
+            phone: '+33 4 92 32 03 82',
+            lat: 44.4170,
+            lng: 6.7310
+          },
+          {
+            choice: false,
+            name: 'Camping "le Planet"',
+            note: 'Camping : "le Planet" (+33 6 89 20 64 49).',
+            phone: '+33 6 89 20 64 49',
+            lat: 44.4160,
+            lng: 6.7360
+          }
         ],
         fuel: [
-          { km: 85, name: 'Intermarché — Modane', note: '24h/24, parfait avant d\'attaquer Télégraphe + Galibier.', lat: 45.2022, lng: 6.6695 },
-          { km: 215, name: 'TotalEnergies — Briançon', note: 'À l\'entrée de la ville.', lat: 44.8950, lng: 6.6360 }
+          {
+            km: 128,
+            name: 'Station zone Décathlon / Carrefour — Briançon',
+            note: 'Dans la zone de Décathlon / Carrefour. (Total 387 km, Plein 0 km).',
+            lat: 44.8950,
+            lng: 6.6360
+          },
+          {
+            km: 230,
+            name: 'Option à Jausiers ou bas de la Bonette (Tinée)',
+            note: 'SI vous êtes "juste" en carburant, faire le plein à Jausiers, sinon demain en bas de la Bonette dans la vallée de la Tinée.',
+            lat: 44.4180,
+            lng: 6.7330
+          }
         ],
-        fuelAdvice: 'Passez par Modane (km 85) : aucune station entre Valloire et Le Monêtier-les-Bains sur le versant Galibier.',
+        fuelAdvice: 'Faire le plein à Briançon (km 128, zone Décathlon / Carrefour). SI vous êtes "juste" en carburant en rejoignant l\'hébergement (km 230), faire le plein à Jausiers, sinon demain en bas de la Bonette dans la vallée de la Tinée.',
         steps: [
-          { time: '08:30', title: 'Col de l\'Iseran (2 770 m)', detail: 'Le plus haut col routier des Alpes, souvent frais le matin.' },
-          { time: '12:30', title: 'Col du Télégraphe & Valloire', detail: 'Pause déjeuner avant la montée mythique.' },
-          { time: '14:30', title: 'Col du Galibier (2 642 m) & Lautaret', detail: 'Panorama grandiose sur la Meije.' },
-          { time: '16:45', title: 'Arrivée à Briançon', detail: 'Balade à pied dans la cité Vauban.' }
+          {
+            time: '9:30',
+            title: 'Départ hébergement',
+            detail: 'Itinéraire : 0min. - 0km - Total : 259km · Avec le petit déjeuner pris !',
+            note: null
+          },
+          {
+            time: '11:00',
+            title: 'Col du Télégraphe',
+            detail: 'Itinéraire : 1h25 - 66km - Total : 325km',
+            note: 'Le col du Télégraphe à 1 566 mètres d\'altitude se situe dans le massif des Cerces. Il permet de relier Saint Michel de Maurienne et Valloire.'
+          },
+          {
+            time: '11:30 → 11:45',
+            title: 'Col du Galibier',
+            detail: 'Itinéraire : 35min. - 23km - Total : 348km',
+            note: 'Le col du Galibier culmine à 2642 m d’altitude, à la limite entre la Savoie et les Hautes-Alpes. Il relie Saint-Michel-de-Maurienne via le col du Télégraphe, à Briançon et La Grave via le col du Lautaret. Il marque la limite entre les Alpes du Nord et les Alpes du Sud françaises. Il est fermé à la circulation l\'hiver et ouvre pour l\'été habituellement vers la fin mai ou au début du mois de juin, après son déneigement. Il possède aussi un tunnel sous le col, une centaine de mètres plus bas.'
+          },
+          {
+            time: '12:00',
+            title: 'Col du Lautaret',
+            detail: 'Itinéraire : 14min. - 9km - Total : 357km',
+            note: 'Le col du Lautaret culmine à une altitude de 2 057 m. Il permet de passer de la vallée de la Guisane à celle de la Romanche et offre également la possibilité de basculer sur la vallée de la Maurienne via le col du Galibier.'
+          },
+          {
+            time: '12:00 → 12:45',
+            title: 'Rejoindre Briançon',
+            detail: 'Itinéraire : 35min. - 30km - Total : 387km',
+            note: null
+          },
+          {
+            time: '',
+            title: 'Faire le plein · Briançon',
+            detail: 'Itinéraire : 0min. - 128km - Total : 387km · Dans la zone de Décathlon / Carrefour.',
+            note: null
+          },
+          {
+            time: '12:45 → 13:45',
+            title: 'Repas du midi à "Casa Portugal"',
+            detail: 'Resto portugais sympa. Tèl. : +33 9 54 30 20 44.',
+            note: 'Dans la zone du Carrefour, il y a une station essence, un Décathlon et de quoi manger.'
+          },
+          {
+            time: '14:30 → 14:45',
+            title: 'Col d\'Izoard',
+            detail: 'Itinéraire : 35min. - 20km - Total : 407km',
+            note: 'Le col de l’Izoard est la porte d’entrée sur le Queyras. Il est un est arrêt incontournable. Il culmine à 2360m d’altitude et offre un superbe panorama. Surtout du côté Sud au lieu-dit "La Casse Déserte", impressionnant pierrier, bienvenue sur la Lune !'
+          },
+          {
+            time: '16:00',
+            title: 'Col De Vars',
+            detail: 'Itinéraire : 1h05 - 50km - Total : 457km',
+            note: 'Le col de Vars est situé à la limite entre les Hautes-Alpes et les Alpes-de-Haute-Provence, il fait communiquer la vallée de l\'Ubaye avec l\'Embrunais, entre les massifs du Parpaillon et d\'Escreins. Il atteint 2 108 mètres d\'altitude.'
+          },
+          {
+            time: '16:30',
+            title: 'Pont du Châtelet',
+            detail: 'Itinéraire : 20min. - 13km - Total : 470km · Petit aller-retour rapide pour voir ce pont tout droit sorti d\'un film !',
+            note: 'Le pont du Châtelet est perché au-dessus de l\'Ubaye à 108m !!! Photo immanquable !'
+          },
+          {
+            time: '17:00',
+            title: 'Rejoindre hébergement',
+            detail: 'Itinéraire : 26min. - 19km - Total : 489km · SI vous êtes "juste" en carburant, faire le plein à Jausiers, sinon demain en bas de la Bonette dans la vallée de la Tinée.',
+            note: 'Ce qui laisse le temps de profiter la piscine si elle est dispo. Vous êtes aussi au pied du col de la Bonette…il est prévu demain mais…un coucher de soleil au sommet c\'est bien aussi :)'
+          },
+          {
+            time: '',
+            title: 'Repas du soir · Jausiers',
+            detail: '"LA SONNAILLE" (0492363887). "La P\'tite Loupiote" si ouvert pour du snacking rapide (0679304536). "Bar des Arcades" fait resto et pizzeria (0492810637), avis inégaux.',
+            note: 'Ou "Restaurant Le Piolet" (+33 4 92 84 61 66) mais pas toujours ouvert. Pour manger à l\'hébergement ou au camping, on peut faire des courses au Proxi "Epicerie de Jausiers".'
+          },
+          {
+            time: '',
+            title: 'Nuit à "La Mexicaine: Bed & Breakfast"',
+            detail: 'Excellent hébergement, très bon accueil, petit déj très complet. Piscine ! Parking fermé dans la cours. Tèl. : 0492846963. En été difficile de n\'avoir qu\'une nuit…',
+            note: 'Sinon "L’Ardoisière - Gîte d\'étape" (+33 4 92 32 03 82). Camping : "le Planet" (+33 6 89 20 64 49).'
+          }
         ]
       },
       {
-        code: 'J3', date: 'Dim. 18 juil.', route: 'Briançon → Barcelonnette', km: 195, dur: '5h20',
-        coords: [[44.8984, 6.6436], [44.8199, 6.7351], [44.6647, 6.6497], [44.5204, 6.7044], [44.3877, 6.6524]],
-        nextStop: { title: 'Col d\'Izoard & Casse Déserte', sub: 'Pause photo immanquable puis Guillestre' },
-        shortcut: { gain: '-28 km · -40 min', text: 'Par météo capricieuse, évitez la boucle de Ceillac et filez directement Guillestre → Col de Vars.' },
+        code: 'J3',
+        route: '242km - 6h00',
+        km: 242,
+        totalKm: 744,
+        dur: '6h00',
+        coords: [[44.4180, 6.7330], [44.3266, 6.8075], [44.2564, 6.9248], [44.1011, 7.1255], [43.9786, 7.3917], [43.7745, 7.4975], [43.8570, 7.3980], [43.9110, 7.2720]],
+        nextStop: { title: 'Col de la Bonette (10:15) → Saint-Étienne-de-Tinée', sub: 'Repas midi "Rendez-Vous Vésubien" · 04 93 03 04 61' },
+        shortcut: {
+          gain: 'Alternative Utelle / Lantosque',
+          text: 'Si l\'hébergement à Levens est complet : à 20km "Mon gîte à Pélasque" (06 83 96 67 93) ou "Le Bellevue Martinon" au village d\'après à Utelle (04 93 03 17 19). Dans ce cas au col de Braus il faudra rejoindre directement Lantosque !'
+        },
         restos: [
-          { meal: 'midi', choice: true, time: '12:15', name: 'L\'Alpin — Guillestre', note: 'Simple, rapide, motos garées juste devant.', phone: '04 92 45 04 12', lat: 44.6602, lng: 6.6490 },
-          { meal: 'soir', choice: true, time: '19:45', name: 'L\'Adelita — Barcelonnette', note: 'Spécialités mexicaines en clin d\'œil à l\'histoire de la vallée.', phone: '04 92 81 42 75', lat: 44.3881, lng: 6.6512 }
+          {
+            meal: 'midi',
+            choice: true,
+            time: 'Repas du midi',
+            name: 'Rendez-Vous Vésubien',
+            note: 'Roquebillière · Fermé le lundi (0493030461). Resto du village, bonne adresse !',
+            phone: '04 93 03 04 61',
+            lat: 44.0125,
+            lng: 7.3080
+          },
+          {
+            meal: 'midi',
+            choice: false,
+            time: 'Alternative midi',
+            name: 'SNACK L\'EMBEGU',
+            note: 'Ou "SNACK L\'EMBEGU" s\'il est ouvert… +33 6 32 90 14 74.',
+            phone: '+33 6 32 90 14 74',
+            lat: 44.0130,
+            lng: 7.3075
+          },
+          {
+            meal: 'soir',
+            choice: true,
+            time: 'Café Menton',
+            name: 'Le Café du Parvis',
+            note: 'Menton · Au "Le Café du Parvis" juste en face de la plaque d\'arrivée de la RGA.',
+            phone: null,
+            lat: 43.7748,
+            lng: 7.5050
+          },
+          {
+            meal: 'soir',
+            choice: true,
+            time: 'Repas du soir',
+            name: 'Repas du soir à "Hôtel La Vigneraie"',
+            note: 'Levens · Très bien à l\'hôtel. Super établissement. 04 93 79 77 60. Repas sympa sur place.',
+            phone: '04 93 79 77 60',
+            lat: 43.8615,
+            lng: 7.2260
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Sinon (Levens)',
+            name: 'Brasserie le Félix',
+            note: 'Sinon "Brasserie le Félix" (0641098965).',
+            phone: '06 41 09 89 65',
+            lat: 43.8620,
+            lng: 7.2270
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Sinon (Levens)',
+            name: 'L\'endroit',
+            note: 'Aussi "L\'endroit" (0987761826).',
+            phone: '09 87 76 18 26',
+            lat: 43.8610,
+            lng: 7.2255
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Sinon (Levens)',
+            name: 'Mac Pizza',
+            note: 'Et "Mac Pizza" (0783459590).',
+            phone: '07 83 45 95 90',
+            lat: 43.8605,
+            lng: 7.2265
+          }
         ],
         lodgings: [
-          { choice: true, name: 'Hôtel Azteca — Barcelonnette', note: 'Très motard-friendly, garage fermé.', phone: '04 92 81 46 36', lat: 44.3870, lng: 6.6538 },
-          { choice: false, name: 'Grand Hôtel de Barcelonnette', note: 'En plein centre-ville.', phone: '04 92 81 03 14', lat: 44.3885, lng: 6.6520 }
+          {
+            choice: true,
+            name: 'Hôtel La Vigneraie',
+            note: 'Levens · Super établissement. 04 93 79 77 60. Repas sympa sur place.',
+            phone: '04 93 79 77 60',
+            lat: 43.8615,
+            lng: 7.2260
+          },
+          {
+            choice: false,
+            name: 'Mon gîte à Pélasque (à 20km)',
+            note: 'Si complet, à 20km : "Mon gîte à Pélasque" (06 83 96 67 93).',
+            phone: '06 83 96 67 93',
+            lat: 43.9650,
+            lng: 7.2650
+          },
+          {
+            choice: false,
+            name: 'Le Bellevue Martinon (Utelle)',
+            note: 'Ou "Le Bellevue Martinon" au village d\'après à Utelle (04 93 03 17 19). Dans ce cas au col de Braus il faudra rejoindre directement Lantosque !',
+            phone: '04 93 03 17 19',
+            lat: 43.9130,
+            lng: 7.2690
+          }
         ],
         fuel: [
-          { km: 72, name: 'Intermarché — Guillestre', note: 'Idéal entre l\'Izoard et le col de Vars.', lat: 44.6590, lng: 6.6442 },
-          { km: 192, name: 'Casino / Total — Barcelonnette', note: 'Plein obligatoire avant la Bonette demain.', lat: 44.3865, lng: 6.6455 }
+          {
+            km: 48,
+            name: 'Total — Saint-Étienne-de-Tinée',
+            note: 'Itinéraire : 42min. - 26km. Chez Total, repéré sur le fichier GPS. A Isola il y a aussi une station Dyneff…chère... (Total 537 km, Plein 150 km).',
+            lat: 44.2564,
+            lng: 6.9248
+          },
+          {
+            km: 190,
+            name: 'Station Service Intermarché du Carei — Menton',
+            note: 'Station Service Intermarché du Carei, voir sur le fichier GPS. Après…ça va être difficile de trouver une station pour un moment. Il est préférable d\'assurer le coup sur Menton ! (Total 679 km, Plein 0 km).',
+            lat: 43.7860,
+            lng: 7.4920
+          }
         ],
-        fuelAdvice: 'Faites le plein à Barcelonnette en arrivant : demain on attaque la Bonette et la vallée de la Tinée.',
+        fuelAdvice: 'Chez Total à Saint-Étienne-de-Tinée (km 48 ; à Isola il y a aussi une station Dyneff… chère…) puis Station Service Intermarché du Carei à Menton (km 190 : après… ça va être difficile de trouver une station pour un moment, il est préférable d\'assurer le coup sur Menton !).',
         steps: [
-          { time: '09:00', title: 'Col d\'Izoard (2 360 m)', detail: 'Descente splendide dans la Casse Déserte.' },
-          { time: '12:15', title: 'Déjeuner à Guillestre', detail: 'Avant de grimper vers les Alpes-de-Haute-Provence.' },
-          { time: '14:30', title: 'Col de Vars (2 108 m)', detail: 'Courbes rapides et revêtement très propre.' },
-          { time: '16:30', title: 'Arrivée à Barcelonnette', detail: 'Ambiance détendue sur la place Manuel.' }
+          {
+            time: '9:30',
+            title: 'Départ hébergement',
+            detail: 'Itinéraire : 0min. - 0km - Total : 489km · Avec le petit déjeuner pris !',
+            note: null
+          },
+          {
+            time: '10:15 → 10:30',
+            title: 'Col de la Bonette',
+            detail: 'Itinéraire : 35min. - 22km - Total : 511km',
+            note: 'La route du col de la Bonette (2 715 mètres d\'altitude) relie la vallée de l\'Ubaye dans les Alpes de Haute-Provence à celle de la Tinée dans les Alpes-Maritimes. Faire aussi le tour de la Cime de la Bonette si elle est ouverte. Elle atteint 2 802 mètres d\'altitude, c\'est donc la route goudronnée la plus haute de France.'
+          },
+          {
+            time: '',
+            title: 'Faire le plein · Saint-Étienne-de-Tinée',
+            detail: 'Itinéraire : 42min. - 26km - Total : 537km · Chez Total, repéré sur le fichier GPS.',
+            note: 'A Isola il y a aussi une station Dyneff…chère...'
+          },
+          {
+            time: '12:00',
+            title: 'Col Saint-Martin',
+            detail: 'Itinéraire : 52min. - 45km - Total : 582km',
+            note: 'Le Col Saint-Martin monte à 1503 m. Il permet de faire la liaison entre les Vallées de la Tinée et de la Vésubie.'
+          },
+          {
+            time: '12:30 → 13:30',
+            title: 'Repas du midi à "Rendez-Vous Vésubien" · Roquebillière',
+            detail: 'Itinéraire : 25min. - 18km - Total : 600km · Fermé le lundi (0493030461). Resto du village, bonne adresse !',
+            note: 'Ou "SNACK L\'EMBEGU" s\'il est ouvert… +33 6 32 90 14 74.'
+          },
+          {
+            time: '14:30',
+            title: 'Col de Turini',
+            detail: 'Itinéraire : 55min. - 36km - Total : 636km',
+            note: null
+          },
+          {
+            time: '15:30 → 15:45',
+            title: 'Arrivée de la RGA · Menton',
+            detail: 'Itinéraire : 1h10 - 43km - Total : 679km',
+            note: 'Le point GPS de la trace du 3ème jour vous mènera sur la plaque officielle d\'arrivée de la RGA. En bord de mer.'
+          },
+          {
+            time: '15:45 → 16:00',
+            title: 'Boire un café à Menton',
+            detail: 'Au "Le Café du Parvis" juste en face de la plaque d\'arrivée de la RGA.',
+            note: 'On ne restera pas ici car le camping n\'est pas bien et les hôtels sont hors de prix. Il faut aussi prévoir le retour…'
+          },
+          {
+            time: '',
+            title: 'Faire le plein · Menton',
+            detail: 'Itinéraire : 0min. - 190km - Total : 679km · Station Service Intermarché du Carei, voir sur le fichier GPS.',
+            note: 'Après…ça va être difficile de trouver une station pour un moment. Il est préférable d\'assurer le coup sur Menton !'
+          },
+          {
+            time: '16:45',
+            title: 'Col de Braus',
+            detail: 'Itinéraire : 45min. - 27km - Total : 706km',
+            note: null
+          },
+          {
+            time: '17:45',
+            title: 'Rejoindre hébergement',
+            detail: 'Itinéraire : 57min. - 38km - Total : 744km',
+            note: null
+          },
+          {
+            time: '',
+            title: 'Repas du soir & Nuit à "Hôtel La Vigneraie" · Levens',
+            detail: 'Très bien à l\'hôtel. Super établissement. 04 93 79 77 60. Repas sympa sur place.',
+            note: 'Sinon "Brasserie le Félix" (0641098965). Aussi "L\'endroit" (0987761826). Et "Mac Pizza" (0783459590). Si complet, à 20km : "Mon gîte à Pélasque" (06 83 96 67 93). Ou "Le Bellevue Martinon" au village d\'après à Utelle (04 93 03 17 19). Dans ce cas au col de Braus il faudra rejoindre directement Lantosque !'
+          }
         ]
       },
       {
-        code: 'J4', date: 'Lun. 19 juil.', route: 'Barcelonnette → Menton', km: 235, dur: '6h10',
-        coords: [[44.3877, 6.6524], [44.3266, 6.8075], [44.1011, 7.1255], [43.9786, 7.3917], [43.8768, 7.4508], [43.7745, 7.4975]],
-        nextStop: { title: 'Cime de la Bonette (2 802 m)', sub: 'La plus haute route goudronnée d\'Europe' },
-        shortcut: { gain: '-35 km · -55 min', text: 'Si grosse chaleur dans le sud, rejoignez directement Sospel → Menton sans passer par le col de Castillon bis.' },
+        code: 'J4',
+        route: '245km - 5h45',
+        km: 245,
+        totalKm: 990,
+        dur: '5h45',
+        coords: [[43.8615, 7.2260], [44.0350, 7.0550], [44.1320, 6.9750], [44.0885, 6.9295], [44.2345, 6.6890], [44.5596, 6.3512]],
+        nextStop: { title: 'Gorges du Cians (10:30) → Couillole → Valberg', sub: 'Courses "Proxi Valberg - L\'Epicerie" · Repas soir "Le Resto\'Rond" (+33 6 38 47 34 35)' },
+        shortcut: null,
         restos: [
-          { meal: 'midi', choice: true, time: '12:45', name: 'Les Trois Vallées — Col de Turini', note: 'Le repaire mythique du Monte-Carlo.', phone: '04 93 91 57 21', lat: 43.9772, lng: 7.3914 },
-          { meal: 'soir', choice: true, time: '20:00', name: 'Le Petit Port — Menton', note: 'Poissons et pâtes face à la Méditerranée.', phone: '04 93 35 82 62', lat: 43.7760, lng: 7.5082 }
+          {
+            meal: 'midi',
+            choice: true,
+            time: 'Repas du midi',
+            name: 'Repas du midi pic nic au col des Champs',
+            note: 'Col des Champs · Soit en pic nic, soit à Allos… vers 14h… Difficile de trouver un resto qui serve encore… Sinon manger à Valberg, mais ce sera avant midi…',
+            phone: null,
+            lat: 44.2345,
+            lng: 6.6890
+          },
+          {
+            meal: 'soir',
+            choice: true,
+            time: 'Repas du soir',
+            name: 'Le Resto\'Rond',
+            note: 'Savines-le-Lac · Excellente adresse ! +33 6 38 47 34 35.',
+            phone: '+33 6 38 47 34 35',
+            lat: 44.5250,
+            lng: 6.4050
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Sinon (Savines)',
+            name: 'La Combe d\'or',
+            note: 'Sinon : "La Combe d\'or" (0492442430).',
+            phone: '04 92 44 24 30',
+            lat: 44.5260,
+            lng: 6.4060
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Sinon (Savines)',
+            name: 'Chez Barulo',
+            note: '"Chez Barulo" (0492442093).',
+            phone: '04 92 44 20 93',
+            lat: 44.5245,
+            lng: 6.4045
+          }
         ],
         lodgings: [
-          { choice: true, name: 'Hôtel Prince de Galles — Menton', note: 'Face à la mer, parking privé sur réservation.', phone: '04 93 28 21 21', lat: 43.7689, lng: 7.4892 },
-          { choice: false, name: 'Ibis Styles Menton Centre', note: 'Pratique avec parking souterrain.', phone: '04 93 35 76 50', lat: 43.7742, lng: 7.4981 }
+          {
+            choice: true,
+            name: 'Hôtel & Camping Les Sources',
+            note: 'Savines-le-Lac · Endroit sympa qui propose des chambres, des bungalows et des emplacements pour les tentes. Tèl. : +33 4 92 44 20 52.',
+            phone: '+33 4 92 44 20 52',
+            lat: 44.5270,
+            lng: 6.4080
+          },
+          {
+            choice: false,
+            name: 'Camping Municipal Le Grand Large',
+            note: 'Sinon "Camping Municipal Le Grand Large" un peu avant.',
+            phone: null,
+            lat: 44.5220,
+            lng: 6.4120
+          },
+          {
+            choice: false,
+            name: 'Logis Hôtel Eden Lac',
+            note: 'Hôtel : Logis Hôtel Eden Lac (+33 4 92 44 20 53).',
+            phone: '+33 4 92 44 20 53',
+            lat: 44.5255,
+            lng: 6.4030
+          },
+          {
+            choice: false,
+            name: 'LA ROBÉYÈRE (Embrun)',
+            note: 'Ou adresse classe à Embrun "LA ROBÉYÈRE" (04 92 51 90 78).',
+            phone: '04 92 51 90 78',
+            lat: 44.5630,
+            lng: 6.4940
+          }
         ],
         fuel: [
-          { km: 82, name: 'Station — Saint-Étienne-de-Tinée', note: 'Utile après la descente de la Bonette.', lat: 44.2564, lng: 6.9248 },
-          { km: 195, name: 'Total — Sospel', note: 'Avant les derniers lacets vers la mer.', lat: 43.8775, lng: 7.4480 }
+          {
+            km: 111,
+            name: 'Relais / Station à Valberg',
+            note: 'Sinon il faudra tenir jusqu\'à Barcelonnette… Il y a un relais à Valberg. (Total 855 km, Plein 176 km).',
+            lat: 44.0885,
+            lng: 6.9295
+          }
         ],
-        fuelAdvice: 'Ne loupez pas Saint-Étienne-de-Tinée ou Sospel : peu de stations automatiques dans l\'arrière-pays niçois.',
+        fuelAdvice: 'Faire le plein à Valberg (km 111 : il y a un relais à Valberg), sinon il faudra tenir jusqu\'à Barcelonnette… Faire des courses au "Proxi Valberg - L\'Epicerie" (12:15 → 12:30) car on va traverser une zone où les restos se font rares…',
         steps: [
-          { time: '08:30', title: 'Cime de la Bonette (2 802 m)', detail: 'Faites la petite boucle sommitale, vue à 360°.' },
-          { time: '12:45', title: 'Col de Turini', detail: 'Déjeuner au frais sous les sapins.' },
-          { time: '16:30', title: 'Arrivée à Menton', detail: 'Photo souvenir devant la Méditerranée : la descente est bouclée !' }
+          {
+            time: '9:30',
+            title: 'Départ hébergement · Levens',
+            detail: 'Itinéraire : 0min. - 0km - Total : 744km · Avec le petit déjeuner pris !',
+            note: null
+          },
+          {
+            time: '10:30',
+            title: 'Gorges du Cians',
+            detail: 'Itinéraire : 50min. - 48km - Total : 792km',
+            note: 'Les gorges du Cians sont très sauvages et peu peuplées, la vallée est unique en son genre. Surnommées le colorado niçois, elles sont formées par le Var et le Cians qui ont taillés les parois de schiste rouge. Vous découvrirez ses grandes parois rouges et sa terre ocre. C\'est vraiment dépaysant. Bien prendre la D428 au croisement de la D28 au milieu des gorges.'
+          },
+          {
+            time: '11:45',
+            title: 'Col de la Couillole',
+            detail: 'Itinéraire : 1h15 - 47km - Total : 839km',
+            note: 'Entre les gorges et le col, nous allons prendre des toutes petites routes, sauvages, tranquilles et splendides ! Ce col monte à 1 678 mètres d\'altitude. Il assure durant six à sept mois de l\'année la liaison routière entre les gorges du Cians à l\'ouest et la vallée de la Tinée à l\'est.'
+          },
+          {
+            time: '12:15',
+            title: 'Col de Valberg · Valberg',
+            detail: 'Itinéraire : 24min. - 16km - Total : 855km',
+            note: null
+          },
+          {
+            time: '',
+            title: 'Faire le plein · Valberg',
+            detail: 'Sinon il faudra tenir jusqu\'à Barcelonnette…',
+            note: 'Il y a un relais à Valberg.'
+          },
+          {
+            time: '12:15 → 12:30',
+            title: 'Faire des courses · Valberg',
+            detail: 'On va traverser une zone où les restos se font rares… Soit il faudra tenter de manger tard, soit le pic nic reste le mieux !',
+            note: 'Au "Proxi Valberg - L\'Epicerie".'
+          },
+          {
+            time: '13:30 → 14:30',
+            title: 'Repas du midi pic nic au col des Champs · Col des Champs',
+            detail: 'Itinéraire : 75min. - 52km - Total : 907km · Soit en pic nic, soit à Allos… vers 14h… Difficile de trouver un resto qui serve encore…',
+            note: 'Sinon manger à Valberg, mais ce sera avant midi…'
+          },
+          {
+            time: '15:15',
+            title: 'Col d\'Allos',
+            detail: 'Itinéraire : 35min. - 22km - Total : 929km',
+            note: 'Le col d\'Allos, dans les Alpes de Haute Provence, atteint 2247 mètres d\'altitude. Sur la Route des Grandes Alpes, il se situe proche de la source du Verdon.'
+          },
+          {
+            time: '16:30',
+            title: 'Rejoindre hébergement · Savines-le-Lac',
+            detail: 'Itinéraire : 75min. - 61km - Total : 990km',
+            note: null
+          },
+          {
+            time: '',
+            title: 'Profiter du lac · Savines-le-Lac',
+            detail: 'Et de Savines comme on arrive tôt.',
+            note: null
+          },
+          {
+            time: '',
+            title: 'Repas du soir à "Le Resto\'Rond"',
+            detail: 'Excellente adresse ! +33 6 38 47 34 35.',
+            note: 'Sinon : "La Combe d\'or" (0492442430), "Chez Barulo" (0492442093).'
+          },
+          {
+            time: '',
+            title: 'Nuit à "Hôtel & Camping Les Sources"',
+            detail: 'Endroit sympa qui propose des chambres, des bungalows et des emplacements pour les tentes. Tèl. : +33 4 92 44 20 52.',
+            note: 'Sinon "Camping Municipal Le Grand Large" un peu avant. Hôtel : Logis Hôtel Eden Lac (+33 4 92 44 20 53). Ou adresse classe à Embrun "LA ROBÉYÈRE" (04 92 51 90 78).'
+          }
         ]
       },
       {
-        code: 'J5', date: 'Mar. 20 juil.', route: 'Menton → Gap (Retour sauvage)', km: 270, dur: '6h30',
-        coords: [[43.7745, 7.4975], [43.9510, 6.8090], [44.0410, 6.5120], [44.2345, 6.3220], [44.5596, 6.0798]],
-        nextStop: { title: 'Gorges de Daluis (roches rouges)', sub: 'Un des plus beaux passages du retour' },
-        shortcut: { gain: '-48 km · -1h00', text: 'À Castellane, prenez la Route Napoléon directe vers Digne puis Gap pour raccourcir la fin de journée.' },
+        code: 'J5',
+        route: '236km - 5h00',
+        km: 236,
+        totalKm: 1241,
+        dur: '5h00',
+        coords: [[44.5596, 6.3512], [44.5596, 6.0798], [44.7160, 5.4950], [44.7735, 5.5635], [44.7995, 5.4025], [45.0350, 5.5560], [45.1480, 5.7140], [45.2420, 5.6620]],
+        nextStop: { title: 'Faire le plein Gap (km 30) → Gorges des Gâts → Col du Rousset', sub: 'Repas midi "Restaurant Carnotzet" · Courses Intermarché de Die' },
+        shortcut: null,
         restos: [
-          { meal: 'midi', choice: true, time: '12:30', name: 'Auberge du Point Sublime — Daluis', note: 'Simple et authentique en sortie de gorges.', phone: '04 93 05 51 12', lat: 44.0221, lng: 6.8124 },
-          { meal: 'soir', choice: true, time: '19:30', name: 'La Table de Gap', note: 'Bonne cuisine de pays, terrasse calme.', phone: '04 92 51 33 10', lat: 44.5588, lng: 6.0785 }
+          {
+            meal: 'midi',
+            choice: true,
+            time: 'Repas du midi',
+            name: 'Restaurant Carnotzet',
+            note: 'Station du col du Rousset · Plusieurs restos en sortant du tunnel à droite au rond-point. Mais… rien de foufou, le mieux serait d\'avoir le pic nic… On peut faire des courses avant tout en bas au Intermarché de Die, repéré sur le fichier GPS.',
+            phone: null,
+            lat: 44.7735,
+            lng: 5.5635
+          },
+          {
+            meal: 'soir',
+            choice: true,
+            time: 'Repas du soir',
+            name: 'Resto sur place au Logi ("Logis Hôtel le Néron")',
+            note: 'Fontanil-Cornillon · Si vous êtes au Logi, resto sur place.',
+            phone: '04 76 75 27 38',
+            lat: 45.2420,
+            lng: 5.6620
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Plateau des petites roches',
+            name: '"Sous La Dent"',
+            note: 'Si plateau des petites roches : "Sous La Dent", pizzeria très sympa (fermée lundi et mardi : 0476987031). Sinon snack au camping en haute saison.',
+            phone: '04 76 98 70 31',
+            lat: 45.3250,
+            lng: 5.8350
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Alternative',
+            name: '"Route 61" (burgers)',
+            note: 'Sinon le resto burgers "Route 61" est très bien ! 0953877805.',
+            phone: '09 53 87 78 05',
+            lat: 45.3230,
+            lng: 5.8340
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Pour ceux à l\'hôtel',
+            name: '"L\'envol des Saveurs"',
+            note: 'Pour ceux à l\'hôtel : "L\'envol des Saveurs" (0476048099).',
+            phone: '04 76 04 80 99',
+            lat: 45.2850,
+            lng: 5.8820
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Pour ceux à l\'hôtel',
+            name: '"Camionnette Nacho Pizza"',
+            note: '"Camionnette Nacho Pizza" (0613153516).',
+            phone: '06 13 15 35 16',
+            lat: 45.2840,
+            lng: 5.8810
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Pour ceux à l\'hôtel',
+            name: 'McDo à Crolles',
+            note: 'Ou même un McDo juste à côté à Crolles.',
+            phone: null,
+            lat: 45.2865,
+            lng: 5.8850
+          }
         ],
         lodgings: [
-          { choice: true, name: 'Hôtel Avantici — Gap', note: 'Grand parking calme, parfait en étape retour.', phone: '04 92 52 02 02', lat: 44.5620, lng: 6.0850 }
+          {
+            choice: true,
+            name: 'Logis Hôtel le Néron',
+            note: 'Fontanil-Cornillon · Simple, pas le plus bel environnement mais prix correct. 04 76 75 27 38.',
+            phone: '04 76 75 27 38',
+            lat: 45.2420,
+            lng: 5.6620
+          },
+          {
+            choice: false,
+            name: 'Camping "des Petites Roches"',
+            note: 'Sinon, une fois à Seyssins, on fait une vingtaine de kms : Camping "des Petites Roches" très agréable. Ouvre généralement début mai. Ils ont aussi chalets et tentes. +33 7 68 96 52 73.',
+            phone: '+33 7 68 96 52 73',
+            lat: 45.3235,
+            lng: 5.8345
+          },
+          {
+            choice: false,
+            name: '"Les Jardins de Kuz"',
+            note: 'Sinon "Les Jardins de Kuz" (+33 7 82 10 22 36), très bonne adresse.',
+            phone: '+33 7 82 10 22 36',
+            lat: 45.2855,
+            lng: 5.8830
+          },
+          {
+            choice: false,
+            name: '"ibis Styles Crolles"',
+            note: 'Ou tout simplement le "ibis Styles Crolles" (+33 4 76 92 84 84) mais moins pratique pour les motos…',
+            phone: '+33 4 76 92 84 84',
+            lat: 45.2870,
+            lng: 5.8860
+          }
         ],
         fuel: [
-          { km: 115, name: 'Intermarché — Puget-Théniers', note: 'Avant les Gorges de Daluis.', lat: 43.9554, lng: 6.8935 },
-          { km: 225, name: 'Leclerc — Digne-les-Bains', note: 'Bon tarif, 24h/24.', lat: 44.0882, lng: 6.2241 }
+          {
+            km: 30,
+            name: 'Leclerc de Gap',
+            note: 'Gap · Au Leclerc de Gap. (Total 1020 km, Plein 165 km).',
+            lat: 44.5596,
+            lng: 6.0798
+          },
+          {
+            km: 226,
+            name: 'Leclerc de Échirolles / Intermarché Seyssins / Carrefour Grenoble Meylan',
+            note: 'Échirolles · Au Leclerc de Échirolles par exemple. Ou Intermarché station-service Seyssins. Ou Station Service Carrefour - Grenoble Meylan. (Total 1216 km, Plein 196 km).',
+            lat: 45.1480,
+            lng: 5.7140
+          }
         ],
-        fuelAdvice: 'Plein recommandé à Puget-Théniers avant d\'entrer dans les Gorges de Daluis et le secteur de Seyne.',
+        fuelAdvice: 'Leclerc de Gap (km 30) puis Leclerc de Échirolles par exemple, ou Intermarché station-service Seyssins, ou Station Service Carrefour - Grenoble Meylan (km 226).',
         steps: [
-          { time: '08:30', title: 'Remontée par l\'arrière-pays', detail: 'On quitte la côte très vite pour retrouver les virages.' },
-          { time: '11:30', title: 'Gorges de Daluis', detail: 'Tunnels creusés dans la roche rouge.' },
-          { time: '17:15', title: 'Arrivée à Gap', detail: 'Dernière soirée du road trip.' }
+          {
+            time: '9:30',
+            title: 'Départ hébergement · Savines-le-Lac',
+            detail: 'Itinéraire : 0min. - 0km - Total : 990km · Avec le petit déjeuner pris !',
+            note: null
+          },
+          {
+            time: '',
+            title: 'Faire le plein · Gap',
+            detail: 'Itinéraire : 0min. - 30km - Total : 1020km · Au Leclerc de Gap.',
+            note: null
+          },
+          {
+            time: '11:15',
+            title: 'Gorges des Gâts · Châtillon-en-Diois',
+            detail: 'Itinéraire : 105min. - 101km - Total : 1090km',
+            note: null
+          },
+          {
+            time: '12:15 → 12:30',
+            title: 'Col du Rousset',
+            detail: 'Itinéraire : 50min. - 42km - Total : 1132km',
+            note: null
+          },
+          {
+            time: '12:30 → 13:30',
+            title: 'Repas du midi à "Restaurant Carnotzet" · Station du col du Rousset',
+            detail: 'Plusieurs restos en sortant du tunnel à droite au rond-point. Mais…rien de foufou, le mieux serait d\'avoir le pic nic…',
+            note: 'On peut faire des courses avant tout en bas au Intermarché de Die, repéré sur le fichier GPS.'
+          },
+          {
+            time: '13:45 → 14:00',
+            title: 'Vassieux en Vercors',
+            detail: 'Itinéraire : 13min. - 10km - Total : 1142km',
+            note: 'Pour voir la Nécropole de la Résistance.'
+          },
+          {
+            time: '14:45 → 15:00',
+            title: 'Villard de Lans',
+            detail: 'Itinéraire : 49min. - 38km - Total : 1180km',
+            note: 'On peut prendre ici un café dans le centre. J\'ai mis des adresses dans les traces GPS. Par exemple : "Café des Sports".'
+          },
+          {
+            time: '',
+            title: 'Faire le plein · Échirolles',
+            detail: 'Itinéraire : 0min. - 226km - Total : 1216km · Au Leclerc de Échirolles par exemple.',
+            note: 'Ou Intermarché station-service Seyssins. Ou Station Service Carrefour - Grenoble Meylan.'
+          },
+          {
+            time: '15:00 → 16:15',
+            title: 'Rejoindre hébergement',
+            detail: 'Itinéraire : 72min. - 64km - Total : 1241km',
+            note: null
+          },
+          {
+            time: '',
+            title: 'Repas du soir',
+            detail: 'Si vous êtes au Logi, resto sur place.',
+            note: 'Si plateau des petites roches : "Sous La Dent", pizzeria très sympa (fermée lundi et mardi : 0476987031). 2,5km du camping. Sinon snack au camping en haute saison. Sinon le resto burgers "Route 61" est très bien ! 0953877805. Il est à 500m du camping. Pour ceux à l\'hôtel : "L\'envol des Saveurs" (0476048099), "Camionnette Nacho Pizza" (0613153516) ou même un McDo juste à côté à Crolles.'
+          },
+          {
+            time: '',
+            title: 'Nuit à "Logis Hôtel le Néron" · Fontanil-Cornillon',
+            detail: 'Simple, pas le plus bel environnement mais prix correct. 04 76 75 27 38.',
+            note: 'Sinon, une fois à Seyssins, on fait une vingtaine de kms : Camping "des Petites Roches" très agréable. Ouvre généralement début mai. Ils ont aussi chalets et tentes. +33 7 68 96 52 73. Sinon "Les Jardins de Kuz" (+33 7 82 10 22 36), très bonne adresse, ou tout simplement le "ibis Styles Crolles" (+33 4 76 92 84 84) mais moins pratique pour les motos…'
+          }
         ]
       },
       {
-        code: 'J6', date: 'Mer. 21 juil.', route: 'Gap → Thonon (Boucle finale)', km: 285, dur: '6h20',
-        coords: [[44.5596, 6.0798], [44.8250, 5.7920], [45.1885, 5.7245], [45.5646, 5.9178], [45.8992, 6.1294], [46.3709, 6.4797]],
-        nextStop: { title: 'Col du Noyer & Massif des Bauges', sub: 'Derniers grands virages avant le Léman' },
-        shortcut: { gain: '-55 km · -1h15', text: 'Si vous avez de la route pour rentrer chez vous, bifurquez à Annecy directement vers votre autoroute.' },
+        code: 'J6',
+        route: '230km - 5h30 (Retour Thonon)',
+        km: 230,
+        totalKm: 1477,
+        dur: '5h30',
+        coords: [[45.2420, 5.6620], [45.4610, 5.9220], [45.6760, 6.1330], [45.8250, 6.1080], [45.8992, 6.1294], [46.0680, 6.3110], [46.3709, 6.4797]],
+        nextStop: { title: 'Départ 09:00 → Granier → Revard → Semnoz', sub: 'Repas midi "Bar-Restaurant Le Châtillon au Semnoz" · 04 50 05 45 83' },
+        shortcut: null,
         restos: [
-          { meal: 'midi', choice: true, time: '12:30', name: 'Relais des Bauges — Le Châtelard', note: 'Menu motard rapide et copieux.', phone: '04 79 54 82 14', lat: 45.6852, lng: 6.1370 }
+          {
+            meal: 'midi',
+            choice: true,
+            time: 'Repas du midi',
+            name: 'Bar-Restaurant Le Châtillon au Semnoz',
+            note: 'Semnoz 1699 · Excellent resto avec spécialités de montagne. 04 50 05 45 83.',
+            phone: '04 50 05 45 83',
+            lat: 45.8020,
+            lng: 6.1050
+          },
+          {
+            meal: 'midi',
+            choice: false,
+            time: 'Sinon (Semnoz)',
+            name: 'Le Courant d\'Ere',
+            note: 'Sinon "Le Courant d\'Ere" mais bien moins bien... 0450012317.',
+            phone: '04 50 01 23 17',
+            lat: 45.8030,
+            lng: 6.1060
+          },
+          {
+            meal: 'soir',
+            choice: true,
+            time: 'Repas du soir',
+            name: 'L\'Etable du Savoyard',
+            note: 'Thonon-les-Bains · Fermé en début de semaine, pour vérifier : tèl. au +33 4 50 71 05 56. A deux pas du camping.',
+            phone: '+33 4 50 71 05 56',
+            lat: 46.3761,
+            lng: 6.4754
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Dans le centre',
+            name: 'Il Vesuvio (italien)',
+            note: 'Dans le centre : Il Vesuvio (italien).',
+            phone: null,
+            lat: 46.3722,
+            lng: 6.4792
+          },
+          {
+            meal: 'soir',
+            choice: false,
+            time: 'Alternative',
+            name: 'Bistrot le Cousin Michel !!!',
+            note: 'Ou "Bistrot le Cousin Michel" !!! Spécialités savoyardes.',
+            phone: null,
+            lat: 46.3715,
+            lng: 6.4785
+          }
         ],
         lodgings: [
-          { choice: true, name: 'Retour maison ou Hôtel du Léman', note: 'Fin officielle de la boucle RGA Aller-Retour.', phone: '04 50 71 22 45', lat: 46.3725, lng: 6.4789 }
+          {
+            choice: true,
+            name: 'Camping de Saint Disdille',
+            note: 'Thonon-les-Bains · Camping *** situé au bord du Lac Leman. Il propose aussi hébergements insolites et bungalows. +33 4 50 71 14 11.',
+            phone: '+33 4 50 71 14 11',
+            lat: 46.3834,
+            lng: 6.5015
+          },
+          {
+            choice: false,
+            name: 'Camping Parc de la Dranse',
+            note: 'Sinon aussi le Camping Parc de la Dranse (+33 6 37 26 68 42).',
+            phone: '+33 6 37 26 68 42',
+            lat: 46.3698,
+            lng: 6.4420
+          },
+          {
+            choice: false,
+            name: 'Hôtel Arc en Ciel',
+            note: 'Hôtel : Hôtel Arc en Ciel (+33 4 50 71 90 63) : excellent rapport qualité-prix, garage en sécurité pour les motos.',
+            phone: '+33 4 50 71 90 63',
+            lat: 46.3725,
+            lng: 6.4789
+          },
+          {
+            choice: false,
+            name: 'Zenitude Hôtel-Résidences Les Terrasses du Lac',
+            note: 'Zenitude Hôtel-Résidences Les Terrasses du Lac (+33 4 50 74 13 51) : + loin, - cher, - classe, parking à demander.',
+            phone: '+33 4 50 74 13 51',
+            lat: 46.3780,
+            lng: 6.4920
+          },
+          {
+            choice: false,
+            name: 'Hôtel Restaurant Les Cygnes',
+            note: 'Hôtel Restaurant Les Cygnes (+33 4 50 75 01 01) : au bord du lac, très classe ! Demander avant si le parking est dispo.',
+            phone: '+33 4 50 75 01 01',
+            lat: 46.3752,
+            lng: 6.4765
+          }
         ],
         fuel: [
-          { km: 110, name: 'Super U — Corps / La Mure', note: 'Pratique sur la remontée du Dévoluy.', lat: 44.9041, lng: 5.7865 },
-          { km: 220, name: 'Carrefour — Annecy Nord', note: 'Dernier plein avant Thonon.', lat: 45.9325, lng: 6.1422 }
+          {
+            km: 156,
+            name: 'Intermarché station-service Annecy',
+            note: 'Annecy · Itinéraire : 31min. - 18km. Intermarché station-service Annecy, sera le plus proche de la trace. (Total 1397 km, Plein 181 km).',
+            lat: 45.8992,
+            lng: 6.1294
+          }
         ],
-        fuelAdvice: 'Un seul plein intermédiaire vers La Mure ou Annecy suffit largement pour boucler la journée.',
+        fuelAdvice: 'On part un peu + tôt aujourd\'hui (09:00) pour manger au Semnoz, sinon prévoir le pic nic… Faire le plein à Annecy (km 156) : Intermarché station-service Annecy, sera le plus proche de la trace.',
         steps: [
-          { time: '08:30', title: 'Col du Noyer', detail: 'Route étroite et spectaculaire, ouvrez l\'œil.' },
-          { time: '12:30', title: 'Massif des Bauges', detail: 'Déjeuner au cœur du parc naturel.' },
-          { time: '16:30', title: 'Retour à Thonon-les-Bains', detail: 'Bravo, vous venez de boucler ~1 500 km de pur bonheur alpin !' }
+          {
+            time: '9:00',
+            title: 'Départ hébergement · Fontanil-Cornillon',
+            detail: 'Itinéraire : 0min. - 0km - Total : 1241km · Avec le petit déjeuner pris !',
+            note: 'On part un peu + tôt aujourd\'hui pour manger au Semnoz. Sinon prévoir le pic nic…'
+          },
+          {
+            time: '10:00',
+            title: 'Col du Granier',
+            detail: 'Itinéraire : 70min. - 44km - Total : 1285km',
+            note: null
+          },
+          {
+            time: '11:00 → 11:15',
+            title: 'Belvédère du Revard',
+            detail: 'Itinéraire : 55min. - 40km - Total : 1325km',
+            note: null
+          },
+          {
+            time: '11:45',
+            title: 'Pont de l\'Abîme',
+            detail: 'Itinéraire : 35min. - 26km - Total : 1351km',
+            note: null
+          },
+          {
+            time: '12:30',
+            title: 'Semnoz - 1 699 m',
+            detail: 'Itinéraire : 40min. - 28km - Total : 1379km',
+            note: null
+          },
+          {
+            time: '12:30 → 13:30',
+            title: 'Repas du midi à "Bar-Restaurant Le Châtillon au Semnoz" · Semnoz 1699',
+            detail: 'Excellent resto avec spécialités de montagne. 04 50 05 45 83.',
+            note: 'Sinon "Le Courant d\'Ere" mais bien moins bien... 0450012317.'
+          },
+          {
+            time: '14:15',
+            title: 'Faire le plein · Annecy',
+            detail: 'Itinéraire : 31min. - 18km - Total : 1397km · Intermarché station-service Annecy, sera le plus proche de la trace.',
+            note: null
+          },
+          {
+            time: '15:00',
+            title: 'La Roche sur Foron',
+            detail: 'Itinéraire : 46min. - 32km - Total : 1429km',
+            note: null
+          },
+          {
+            time: '16:15',
+            title: 'Thonon-les-Bains',
+            detail: 'Itinéraire : 66min. - 48km - Total : 1477km',
+            note: null
+          },
+          {
+            time: '',
+            title: 'Temps libre à Thonon',
+            detail: 'Vous aurez du temps pour profiter du lac à Thonon.',
+            note: null
+          },
+          {
+            time: '',
+            title: 'Repas du soir à "L\'Etable du Savoyard" · Thonon-les-Bains',
+            detail: 'Fermé en début de semaine, pour vérifier : tèl. au +33 4 50 71 05 56. A deux pas du camping.',
+            note: 'Dans le centre : Il Vesuvio (italien). Ou "Bistrot le Cousin Michel" !!! Spécialités savoyardes.'
+          },
+          {
+            time: '',
+            title: 'Nuit à "Camping de Saint Disdille" · Thonon-les-Bains',
+            detail: 'Camping *** situé au bord du Lac Leman. Il propose aussi hébergements insolites et bungalows. +33 4 50 71 14 11. Sinon aussi le Camping Parc de la Dranse (+33 6 37 26 68 42).',
+            note: 'Hôtel : Hôtel Arc en Ciel (+33 4 50 71 90 63) : excellent rapport qualité-prix, garage en sécurité pour les motos. Zenitude Hôtel-Résidences Les Terrasses du Lac (+33 4 50 74 13 51) : + loin, - cher, - classe, parking à demander. Hôtel Restaurant Les Cygnes (+33 4 50 75 01 01) : au bord du lac, très classe ! Demander avant si le parking est dispo.'
+          }
+        ]
+      },
+      {
+        code: 'J7',
+        route: 'Retour chez vous',
+        km: 0,
+        totalKm: 1477,
+        dur: 'Retour',
+        coords: [[46.3709, 6.4797], [46.3650, 6.4700]],
+        nextStop: { title: 'Retour chez vous', sub: 'Départ hébergement · Direction maison' },
+        shortcut: null,
+        restos: [],
+        lodgings: [],
+        fuel: [],
+        fuelAdvice: 'Vérifiez le niveau de carburant et votre itinéraire de retour vers la maison.',
+        steps: [
+          {
+            time: '',
+            title: 'Départ hébergement',
+            detail: 'Retour chez vous.',
+            note: null
+          },
+          {
+            time: '',
+            title: 'Direction maison',
+            detail: 'Temps ? Itinéraire ? Budget ?',
+            note: null
+          }
         ]
       }
     ];
@@ -825,7 +2004,6 @@
       }, 2600);
     }
 
-    // Échappement HTML systématique pour éviter toute injection XSS
     function escHtml(val) {
       return String(val ?? '').replace(/[&<>"']/g, ch => ({
         '&': '&amp;',
@@ -836,7 +2014,6 @@
       }[ch]));
     }
 
-    // Échappement XML strict pour la génération des fichiers GPX
     function escXml(val) {
       return String(val ?? '').replace(/[<>&'"]/g, ch => ({
         '<': '&lt;',
@@ -850,6 +2027,11 @@
     function applyPreferences() {
       document.documentElement.classList.toggle('large-ui', !!state.largeUI);
       document.documentElement.classList.toggle('dark-ui', !!state.darkUI);
+
+      const dateInput = document.getElementById('j1-start-date');
+      if (dateInput && dateInput.value !== (state.j1StartDate || '')) {
+        dateInput.value = state.j1StartDate || '';
+      }
 
       document.querySelectorAll('.btn-a-toggle').forEach(btn => {
         btn.textContent = state.largeUI ? 'A+ actif' : 'A+';
@@ -910,8 +2092,8 @@
       if (rdrEl) {
         rdrEl.textContent = isOff ? '● Mode hors-ligne' : '● Prêt hors-ligne';
         rdrEl.className = isOff
-          ? 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-sign text-[11px] font-bold'
-          : 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-ok border border-emerald-200 text-[11px] font-bold';
+          ? 'inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-50 text-amber-800 border border-sign text-[11px] font-bold'
+          : 'inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-50 text-ok border border-emerald-200 text-[11px] font-bold';
       }
       if (demoPill) {
         demoPill.textContent = isOff ? 'Hors-ligne' : 'En ligne';
@@ -960,6 +2142,7 @@
       try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
       state = JSON.parse(JSON.stringify(DEFAULT_STATE));
       state.loggedIn = true;
+      expandAllNotes = false;
       saveLocal();
       applyPreferences();
       closeModal('modal-demo');
@@ -982,7 +2165,7 @@
             <div class="min-w-0">
               <div class="flex items-center gap-1.5 flex-wrap mb-1">
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-ok border border-emerald-200">Prêt hors-ligne</span>
-                ${g.ready ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-sign">Démo interactive complète</span>' : ''}
+                ${g.ready ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-sign">Guide v2027-1 complet</span>' : ''}
               </div>
               <h3 class="font-display font-extrabold text-base text-ink leading-snug">${g.title}</h3>
               <p class="text-xs text-muted mt-0.5">${g.days} · ${g.km} · 100 % route</p>
@@ -990,7 +2173,7 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <button type="button" onclick="${g.ready ? "showScreen('reader')" : "showToast('Dans cette démo, ouvrez La RGA Aller-Retour pour tester le lecteur complet.')"}" class="flex-1 py-3 px-3 rounded-xl ${g.ready ? 'bg-ink text-white' : 'bg-slate-100 text-ink'} font-bold text-xs active:scale-[0.99]">
+            <button type="button" onclick="${g.ready ? "showScreen('reader')" : "showToast('Dans cette démo, ouvrez La RGA Aller-Retour (v2027-1) pour tester le lecteur complet.')"}" class="flex-1 py-3 px-3 rounded-xl ${g.ready ? 'bg-ink text-white' : 'bg-slate-100 text-ink'} font-bold text-xs active:scale-[0.99]">
               ${g.ready ? 'Ouvrir mon guide →' : 'Aperçu bientôt relié'}
             </button>
             <button type="button" onclick="openGpxWarn('${g.title.replace(/'/g, "\\'")}')" class="py-3 px-3.5 rounded-xl bg-slate-100 text-ink font-bold text-xs shrink-0">
@@ -1052,24 +2235,32 @@
        ========================================================= */
     function renderReader() {
       const day = RGA_DAYS[state.dayIndex];
-      document.getElementById('reader-subtitle').textContent = `${day.code} · ${day.route}${day.km ? ' · ' + day.km + ' km' : ''}`;
+      const extrapDate = getExtrapolatedDate(state.dayIndex);
+      document.getElementById('reader-subtitle').textContent = extrapDate
+        ? `${extrapDate} · ${day.route}`
+        : day.route;
+
       document.getElementById('btn-send-dmd2').textContent = `Envoyer ma trace ${day.code} + POI vers DMD2`;
       const btnRidingDmd = document.getElementById('btn-send-dmd2-riding');
       if (btnRidingDmd) btnRidingDmd.textContent = `Envoyer ma trace ${day.code} + POI vers DMD2`;
 
-      // Pastilles de jours
-      const pills = document.getElementById('day-pills');
-      pills.innerHTML = RGA_DAYS.map((d, idx) => `
-        <button type="button" onclick="selectDay(${idx})" class="day-pill px-3.5 py-2 rounded-2xl text-xs whitespace-nowrap shadow-sm border transition ${
-          idx === state.dayIndex
-            ? 'bg-sign text-ink font-extrabold border-sign'
-            : 'bg-white/95 text-ink font-semibold border-slate-200'
-        }">
-          <strong>${d.code}</strong> <span class="opacity-80">${d.date}</span>
-        </button>
-      `).join('');
+      const dateInput = document.getElementById('j1-start-date');
+      if (dateInput) dateInput.value = state.j1StartDate || '';
 
-      // Mode En roulant / À l'arrêt
+      const pills = document.getElementById('day-pills');
+      pills.innerHTML = RGA_DAYS.map((d, idx) => {
+        const dDate = getExtrapolatedDate(idx);
+        return `
+          <button type="button" onclick="selectDay(${idx})" class="day-pill px-3.5 py-2 rounded-2xl text-xs whitespace-nowrap shadow-sm border transition ${
+            idx === state.dayIndex
+              ? 'bg-sign text-ink font-extrabold border-sign'
+              : 'bg-white/95 text-ink font-semibold border-slate-200'
+          }">
+            <strong>${d.code}</strong>${dDate ? ` <span class="opacity-80">${dDate}</span>` : ''}
+          </button>
+        `;
+      }).join('');
+
       const sheet = document.getElementById('reader-sheet');
       const btnRiding = document.getElementById('btn-riding-mode');
       const panelStopped = document.getElementById('panel-stopped');
@@ -1085,11 +2276,9 @@
         ? 'px-3.5 py-2.5 rounded-xl bg-sign text-ink text-xs font-extrabold shrink-0 shadow-sm active:scale-95'
         : 'px-3.5 py-2.5 rounded-xl bg-ink text-white text-xs font-bold shrink-0 shadow-sm active:scale-95';
 
-      // Prochaine étape (En roulant)
       document.getElementById('riding-next-title').textContent = day.nextStop.title;
       document.getElementById('riding-next-sub').textContent = day.nextStop.sub;
 
-      // Onglets actifs
       ['resto', 'logement', 'carburant', 'etapes'].forEach(t => {
         const b = document.getElementById('tab-' + t);
         const active = t === state.activeTab;
@@ -1148,6 +2337,11 @@
       showToast(`Plein enregistré au km ${km} !`);
     }
 
+    function toggleAllNotes() {
+      expandAllNotes = !expandAllNotes;
+      renderTabContent();
+    }
+
     function renderPlaceCard(item, badgePrefix) {
       const extraNote = state.approvedNotes[item.name]
         ? `<p class="text-[11px] font-semibold text-ok mt-1">✓ Mise à jour Greg : ${escHtml(state.approvedNotes[item.name])}</p>`
@@ -1157,13 +2351,13 @@
         return `
           <div class="rounded-2xl border-2 border-sign bg-white p-3.5 flex items-center justify-between gap-3">
             <div class="min-w-0 flex-1">
-              <p class="text-xs font-bold text-ink">${escHtml(badgePrefix)}${item.time ? ', ' + escHtml(item.time) : ''}</p>
+              <p class="text-xs font-bold text-ink">${escHtml(badgePrefix)}${item.time ? ' · ' + escHtml(item.time) : ''}</p>
               <h4 class="font-display font-extrabold text-base text-ink leading-snug mt-0.5">${escHtml(item.name)}</h4>
-              <p class="text-xs text-muted mt-0.5">${escHtml(item.note)} ${item.phone ? '· ' + escHtml(item.phone) : ''}</p>
+              <p class="text-xs text-muted mt-0.5">${escHtml(item.note)}</p>
               ${extraNote}
             </div>
             ${item.phone ? `
-              <a href="tel:${escHtml(item.phone.replace(/\s+/g, ''))}" aria-label="Appeler ${escHtml(item.name)}" class="phone-btn w-11 h-11 rounded-2xl border border-slate-200 bg-white text-ink flex items-center justify-center shrink-0 shadow-sm active:scale-95">
+              <a href="tel:${escHtml(item.phone.replace(/[^+\d]/g, ''))}" aria-label="Appeler ${escHtml(item.name)}" class="phone-btn w-11 h-11 rounded-2xl border border-slate-200 bg-white text-ink flex items-center justify-center shrink-0 shadow-sm active:scale-95">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .95.68l1.5 4.49a1 1 0 0 1-.5 1.21l-2.26 1.13a11.04 11.04 0 0 0 5.52 5.52l1.13-2.26a1 1 0 0 1 1.21-.5l4.49 1.5a1 1 0 0 1 .68.95V19a2 2 0 0 1-2 2h-1C9.72 21 3 14.28 3 6V5z"/></svg>
               </a>
             ` : ''}
@@ -1174,12 +2368,13 @@
       return `
         <div class="py-3 border-b border-slate-200/80 flex items-center justify-between gap-3">
           <div class="min-w-0 flex-1">
+            <p class="text-[11px] font-bold text-muted">${escHtml(item.time || 'Alternative')}</p>
             <h4 class="font-bold text-sm text-ink">${escHtml(item.name)}</h4>
-            <p class="text-xs text-muted mt-0.5">${escHtml(item.note)} ${item.phone ? '· ' + escHtml(item.phone) : ''}</p>
+            <p class="text-xs text-muted mt-0.5">${escHtml(item.note)}</p>
             ${extraNote}
           </div>
           ${item.phone ? `
-            <a href="tel:${escHtml(item.phone.replace(/\s+/g, ''))}" aria-label="Appeler ${escHtml(item.name)}" class="phone-btn w-11 h-11 rounded-2xl border border-slate-200 bg-white text-ink flex items-center justify-center shrink-0">
+            <a href="tel:${escHtml(item.phone.replace(/[^+\d]/g, ''))}" aria-label="Appeler ${escHtml(item.name)}" class="phone-btn w-11 h-11 rounded-2xl border border-slate-200 bg-white text-ink flex items-center justify-center shrink-0">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .95.68l1.5 4.49a1 1 0 0 1-.5 1.21l-2.26 1.13a11.04 11.04 0 0 0 5.52 5.52l1.13-2.26a1 1 0 0 1 1.21-.5l4.49 1.5a1 1 0 0 1 .68.95V19a2 2 0 0 1-2 2h-1C9.72 21 3 14.28 3 6V5z"/></svg>
             </a>
           ` : ''}
@@ -1210,17 +2405,19 @@
             </button>
           </div>
 
+          ${!list.length ? `<div class="bg-slate-50 rounded-2xl p-4 text-xs text-muted text-center">Aucun repas indiqué sur cette journée (${escHtml(day.code)}).</div>` : ''}
+
           ${midi.length ? `
             <div class="space-y-2.5">
               <h3 class="font-display font-extrabold text-base text-ink">Repas du midi</h3>
-              ${midi.map(r => renderPlaceCard(r, 'Mon choix')).join('')}
+              ${midi.map(r => renderPlaceCard(r, 'Choix principal')).join('')}
             </div>
           ` : ''}
 
           ${soir.length ? `
             <div class="space-y-2.5 pt-1">
-              <h3 class="font-display font-extrabold text-base text-ink">Repas du soir</h3>
-              ${soir.map(r => renderPlaceCard(r, 'Mon choix du soir')).join('')}
+              <h3 class="font-display font-extrabold text-base text-ink">Repas du soir &amp; alternatives</h3>
+              ${soir.map(r => renderPlaceCard(r, 'Choix principal')).join('')}
             </div>
           ` : ''}
         `;
@@ -1230,13 +2427,16 @@
       if (state.activeTab === 'logement') {
         box.innerHTML = `
           <div class="flex items-center justify-between">
-            <h3 class="font-display font-extrabold text-base text-ink">Où dormir ce soir</h3>
+            <h3 class="font-display font-extrabold text-base text-ink">Hébergements &amp; alternatives</h3>
             <button type="button" onclick="openReportModal()" class="touch-pill px-3 py-1.5 rounded-xl bg-slate-100 text-xs font-bold text-ink">
               Signaler
             </button>
           </div>
           <div class="space-y-2.5">
-            ${day.lodgings.map(l => renderPlaceCard(l, 'Mon choix hébergement')).join('')}
+            ${day.lodgings.length
+              ? day.lodgings.map(l => renderPlaceCard(l, 'Hébergement principal')).join('')
+              : `<div class="bg-slate-50 rounded-2xl p-4 text-xs text-muted text-center">Pas d'hébergement d'étape prévu sur ${escHtml(day.code)} (retour chez vous).</div>`
+            }
           </div>
         `;
         return;
@@ -1249,8 +2449,8 @@
 
         box.innerHTML = `
           <div class="bg-amber-50 border border-sign/70 rounded-2xl p-3.5 text-xs text-ink">
-            <p class="font-bold mb-1">💡 Mon conseil carburant (${day.code})</p>
-            <p>${day.fuelAdvice}</p>
+            <p class="font-bold mb-1">💡 Infos &amp; conseils carburant (${escHtml(day.code)})</p>
+            <p>${escHtml(day.fuelAdvice)}</p>
           </div>
 
           <div class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200 space-y-2.5">
@@ -1277,42 +2477,81 @@
           </div>
 
           <div class="space-y-2.5">
-            <h3 class="font-display font-extrabold text-base text-ink">Stations sur la trace</h3>
-            ${day.fuel.map(f => `
-              <div class="rounded-2xl border border-slate-200 bg-white p-3.5 space-y-2">
-                <div class="flex items-start justify-between gap-2">
+            <h3 class="font-display font-extrabold text-base text-ink">Stations &amp; repères carburant</h3>
+            ${day.fuel.length
+              ? day.fuel.map(f => `
+                <div class="rounded-2xl border border-slate-200 bg-white p-3.5 space-y-2">
                   <div>
-                    <span class="text-[11px] font-bold text-route">Km ${f.km}</span>
-                    <h4 class="font-bold text-sm text-ink">${f.name}</h4>
-                    <p class="text-xs text-muted mt-0.5">${f.note}</p>
+                    <span class="text-[11px] font-bold text-route">Km ${escHtml(f.km)}</span>
+                    <h4 class="font-bold text-sm text-ink">${escHtml(f.name)}</h4>
+                    <p class="text-xs text-muted mt-0.5">${escHtml(f.note)}</p>
                   </div>
+                  <button type="button" onclick="markFilledHere(${Number(f.km) || 0})" class="w-full py-2.5 rounded-xl ${state.lastFillKm === f.km ? 'bg-emerald-50 text-ok border border-emerald-200' : 'bg-slate-100 text-ink'} text-xs font-bold">
+                    ${state.lastFillKm === f.km ? '✓ Plein fait ici' : "J'ai fait le plein ici"}
+                  </button>
                 </div>
-                <button type="button" onclick="markFilledHere(${f.km})" class="w-full py-2.5 rounded-xl ${state.lastFillKm === f.km ? 'bg-emerald-50 text-ok border border-emerald-200' : 'bg-slate-100 text-ink'} text-xs font-bold">
-                  ${state.lastFillKm === f.km ? '✓ Plein fait ici' : "J'ai fait le plein ici"}
-                </button>
-              </div>
-            `).join('')}
+              `).join('')
+              : `<div class="bg-slate-50 rounded-2xl p-4 text-xs text-muted text-center">Aucune station spécifique indiquée sur ${escHtml(day.code)}.</div>`
+            }
           </div>
         `;
         return;
       }
 
-      // ONGLET ÉTAPES (ROADBOOK + RACCOURCI + BUDGET COMPLET)
+      // ONGLET ÉTAPES (ROADBOOK COMPLET + NOTES DE VOYAGE DÉPLIABLES + RACCOURCI + BUDGET)
       const b = getDayBudget(day.code);
       const dayTotal = b.hotel + b.food + b.fuel + b.other;
       const totals = computeGlobalBudget();
+      const notesCount = day.steps.filter(s => s.note).length;
+
+      let prevTime = '';
+      const stepsWithTime = day.steps.map(s => {
+        const cleanTime = String(s.time || '').trim();
+        let displayTime = cleanTime;
+        if (displayTime) {
+          const parts = displayTime.split('→').map(p => p.trim());
+          prevTime = parts[parts.length - 1] || prevTime;
+        } else if (prevTime) {
+          displayTime = prevTime;
+        } else {
+          displayTime = '—';
+        }
+        return Object.assign({}, s, { displayTime });
+      });
 
       box.innerHTML = `
         <div class="space-y-2.5">
-          <h3 class="font-display font-extrabold text-base text-ink">Feuille de route · ${day.code} (${day.km} km · ${day.dur})</h3>
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <h3 class="font-display font-extrabold text-base text-ink">${escHtml(day.route)}</h3>
+              <p class="text-[11px] text-muted">Total : ${escHtml(day.totalKm)}km</p>
+            </div>
+            ${notesCount ? `
+              <button type="button" onclick="toggleAllNotes()" class="touch-pill px-3 py-1.5 rounded-xl bg-amber-50 border border-sign text-xs font-bold text-ink shrink-0">
+                ${expandAllNotes ? 'Tout replier' : `Notes (${notesCount})`}
+              </button>
+            ` : ''}
+          </div>
+
           <div class="space-y-2">
-            ${day.steps.map(s => `
-              <div class="flex gap-3 items-start bg-slate-50 rounded-2xl p-3 border border-slate-200/70">
-                <span class="px-2 py-1 rounded-lg bg-white border border-slate-200 text-[11px] font-extrabold text-ink shrink-0">${s.time}</span>
-                <div>
-                  <h4 class="font-bold text-sm text-ink">${s.title}</h4>
-                  <p class="text-xs text-muted mt-0.5">${s.detail}</p>
+            ${stepsWithTime.map(s => `
+              <div class="bg-slate-50 rounded-2xl p-3 border border-slate-200/80 space-y-2">
+                <div class="flex gap-2.5 items-start">
+                  <span class="px-2 py-1 rounded-lg bg-white border border-slate-200 text-[11px] font-extrabold text-ink shrink-0">${escHtml(s.displayTime)}</span>
+                  <div class="min-w-0 flex-1">
+                    <h4 class="font-bold text-sm text-ink leading-snug">${escHtml(s.title)}</h4>
+                    ${s.detail ? `<p class="text-xs text-muted mt-0.5">${escHtml(s.detail)}</p>` : ''}
+                  </div>
                 </div>
+                ${s.note ? `
+                  <details class="note-box bg-white rounded-xl border border-slate-200/90 px-3 py-2" ${expandAllNotes ? 'open' : ''}>
+                    <summary class="text-xs font-bold text-amber-800 flex items-center justify-between gap-2">
+                      <span>📝 Note de voyage</span>
+                      <span class="text-[11px] text-muted">Déplier ▾</span>
+                    </summary>
+                    <p class="text-xs text-ink mt-1.5 leading-relaxed">${escHtml(s.note)}</p>
+                  </details>
+                ` : ''}
               </div>
             `).join('')}
           </div>
@@ -1321,10 +2560,10 @@
         ${day.shortcut ? `
           <div class="bg-amber-50 border border-sign rounded-2xl p-3.5 space-y-1">
             <div class="flex items-center justify-between gap-2">
-              <p class="text-xs font-extrabold text-ink">🔀 Mon raccourci d'étape</p>
-              <span class="px-2 py-0.5 rounded-full bg-sign text-ink text-[11px] font-extrabold">${day.shortcut.gain}</span>
+              <p class="text-xs font-extrabold text-ink">🔀 Alternative / Note d'étape</p>
+              <span class="px-2 py-0.5 rounded-full bg-sign text-ink text-[11px] font-extrabold">${escHtml(day.shortcut.gain)}</span>
             </div>
-            <p class="text-xs text-ink/90">${day.shortcut.text}</p>
+            <p class="text-xs text-ink/90">${escHtml(day.shortcut.text)}</p>
           </div>
         ` : ''}
 
@@ -1332,7 +2571,7 @@
         <div class="bg-white rounded-2xl border border-slate-200 p-3.5 space-y-3">
           <div class="flex items-center justify-between gap-2">
             <div>
-              <h4 class="font-display font-extrabold text-sm text-ink">Mon budget · ${day.code}</h4>
+              <h4 class="font-display font-extrabold text-sm text-ink">Mon budget · ${escHtml(day.code)}</h4>
               <p class="text-[11px] text-muted">Sauvegardé automatiquement hors-ligne</p>
             </div>
             <button type="button" onclick="toggleBudgetDuo()" class="touch-pill px-3 py-1.5 rounded-xl text-xs font-bold ${state.budgetDuo ? 'bg-sign text-ink' : 'bg-slate-100 text-ink'}">
@@ -1349,19 +2588,19 @@
             ].map(([field, label]) => `
               <div>
                 <label class="block text-[11px] font-semibold text-muted mb-1">${label}</label>
-                <input type="number" min="0" step="1" value="${b[field] || ''}" placeholder="0" onchange="updateBudgetField('${day.code}', '${field}', this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold text-ink" />
+                <input type="number" min="0" step="1" value="${b[field] || ''}" placeholder="0" onchange="updateBudgetField('${escHtml(day.code)}', '${field}', this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm font-bold text-ink" />
               </div>
             `).join('')}
           </div>
 
           <div class="flex items-center justify-between text-xs font-bold pt-1 border-t border-slate-100">
-            <span>Total ${day.code} : ${dayTotal} €</span>
+            <span>Total ${escHtml(day.code)} : ${dayTotal} €</span>
             ${state.budgetDuo ? `<span class="text-route">Soit ${(dayTotal / 2).toFixed(0)} € / pers.</span>` : ''}
           </div>
 
           <div class="bg-amber-50/90 border border-sign/70 rounded-xl p-3 space-y-1 text-xs">
             <div class="flex items-center justify-between font-extrabold text-ink">
-              <span>Cumul road trip (J0–J6)</span>
+              <span>Cumul road trip (J0–J7)</span>
               <span>${totals.total} € ${state.budgetDuo ? '(' + (totals.total / 2).toFixed(0) + ' €/pers.)' : ''}</span>
             </div>
             <p class="text-[11px] text-muted">
@@ -1467,7 +2706,7 @@
           iconSize: [28, 28],
           iconAnchor: [14, 14]
         });
-        L.marker([lat, lng], { icon }).bindPopup(`<strong>${title}</strong>`).addTo(mapLayerGroup);
+        L.marker([lat, lng], { icon }).bindPopup(`<strong>${escHtml(title)}</strong>`).addTo(mapLayerGroup);
       };
 
       day.restos.forEach(r => addPin(r.lat, r.lng, '🍽', '#F5B800', r.name));
@@ -1595,7 +2834,7 @@ ${allTracks.join('\n')}
       const gpx = buildFullGuideGpxXml(pendingGpxGuideTitle, RGA_DAYS);
       const safe = pendingGpxGuideTitle.toLowerCase().replace(/[^a-z0-9]+/g, '_');
       triggerDownload(`LAV_${safe}_Complet_LAV20274812.gpx`, gpx, 'application/gpx+xml');
-      showToast('Fichier GPX complet (J0–J6) téléchargé (#LAV-2027-4812)');
+      showToast('Fichier GPX complet (J0–J7) téléchargé (#LAV-2027-4812)');
     }
 
     /* =========================================================
@@ -1741,9 +2980,6 @@ self.addEventListener('activate', e => {
   );
 });
 
-// Stratégie "Réseau d'abord avec délai 3s en montagne, repli sur le cache" :
-// Met aussi en cache les ressources externes (Tailwind, Leaflet, polices, tuiles)
-// pour préserver la mise en page et la carte même sans réseau.
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const reqUrl = new URL(e.request.url);
