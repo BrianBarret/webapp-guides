@@ -6,38 +6,36 @@
   <title>Les Apprentis Voyageurs — Démo PWA Compagnon Moto</title>
   <meta name="theme-color" content="#182026" />
 
-  <!-- Polices -->
+  <!-- Polices en chargement non-bloquant (affichage immédiat sur mobile) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            display: ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
-            sans: ['"Source Sans 3"', 'system-ui', 'sans-serif'],
-          },
-          colors: {
-            paper: '#f4f5f0',
-            ink: '#182026',
-            muted: '#5c6970',
-            sign: '#f5b800',
-            route: '#1f5fbf',
-            ok: '#1d7a46',
-            danger: '#b3261e',
+    if (window.tailwind) {
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              display: ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
+              sans: ['"Source Sans 3"', 'system-ui', 'sans-serif'],
+            },
+            colors: {
+              paper: '#f4f5f0',
+              ink: '#182026',
+              muted: '#5c6970',
+              sign: '#f5b800',
+              route: '#1f5fbf',
+              ok: '#1d7a46',
+              danger: '#b3261e',
+            }
           }
         }
-      }
-    };
+      };
+    }
   </script>
-
-  <!-- Leaflet via CDN Cloudflare rapide + defer (ne bloque jamais l'ouverture mobile) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -142,7 +140,7 @@
 
     <!-- BANNIERE MISE A JOUR VALIDEE -->
     <div id="update-banner" class="hidden bg-ok text-white text-xs font-semibold px-3.5 py-2 flex items-center justify-between z-40 shrink-0">
-      <span id="update-banner-text">Mise à jour du guide validée par Greg</span>
+      <span id="update-banner-text">J'ai validé une mise à jour du guide</span>
       <button type="button" onclick="dismissUpdateBanner()" class="ml-2 underline text-white/90">OK</button>
     </div>
 
@@ -153,42 +151,42 @@
       <div class="pt-4">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-ink text-xs font-bold mb-5 shadow-xs">
           <span class="w-2 h-2 rounded-full bg-sign"></span>
-          <span>Compagnon hors-ligne · PWA</span>
+          <span>Mon compagnon hors-ligne · PWA</span>
         </div>
 
         <h1 class="font-display font-extrabold text-3xl leading-tight text-ink mb-2">
           Les Apprentis <span class="underline decoration-sign decoration-4 underline-offset-4">Voyageurs</span>
         </h1>
         <p class="text-muted text-sm leading-relaxed">
-          Connectez votre compte <span class="text-ink font-semibold">lesapprentisvoyageurs.fr</span> pour retrouver vos guides achetés, leurs traces GPX et vos adresses hors-ligne.
+          Connectez votre compte <span class="text-ink font-semibold">lesapprentisvoyageurs.fr</span> pour retrouver mes guides que vous avez achetés, mes traces GPX et toutes mes adresses hors-ligne.
         </p>
 
         <div class="mt-6 bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-sm">
           <div>
             <label for="login-email" class="block text-xs font-semibold text-muted mb-1">Email du compte client</label>
-            <input id="login-email" type="email" placeholder="pilote@exemple.fr" class="w-full px-3.5 py-2.5 rounded-xl bg-paper border border-slate-200 text-ink text-sm focus:border-ink focus:bg-white focus:outline-none" />
+            <input id="login-email" type="email" value="motard.rga@lesapprentisvoyageurs.fr" placeholder="pilote@exemple.fr" class="w-full px-3.5 py-2.5 rounded-xl bg-paper border border-slate-200 text-ink text-sm focus:border-ink focus:bg-white focus:outline-none" />
           </div>
           <div>
             <label for="login-password" class="block text-xs font-semibold text-muted mb-1">Mot de passe</label>
-            <input id="login-password" type="password" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-paper border border-slate-200 text-ink text-sm focus:border-ink focus:bg-white focus:outline-none" />
+            <input id="login-password" type="password" value="tenere700" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-paper border border-slate-200 text-ink text-sm focus:border-ink focus:bg-white focus:outline-none" />
           </div>
 
-          <button type="button" onclick="prefillDemoAccount()" class="w-full py-2.5 px-3 rounded-xl bg-paper hover:bg-slate-200/70 border border-slate-200 text-ink text-xs font-bold transition">
-            Remplir un compte démo (4 guides achetés)
+          <button type="button" onclick="handleLogin()" class="w-full py-3.5 px-4 rounded-2xl bg-ink hover:bg-slate-800 text-white font-display font-bold text-base shadow-sm transition">
+            Se connecter & synchroniser (compte démo)
           </button>
 
-          <button type="button" onclick="handleLogin()" class="w-full py-3.5 px-4 rounded-2xl bg-ink hover:bg-slate-800 text-white font-display font-bold text-base shadow-sm transition">
-            Se connecter & synchroniser
+          <button type="button" onclick="prefillDemoAccount()" class="w-full py-2 px-3 rounded-xl bg-paper hover:bg-slate-200/70 border border-slate-200 text-muted text-xs font-semibold transition">
+            Réinitialiser les identifiants démo
           </button>
         </div>
       </div>
 
       <div class="pt-6 pb-[calc(env(safe-area-inset-bottom,0px)+16px)] space-y-3 text-center">
         <button type="button" onclick="browseCatalogGuest()" class="w-full py-3 rounded-2xl bg-white border border-slate-200 text-ink hover:bg-slate-50 text-sm font-bold transition">
-          Parcourir le catalogue des 27 guides →
+          Découvrir mes 27 guides moto →
         </button>
         <p class="text-[11px] text-muted">
-          Synchronisation directe WooCommerce · 0 % commission store · GPX ouverts DMD2 / OsmAnd / TomTom
+          Synchronisation directe avec ma boutique · 0 % commission store · GPX ouverts DMD2 / OsmAnd / TomTom
         </p>
       </div>
     </section>
@@ -233,8 +231,8 @@
       <header class="px-4 pt-4 pb-3 bg-white border-b border-slate-200 shrink-0 space-y-2.5">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-[11px] font-semibold uppercase tracking-wider text-muted">Boutique directe · 0 % commission</p>
-            <h2 class="font-display font-extrabold text-xl text-ink">Tous les guides (27)</h2>
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-muted">Ma boutique directe · 0 % commission</p>
+            <h2 class="font-display font-extrabold text-xl text-ink">Tous mes guides (27)</h2>
           </div>
           <button type="button" onclick="openMobileSimSheet()" class="md:hidden px-2.5 py-1.5 rounded-xl bg-paper text-ink text-xs font-bold border border-slate-200">
             Démo
@@ -274,22 +272,22 @@
 
       <!-- BANDEAU SUPERIEUR FLOTTANT -->
       <div class="relative z-20 px-3 pt-3 pb-1 pointer-events-none">
-        <div class="pointer-events-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200/90 px-2.5 py-2 flex items-center justify-between gap-2">
+        <div class="pointer-events-auto bg-white/95 rounded-2xl shadow-sm border border-slate-200/90 px-2.5 py-2 flex items-center justify-between gap-2">
           <button type="button" onclick="navigateTo('library')" class="w-8 h-8 rounded-xl bg-paper hover:bg-slate-200/70 flex items-center justify-center text-ink font-bold shrink-0" aria-label="Retour bibliothèque">
             ←
           </button>
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5">
               <span class="font-display font-extrabold text-sm text-ink truncate">La RGA Aller-Retour</span>
-              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-ok border border-emerald-200 shrink-0">Hors-ligne</span>
+              <span id="reader-status-badge" class="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-ok border border-emerald-200 shrink-0">Prêt hors-ligne</span>
             </div>
             <p id="reader-subtitle" class="text-[11px] text-muted truncate">J1 · Thonon → Val-Cenis · 259 km</p>
           </div>
-          <div class="flex items-center gap-1 shrink-0">
-            <button type="button" id="mode-toggle-btn" onclick="toggleRideMode()" class="px-2.5 py-1.5 rounded-xl bg-ink text-white text-[11px] font-bold">
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button type="button" id="mode-toggle-btn" onclick="toggleRideMode()" class="px-3.5 py-2 rounded-xl bg-ink text-white text-xs font-extrabold shadow-xs active:scale-95 transition">
               En roulant
             </button>
-            <button type="button" onclick="openMobileSimSheet()" class="md:hidden px-2 py-1.5 rounded-xl bg-paper text-ink border border-slate-200 text-[11px] font-bold">
+            <button type="button" onclick="openMobileSimSheet()" class="md:hidden px-2 py-2 rounded-xl bg-paper text-ink border border-slate-200 text-[11px] font-bold">
               Démo
             </button>
           </div>
@@ -337,10 +335,10 @@
       </div>
 
       <!-- FEUILLE BASSE MODE "A L'ARRET" (STYLE MAQUETTES ORIGINALES) -->
-      <div id="stopped-sheet" class="relative z-20 mt-auto bg-white rounded-t-[28px] shadow-[0_-8px_30px_rgba(0,0,0,0.14)] flex flex-col max-h-[72%]">
-        <!-- Poignée grise -->
-        <div class="w-full flex justify-center pt-3 pb-2 shrink-0">
-          <div class="w-10 h-1 rounded-full bg-slate-300"></div>
+      <div id="stopped-sheet" class="relative z-20 mt-auto bg-white rounded-t-[28px] shadow-[0_-8px_30px_rgba(0,0,0,0.14)] flex flex-col max-h-[72%] will-change-transform">
+        <!-- Poignée de swipe vers le bas pour replier vers le mode "En roulant" -->
+        <div id="sheet-drag-handle" class="w-full flex flex-col items-center justify-center pt-3 pb-2.5 shrink-0 cursor-grab active:cursor-grabbing touch-none select-none" title="Glisser vers le bas pour passer en mode En roulant">
+          <div class="w-12 h-1.5 rounded-full bg-slate-300"></div>
         </div>
 
         <!-- Onglets façon maquette (pilule jaune active, icônes SVG fines) -->
@@ -380,10 +378,10 @@
     <!-- ========================================================= -->
     <!-- MODALE : SIGNALER UN CHANGEMENT                           -->
     <!-- ========================================================= -->
-    <div id="modal-report" class="hidden absolute inset-0 z-50 bg-black/50 backdrop-blur-[1px] flex items-end sm:items-center justify-center p-3">
+    <div id="modal-report" class="hidden absolute inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-3">
       <div class="bg-white rounded-3xl w-full max-w-md p-5 shadow-2xl max-h-[90%] overflow-y-auto">
         <div class="flex items-center justify-between mb-2">
-          <h3 class="font-display font-extrabold text-lg text-ink">Signaler un changement</h3>
+          <h3 class="font-display font-extrabold text-lg text-ink">Me signaler un changement</h3>
           <button type="button" onclick="closeModal('modal-report')" class="w-8 h-8 rounded-full bg-paper text-ink font-bold">✕</button>
         </div>
         <p id="report-target-label" class="text-xs font-semibold text-route bg-blue-50 px-3 py-1.5 rounded-xl mb-3"></p>
@@ -402,7 +400,7 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-muted mb-1">Précisions pour les autres motards</label>
+            <label class="block text-xs font-bold text-muted mb-1">Vos précisions pour moi et les autres motards</label>
             <textarea id="report-note" rows="3" placeholder="Ex : Fermé le lundi hors saison, ou nouveau numéro 04..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm bg-paper focus:bg-white focus:outline-none focus:border-ink"></textarea>
           </div>
           <div class="flex items-center justify-between text-[11px] text-muted bg-paper px-3 py-2 rounded-xl border border-slate-200">
@@ -410,7 +408,7 @@
             <span class="font-semibold text-ok">Compte vérifié</span>
           </div>
           <button type="button" onclick="submitReport()" class="w-full py-3.5 rounded-2xl bg-sign text-ink font-display font-bold text-sm">
-            Publier le signalement
+            M'envoyer le signalement
           </button>
         </div>
       </div>
@@ -419,13 +417,13 @@
     <!-- ========================================================= -->
     <!-- MODALE : MODERATION GREG                                  -->
     <!-- ========================================================= -->
-    <div id="modal-greg" class="hidden absolute inset-0 z-50 bg-black/50 backdrop-blur-[1px] flex items-end sm:items-center justify-center p-3">
+    <div id="modal-greg" class="hidden absolute inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-3">
       <div class="bg-white rounded-3xl w-full max-w-md p-5 shadow-2xl max-h-[88%] flex flex-col">
         <div class="flex items-center justify-between mb-1">
-          <h3 class="font-display font-extrabold text-lg text-ink">Modération · Greg</h3>
+          <h3 class="font-display font-extrabold text-lg text-ink">Ma modération · Greg</h3>
           <button type="button" onclick="closeModal('modal-greg')" class="w-8 h-8 rounded-full bg-paper text-ink font-bold">✕</button>
         </div>
-        <p class="text-xs text-muted mb-3">Approuver met à jour le guide pour tous les acheteurs dès le retour du réseau.</p>
+        <p class="text-xs text-muted mb-3">Si j'approuve, le guide se met à jour pour tous mes acheteurs dès le retour du réseau.</p>
         <div id="greg-queue-list" class="flex-1 overflow-y-auto space-y-2.5 pr-0.5">
           <!-- Généré par JS -->
         </div>
@@ -435,7 +433,7 @@
     <!-- ========================================================= -->
     <!-- MODALE : ACHAT DIRECT WOOCOMMERCE                         -->
     <!-- ========================================================= -->
-    <div id="modal-checkout" class="hidden absolute inset-0 z-50 bg-black/50 backdrop-blur-[1px] flex items-end sm:items-center justify-center p-3">
+    <div id="modal-checkout" class="hidden absolute inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-3">
       <div class="bg-white rounded-3xl w-full max-w-md p-5 shadow-2xl">
         <div class="flex items-center justify-between mb-2">
           <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-ok border border-emerald-200">WooCommerce Direct · 0 % commission</span>
@@ -463,7 +461,7 @@
     <!-- ========================================================= -->
     <!-- MODALE : AVERTISSEMENT TELECHARGEMENT GPX OUVERT          -->
     <!-- ========================================================= -->
-    <div id="modal-gpx-warning" class="hidden absolute inset-0 z-50 bg-black/50 backdrop-blur-[1px] flex items-end sm:items-center justify-center p-3">
+    <div id="modal-gpx-warning" class="hidden absolute inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-3">
       <div class="bg-white rounded-3xl w-full max-w-md p-5 shadow-2xl space-y-3.5">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200">GPX ouvert · Usage personnel</span>
@@ -476,9 +474,9 @@
         </div>
 
         <div class="rounded-2xl bg-[#fbf0d5] p-3.5 text-xs text-[#5c3d00] space-y-1.5 leading-relaxed">
-          <p class="font-bold m-0">Avertissement avant téléchargement :</p>
-          <p class="m-0">Ce fichier GPX est strictement réservé à votre usage personnel. Pour protéger le travail de Greg, votre numéro de commande (<strong>#LAV-2027-4812</strong>) est inscrit dans les métadonnées du fichier.</p>
-          <p class="m-0">Note : un fichier GPX exporté ne reçoit plus les alertes de cols fermés ni les mises à jour communautaires en direct.</p>
+          <p class="font-bold m-0">Petit mot avant le téléchargement :</p>
+          <p class="m-0">Ce fichier GPX est strictement réservé à votre usage personnel. Pour protéger mon travail, votre numéro de commande (<strong>#LAV-2027-4812</strong>) est inscrit dans les métadonnées du fichier.</p>
+          <p class="m-0">À noter : un fichier GPX exporté ne reçoit plus mes alertes de cols fermés ni les mises à jour communautaires en direct.</p>
         </div>
 
         <div class="grid grid-cols-2 gap-2 pt-1">
@@ -495,7 +493,7 @@
     <!-- ========================================================= -->
     <!-- MODALE : OPTIONS DE SIMULATION (MOBILE)                   -->
     <!-- ========================================================= -->
-    <div id="modal-mobile-sim" class="hidden absolute inset-0 z-50 bg-black/50 backdrop-blur-[1px] flex items-end justify-center p-3">
+    <div id="modal-mobile-sim" class="hidden absolute inset-0 z-50 bg-black/50 flex items-end justify-center p-3">
       <div class="bg-white rounded-3xl w-full p-5 shadow-2xl space-y-3.5 pb-[calc(env(safe-area-inset-bottom,0px)+20px)]">
         <div class="flex items-center justify-between">
           <h3 class="font-display font-extrabold text-lg text-ink">Options de démonstration</h3>
@@ -535,116 +533,93 @@
 
   <script>
     // =========================================================================
-    // 1. CATALOGUE DES 27 VRAIS GUIDES (lesapprentisvoyageurs.fr)
+    // 1. CATALOGUE DES 27 GUIDES REELS (lesapprentisvoyageurs.fr)
     // =========================================================================
     const CATALOG_GUIDES = [
-      { id: 'rga', name: 'Alpes / RGA Aller-Retour', zone: 'france', region: 'Savoie, Hautes-Alpes & Alpes-Maritimes', days: '6 jours', km: '~1 477 km', level: 'Confirmé', price: '49,90 €', tag: 'Léman → Menton A/R', fullDemo: true },
-      { id: 'vercors', name: 'Le Vercors (Offert)', zone: 'france', region: 'Isère & Drôme · Massif du Vercors', days: 'Week-end (2j)', km: '~380 km', level: 'Accessible', price: 'Offert', tag: 'Guide découverte' },
-      { id: 'ardeche', name: 'Ardèche : 42 cols', zone: 'france', region: 'Auvergne-Rhône-Alpes · Sud-Est', days: '3 jours', km: '750 km', level: 'Confirmé', price: '29,90 €', tag: 'Gorges & virages' },
-      { id: 'corse-terres', name: 'Corse par les terres', zone: 'france', region: 'Corte, Niolo, Alta Rocca', days: '5 jours', km: '~1 100 km', level: 'Confirmé', price: '49,90 €', tag: 'Intérieur sauvage', hasUpdate: true },
-      { id: 'auvergne', name: 'Auvergne magique', zone: 'france', region: 'Puy-de-Dôme & Cantal', days: '3 jours', km: '~800 km', level: 'Accessible', price: '29,90 €', tag: 'Volcans & Livradois' },
-      { id: 'drome', name: 'Cols de la Drôme', zone: 'france', region: 'Drôme provençale, Diois & Baronnies', days: '4 jours', km: '~900 km', level: 'Confirmé', price: '29,90 €', tag: '900 km de bonheur' },
-      { id: 'verdon', name: 'Verdon & Ventoux', zone: 'france', region: 'Provence · Vaucluse, 04 & Var', days: '3 jours', km: '~800 km', level: 'Confirmé', price: '29,90 €', tag: 'Combo gagnant' },
-      { id: 'cevennes', name: 'Le meilleur des Cévennes', zone: 'france', region: 'Lozère & Gard · Sud', days: '3 jours', km: '~740 km', level: 'Confirmé', price: '29,90 €', tag: 'Corniche & Aigoual' },
-      { id: 'haute-loire', name: 'Haute-Loire', zone: 'france', region: 'Massif Central · Velay & Allier', days: '3 jours', km: '~650 km', level: 'Accessible', price: '29,90 €', tag: '3 jours parfaits' },
-      { id: 'aubrac', name: 'Aubrac : week-end repos', zone: 'france', region: 'Aveyron · Massif Central Sud', days: 'Week-end (2j)', km: '+600 km', level: 'Accessible', price: '29,90 €', tag: 'Plateaux & Tarn' },
-      { id: 'limousin', name: 'Limousin surprenant', zone: 'france', region: 'Nouvelle-Aquitaine · Millevaches', days: '3 jours', km: '~700 km', level: 'Accessible', price: '29,90 €', tag: 'Lacs & plateaux' },
-      { id: 'morvan', name: 'Morvan : week-end au vert', zone: 'france', region: 'Bourgogne · Centre-Est', days: 'Week-end (2j)', km: '~520 km', level: 'Accessible', price: '29,90 €', tag: 'Forêts & lacs' },
-      { id: 'jura', name: 'Jura & Doubs', zone: 'france', region: 'Franche-Comté · Est', days: '3 jours', km: '~750 km', level: 'Accessible', price: '29,90 €', tag: 'Lacs & cascades' },
-      { id: 'vosges', name: 'Vosges à moto', zone: 'france', region: 'Grand Est · Alsace & Lorraine', days: '3 jours', km: '~800 km', level: 'Accessible', price: '29,90 €', tag: 'Route des Crêtes' },
-      { id: 'pyrenees-simple', name: 'Pyrénées (Traversée)', zone: 'france', region: 'Océan à Méditerranée', days: '6 jours', km: '~1 350 km', level: 'Confirmé', price: '49,90 €', tag: 'Ouest → Est' },
-      { id: 'pyrenees-ar', name: 'Pyrénées A/R (FR/ES)', zone: 'france', region: 'Versant français & espagnol', days: '8 jours', km: '~1 950 km', level: 'Confirmé', price: '49,90 €', tag: 'Aller-Retour' },
-      { id: 'corse-classique', name: 'Corse (Classique)', zone: 'france', region: 'Cap Corse, Piana, Bonifacio, Bavella', days: '7 jours', km: '~1 300 km', level: 'Accessible', price: '49,90 €', tag: 'Côtes & sites mythiques' },
-      { id: 'demi-tour-ouest', name: 'Demi-Tour de France Ouest', zone: 'france', region: 'Normandie aux Pyrénées', days: '12 jours', km: '~4 000 km', level: 'Accessible', price: '59,90 €', tag: 'Sans autoroute' },
-      { id: 'demi-tour-est', name: 'Demi-Tour de France Est', zone: 'france', region: 'Ardennes à Méditerranée', days: '12 jours', km: '~3 900 km', level: 'Confirmé', price: '59,90 €', tag: 'Massifs de l\'Est' },
-      { id: 'sardaigne', name: 'Tour de Sardaigne', zone: 'europe', region: 'Italie · Île de Sardaigne', days: '7 jours', km: '~1 800 km', level: 'Accessible', price: '49,90 €', tag: 'Bitume parfait' },
-      { id: 'dolomites', name: 'Dolomites en Italie', zone: 'europe', region: 'Italie · Alpes italiennes', days: '5 jours', km: '~1 250 km', level: 'Confirmé', price: '49,90 €', tag: 'Cols mythiques' },
-      { id: 'espagne-sud', name: 'Le Sud de l\'Espagne', zone: 'europe', region: 'Andalousie · Sierras', days: '8 jours', km: '~2 100 km', level: 'Accessible', price: '49,90 €', tag: 'Soleil & virolos' },
-      { id: 'picos', name: 'Picos de Europa', zone: 'europe', region: 'Espagne · Nord', days: '4 jours', km: '~1 050 km', level: 'Confirmé', price: '39,90 €', tag: 'Gorges & sommets' },
-      { id: 'bardenas', name: 'Désert des Bardenas', zone: 'europe', region: 'Espagne · Navarre', days: '3 jours', km: '~750 km', level: 'Accessible', price: '29,90 €', tag: 'Dépaysement' },
-      { id: 'tyrol', name: 'Tyrol Autriche / Italie', zone: 'europe', region: 'Autriche & Italie · Grossglockner', days: '6 jours', km: '~1 500 km', level: 'Confirmé', price: '49,90 €', tag: 'Haute montagne' },
-      { id: 'maroc', name: 'Maroc à moto par la route', zone: 'europe', region: 'Atlas & Sud marocain', days: '12 jours', km: '~3 200 km', level: 'Confirmé', price: '59,90 €', tag: '100 % route' },
-      { id: 'irlande', name: 'Irlande : le tour à moto', zone: 'europe', region: 'Wild Atlantic Way', days: '10 jours', km: '~2 600 km', level: 'Accessible', price: '49,90 €', tag: 'Côtes sauvages' }
+      // FRANCE (19)
+      { id: 'rga', name: 'Alpes / RGA Aller-Retour', zone: 'france', region: 'Savoie, Hautes-Alpes & Alpes-Maritimes', days: '6 jours', km: '~1 477 km', price: '49,90 €', tag: 'Léman → Menton' },
+      { id: 'vercors', name: 'Le Vercors (Offert)', zone: 'france', region: 'Isère & Drôme · Massif du Vercors', days: '2 jours', km: '~380 km', price: 'Offert', tag: 'Découverte' },
+      { id: 'ardeche', name: 'Ardèche : 42 cols', zone: 'france', region: 'Auvergne-Rhône-Alpes · Sud-Est', days: '3 jours', km: '750 km', price: '29,90 €', tag: '42 cols · Sportif' },
+      { id: 'corse-terres', name: 'Corse par les terres', zone: 'france', region: 'Corte, Niolo & Alta Rocca', days: '5 jours', km: '~1 100 km', price: '49,90 €', tag: 'Intérieur sauvage', hasUpdate: true },
+      { id: 'auvergne', name: 'Auvergne magique', zone: 'france', region: 'Puy-de-Dôme & Cantal', days: '3 jours', km: '~800 km', price: '29,90 €', tag: 'Volcans & Livradois' },
+      { id: 'drome', name: 'Cols de la Drôme', zone: 'france', region: 'Drôme provençale, Diois & Baronnies', days: '4 jours', km: '~900 km', price: '29,90 €', tag: 'Sud-Est' },
+      { id: 'verdon', name: 'Verdon & Ventoux', zone: 'france', region: 'Provence · Vaucluse, 04 & Var', days: '3 jours', km: '~800 km', price: '29,90 €', tag: 'Provence & Gorges' },
+      { id: 'cevennes', name: 'Le meilleur des Cévennes', zone: 'france', region: 'Lozère & Gard · Sud', days: '3 jours', km: '~740 km', price: '29,90 €', tag: 'Corniche & Aigoual' },
+      { id: 'haute-loire', name: 'Haute-Loire', zone: 'france', region: 'Massif Central · Velay & Allier', days: '3 jours', km: '~650 km', price: '29,90 €', tag: 'Accessible' },
+      { id: 'aubrac', name: 'Aubrac', zone: 'france', region: 'Aveyron · Plateaux & Tarn', days: '2 jours', km: '+600 km', price: '29,90 €', tag: 'Week-end repos' },
+      { id: 'limousin', name: 'Limousin surprenant', zone: 'france', region: 'Plateau de Millevaches & Vassivière', days: '3 jours', km: '~700 km', price: '29,90 €', tag: 'Accessible' },
+      { id: 'morvan', name: 'Morvan', zone: 'france', region: 'Bourgogne · Centre-Est', days: '2 jours', km: '~520 km', price: '29,90 €', tag: 'Week-end au vert' },
+      { id: 'jura', name: 'Jura & Doubs', zone: 'france', region: 'Franche-Comté · Lacs & Cascades', days: '3 jours', km: '~750 km', price: '29,90 €', tag: 'Nature' },
+      { id: 'vosges', name: 'Vosges à moto', zone: 'france', region: 'Grand Est · Route des Crêtes', days: '3 jours', km: '~800 km', price: '29,90 €', tag: 'Forêts & Lacs' },
+      { id: 'pyrenees', name: 'Pyrénées (Traversée)', zone: 'france', region: 'Océan à Méditerranée', days: '6 jours', km: '~1 350 km', price: '49,90 €', tag: 'Ouest → Est' },
+      { id: 'pyrenees-ar', name: 'Pyrénées A/R (FR/ES)', zone: 'france', region: 'Versant français + versant espagnol', days: '8 jours', km: '~1 950 km', price: '49,90 €', tag: 'Aller-Retour' },
+      { id: 'corse-classique', name: 'Corse (Classique)', zone: 'france', region: 'Cap Corse, Piana, Bonifacio & Bavella', days: '7 jours', km: '~1 300 km', price: '49,90 €', tag: 'Côtes & sites mythiques' },
+      { id: 'demi-tour-ouest', name: 'Demi-Tour de France Ouest', zone: 'france', region: 'Normandie aux Pyrénées sans autoroute', days: '12 jours', km: '~4 000 km', price: '59,90 €', tag: 'Grand Tour' },
+      { id: 'demi-tour-est', name: 'Demi-Tour de France Est', zone: 'france', region: 'Ardennes à Méditerranée', days: '12 jours', km: '~3 900 km', price: '59,90 €', tag: 'Grand Tour' },
+      // EUROPE & MAROC (8)
+      { id: 'sardaigne', name: 'Tour de Sardaigne', zone: 'europe', region: 'Italie · Routes côtières & montagne', days: '7 jours', km: '~1 400 km', price: '49,90 €', tag: 'Italie' },
+      { id: 'dolomites', name: 'Dolomites en Italie', zone: 'europe', region: 'Italie · Grands cols mythiques', days: '5 jours', km: '~1 100 km', price: '49,90 €', tag: 'Italie' },
+      { id: 'sud-espagne', name: 'Le Sud de l\'Espagne', zone: 'europe', region: 'Espagne · Andalousie & Sierras', days: '10 jours', km: '~2 600 km', price: '49,90 €', tag: 'Espagne' },
+      { id: 'picos', name: 'Picos de Europa', zone: 'europe', region: 'Espagne · Cantabrie & Asturies', days: '5 jours', km: '~1 200 km', price: '49,90 €', tag: 'Espagne' },
+      { id: 'bardenas', name: 'Désert des Bardenas', zone: 'europe', region: 'Espagne · Navarre & Aragon', days: '4 jours', km: '~950 km', price: '29,90 €', tag: 'Espagne' },
+      { id: 'tyrol', name: 'Tyrol Autriche / Italie', zone: 'europe', region: 'Autriche & Italie · Grossglockner', days: '6 jours', km: '~1 450 km', price: '49,90 €', tag: 'Autriche / Italie' },
+      { id: 'maroc', name: 'Maroc à moto par la route', zone: 'europe', region: 'Maroc · Atlas, Gorges & Désert', days: '14 jours', km: '~3 800 km', price: '59,90 €', tag: 'Maroc' },
+      { id: 'irlande', name: 'Irlande : le tour à moto', zone: 'europe', region: 'Irlande · Wild Atlantic Way', days: '10 jours', km: '~2 500 km', price: '49,90 €', tag: 'Irlande' }
     ];
 
     // =========================================================================
-    // 2. DONNEES REELLES DU GUIDE "LA RGA ALLER-RETOUR" (J0 à J6)
+    // 2. DONNEES REELLES DU GUIDE RGA (J0 à J6, extraites du PDF)
     // =========================================================================
     const RGA_DAYS = [
       {
-        dayIndex: 0,
-        code: 'J0',
-        title: 'Liaison → Thonon-les-Bains',
-        kmDay: 0,
-        duration: 'Liaison',
-        coords: [[46.3709, 6.4797], [46.3921, 6.5023]],
-        seasonalAlert: null,
+        dayIndex: 0, code: 'J0', title: 'Liaison → Thonon-les-Bains', kmDay: 0, duration: 'Liaison',
+        coords: [[46.22, 6.20], [46.30, 6.35], [46.3705, 6.4795]],
+        pois: { resto: [46.387, 6.499], logement: [46.391, 6.503], carburant: [46.364, 6.469] },
         resto: {
           midi: null,
           soir: {
-            heading: 'Repas du soir à Thonon',
-            place: 'Thonon-les-Bains',
-            time: 'Soir',
-            main: { name: 'L\'Étable du Savoyard', phone: '+33 4 50 71 05 56', note: 'À deux pas du camping. Fermé en début de semaine.', closedDays: [1, 2] },
-            altsTitle: 'Autres adresses à Thonon',
+            heading: 'Repas du soir à Thonon', time: 'Soir',
+            main: { name: 'L\'Etable du Savoyard', phone: '+33 4 50 71 05 56', note: 'À deux pas du camping. Fermé en début de semaine.', closedDays: [1, 2] },
+            altsTitle: 'Autres adresses dans le centre',
             alts: [
-              { name: 'Il Vesuvio', phone: '', note: 'Dans le centre (italien).' },
-              { name: 'Bistrot le Cousin Michel', phone: '', note: 'Spécialités savoyardes.' },
-              { name: 'La Bruschetta', phone: '', note: 'Si un dimanche.' }
+              { name: 'Il Vesuvio', phone: '', note: 'Restaurant italien en centre-ville.' },
+              { name: 'Bistrot le Cousin Michel', phone: '', note: 'Spécialités savoyardes !' },
+              { name: 'La Bruschetta', phone: '', note: 'Bonne option si vous arrivez un dimanche.' }
             ]
           }
         },
         logement: {
-          title: 'Nuit à Thonon-les-Bains',
-          km: 'Arrivée J0',
-          main: { name: 'Camping de Saint Disdille', phone: '+33 4 50 71 14 11', note: 'Camping *** au bord du Lac Léman, bungalows & insolites.' },
+          title: 'Nuit à Thonon-les-Bains', km: 'Départ RGA',
+          main: { name: 'Camping de Saint Disdille', phone: '+33 4 50 71 14 11', note: 'Camping *** au bord du Lac Léman (tentes, bungalows, insolites).' },
           alts: [
-            { name: 'Camping Parc de la Dranse', phone: '+33 6 37 26 68 42', note: 'Alternative camping.' },
-            { name: 'Hôtel Arc en Ciel', phone: '+33 4 50 71 90 63', note: 'Excellent rapport qualité-prix, garage sécurisé moto.' },
-            { name: 'Zenitude Les Terrasses du Lac', phone: '+33 4 50 74 13 51', note: '+ loin, - cher, parking à demander.' },
-            { name: 'Hôtel Restaurant Les Cygnes', phone: '+33 4 50 75 01 01', note: 'Bord du lac, très classe ! Demander parking.' }
+            { name: 'Camping Parc de la Dranse', phone: '+33 6 37 26 68 42', note: 'Alternative camping à proximité.' },
+            { name: 'Hôtel Arc en Ciel', phone: '+33 4 50 71 90 63', note: 'Excellent rapport qualité-prix, garage sécurisé motos.' },
+            { name: 'Zenitude Les Terrasses du Lac', phone: '+33 4 50 74 13 51', note: 'Plus loin, moins cher, parking à demander.' },
+            { name: 'Hôtel Restaurant Les Cygnes', phone: '+33 4 50 75 01 01', note: 'Au bord du lac, très classe ! Vérifier parking.' }
           ],
-          dinnerReminder: 'Repas du soir conseillé : L\'Étable du Savoyard (+33 4 50 71 05 56).'
+          dinnerReminder: 'Pour le soir, je vous conseille : L\'Etable du Savoyard.'
         },
         carburant: {
-          title: 'Faire le plein à Thonon-les-Bains',
-          station: 'Intermarché Thonon',
-          sub: 'Repérées dans le fichier des points GPS',
-          guideDistanceFromLast: 0,
-          defaultKmSinceFill: 0,
-          kmRemainingToStation: 0,
-          advice: 'Faire le plein le soir à Thonon pour partir réservoir plein dès 09h30 demain matin.',
+          title: 'Faire le plein à Thonon', station: 'Intermarché Thonon', sub: 'Je vous ai repéré plusieurs stations dans le fichier GPS',
+          defaultKmSinceFill: 0, kmRemainingToStation: 0,
+          advice: 'Je vous conseille de faire le plein la veille au soir pour partir réservoir plein demain matin dès la plaque km 0.',
           nextStation: 'Bourg-Saint-Maurice, jour 1, à 189 km.'
         },
-        pois: { resto: [46.3910, 6.5005], logement: [46.3921, 6.5023], carburant: [46.3709, 6.4797] },
         steps: [
-          { time: 'Journée', title: 'Trajet de liaison depuis chez vous', info: 'Arrivée à Thonon-les-Bains au bord du Léman.', km: 0 },
-          { time: 'Fin d\'aprèm', title: 'Faire le plein à Thonon', info: 'Intermarché ou stations repérées dans le GPX.', km: 0 },
-          { time: 'Soir', title: 'Installation & dîner', info: 'Camping Saint Disdille ou Hôtel Arc en Ciel.', km: 0 }
+          { time: 'Journée', km: 0, title: 'Liaison vers Thonon-les-Bains', info: 'Rejoindre le bord du Lac Léman depuis chez vous.' },
+          { time: 'Fin d\'aprèm', km: 0, title: 'Faire le plein à Thonon', info: 'Intermarché ou stations repérées dans le GPX.' },
+          { time: 'Soir', km: 0, title: 'Installation & dîner', info: 'Camping de Saint Disdille et repas à L\'Etable du Savoyard.' }
         ]
       },
       {
-        dayIndex: 1,
-        code: 'J1',
-        title: 'Thonon → Val-Cenis / Bessans',
-        kmDay: 259,
-        duration: '5h45',
-        coords: [
-          [46.3709, 6.4797], [46.1591, 6.6695], [45.9922, 6.4754],
-          [45.8722, 6.4644], [45.7581, 6.5397], [45.6915, 6.6908],
-          [45.6186, 6.7689], [45.4170, 7.0306], [45.3204, 6.9936]
-        ],
-        seasonalAlert: {
-          pass: 'Col de la Colombière (1 618 m) & Col de l\'Iseran (2 764 m)',
-          openMonth: 6,
-          text: 'Colombière ouvert de juin à octobre et Iseran généralement début juin. Vérifiez l\'ouverture avant départ.'
-        },
+        dayIndex: 1, code: 'J1', title: 'Thonon → Val-Cenis / Bessans', kmDay: 259, duration: '5h45',
+        coords: [[46.3705, 6.4795], [46.159, 6.669], [45.992, 6.475], [45.872, 6.464], [45.758, 6.539], [45.691, 6.691], [45.616, 6.768], [45.417, 7.030], [45.320, 6.993]],
+        pois: { resto: [45.872, 6.464], logement: [45.320, 6.993], carburant: [45.616, 6.768], alert: [45.417, 7.030] },
+        seasonalAlert: { pass: 'Col de la Colombière & Col de l\'Iseran', openMonth: 6, text: 'La Colombière (1618 m) ouvre de juin à octobre et l\'Iseran (2764 m) début juin. Vérifiez l\'ouverture avant de partir.' },
         resto: {
           midi: {
-            heading: 'Repas du midi au col',
-            place: 'Col des Aravis / La Clusaz',
-            time: '12:30 à 13:30',
-            main: { name: 'La Porte Des Aravis', phone: '04 50 02 47 15', note: 'Au col.', closedDays: [] },
+            heading: 'Repas du midi au col', time: '12:30 à 13:30',
+            main: { name: 'La Porte Des Aravis', phone: '04 50 02 47 15', note: 'Au col.' },
             altsTitle: 'Autres adresses à La Clusaz',
             alts: [
               { name: 'L\'garni', phone: '06 76 87 44 08', note: 'Très bien et rapide.' },
@@ -654,466 +629,381 @@
             footerNote: 'Pique-nique : Carrefour et U Express à La Clusaz.'
           },
           soir: {
-            heading: 'Repas du soir à Bessans',
-            place: 'Val-Cenis / Bessans',
-            time: 'Soir',
-            main: { name: 'Le Napoléon (à l\'hôtel)', phone: '04 79 05 90 47', note: 'Directement sur place à l\'ALPAZUR.', closedDays: [] },
-            altsTitle: 'Autres adresses à Bessans',
+            heading: 'Repas du soir à Bessans', time: 'Soir',
+            main: { name: 'Le Napoléon (à l\'hôtel)', phone: '04 79 05 90 47', note: 'Sur place à l\'hôtel.' },
+            altsTitle: 'Autres adresses sur Bessans',
             alts: [
               { name: 'La Bocona', phone: '04 79 05 07 88', note: 'Fermé en début de semaine.', closedDays: [1, 2] },
-              { name: 'Pizzeria des Cim\'', phone: '06 29 18 54 35', note: 'Pizzas à Bessans.' }
+              { name: 'Pizzeria des Cim\'', phone: '06 29 18 54 35', note: 'Pizzeria conviviale à Bessans.' }
             ]
           }
         },
         logement: {
-          title: 'Nuit à Val-Cenis / Bessans',
-          km: '157 km',
+          title: 'Nuit à Val-Cenis / Bessans', km: '157 km',
           main: { name: 'ALPAZUR Hôtel-restaurant', phone: '04 79 20 35 43', note: '' },
           alts: [
             { name: 'Hôtel Restaurant La Vanoise', phone: '04 79 05 96 79', note: '' },
             { name: 'Hôtel Le Glacier des Evettes', phone: '04 79 05 94 06', note: 'Un peu avant, à Bonneval-sur-Arc.' },
             { name: 'Camping de l\'Illaz', phone: '06 45 89 02 32', note: 'Simple, pas cher, beau cadre.' }
           ],
-          dinnerReminder: 'Repas du soir à l\'hôtel : Le Napoléon, 04 79 05 90 47.'
+          dinnerReminder: 'Pour le soir, je vous conseille le resto de l\'hôtel : Le Napoléon, 04 79 05 90 47.'
         },
         carburant: {
-          title: 'Faire le plein à Bourg-Saint-Maurice',
-          station: 'Intermarché ou Super U',
-          sub: 'Repérées dans le fichier des points GPS',
-          guideDistanceFromLast: 189,
-          defaultKmSinceFill: 102,
-          kmRemainingToStation: 87,
-          advice: 'Le guide conseille de faire le plein ici avant le Col de l\'Iseran.',
+          title: 'Faire le plein à Bourg-Saint-Maurice', station: 'Intermarché ou Super U', sub: 'Je les ai repérées dans le fichier des points GPS',
+          defaultKmSinceFill: 102, kmRemainingToStation: 87,
+          advice: 'Je vous conseille de faire le plein ici avant d\'attaquer le Col de l\'Iseran.',
           nextStation: 'Briançon, jour 2, à 198 km.'
         },
-        pois: { resto: [45.8722, 6.4644], logement: [45.3204, 6.9936], carburant: [45.6186, 6.7689], alert: [45.4170, 7.0306] },
         steps: [
-          { time: '09:30', title: 'Départ Plaque km 0 RGA (Thonon)', info: 'Devant la mairie de Thonon-les-Bains.', km: 0 },
-          { time: '10:45', title: 'Col des Gets (1 163 m)', info: 'Premier col de la RGA.', km: 37 },
-          { time: '11:45', title: 'Col de la Colombière (1 618 m)', info: 'Ouvert de juin à octobre.', km: 77 },
-          { time: '12:30', title: 'Col des Aravis (1 486 m) & Midi', info: 'Repas à La Porte Des Aravis.', km: 102 },
-          { time: '14:30', title: 'Col des Saisies (1 658 m)', info: 'Panorama Mont-Blanc.', km: 130 },
-          { time: '15:30', title: 'Cormet de Roselend (1 968 m)', info: 'Pause photo au barrage.', km: 169 },
-          { time: '16:00', title: 'Plein à Bourg-Saint-Maurice', info: 'Intermarché / Super U avant l\'Iseran.', km: 189 },
-          { time: '17:15', title: 'Col de l\'Iseran (2 764 m)', info: 'Plus haut col routier des Alpes.', km: 236 },
-          { time: '17:45', title: 'Arrivée Val-Cenis / Bessans', info: 'ALPAZUR Hôtel-restaurant.', km: 259 }
+          { time: '09:45', km: 0, title: 'Plaque km 0 RGA · Thonon', info: 'Devant la mairie pour officialiser le départ.' },
+          { time: '10:45', km: 37, title: 'Col des Gets (1 163 m)', info: 'Premier col de la Route des Grandes Alpes.' },
+          { time: '11:45', km: 77, title: 'Col de la Colombière (1 618 m)', info: 'Ouvert de juin à octobre.' },
+          { time: '12:30', km: 102, title: 'Col des Aravis (1 486 m) & Midi', info: 'Vue Mont Blanc. Déjeuner à La Porte Des Aravis.' },
+          { time: '14:30', km: 130, title: 'Col des Saisies (1 658 m)', info: 'Panorama sur les massifs du Mont Blanc et des Aravis.' },
+          { time: '15:30', km: 169, title: 'Cormet de Roselend (1 968 m)', info: 'Pause photo immanquable au barrage de Roselend.' },
+          { time: '16:00', km: 189, title: 'Plein à Bourg-Saint-Maurice', info: 'Intermarché ou Super U avant l\'Iseran.' },
+          { time: '17:15', km: 236, title: 'Col de l\'Iseran (2 764 m)', info: 'Plus haut col routier des Alpes !' },
+          { time: '17:45', km: 259, title: 'Arrivée Val-Cenis / Bessans', info: 'Installation ALPAZUR et dîner Le Napoléon.' }
         ]
       },
       {
-        dayIndex: 2,
-        code: 'J2',
-        title: 'Bessans → Jausiers (Ubaye)',
-        kmDay: 230,
-        duration: '5h00',
-        coords: [
-          [45.3204, 6.9936], [45.2025, 6.4444], [45.0642, 6.4078],
-          [45.0352, 6.4050], [44.8984, 6.6436], [44.8200, 6.7350],
-          [44.5390, 6.7027], [44.4178, 6.7314]
-        ],
-        seasonalAlert: {
-          pass: 'Col du Galibier (2 642 m)',
-          openMonth: 6,
-          text: 'Le Col du Galibier ouvre habituellement fin mai ou début juin après déneigement.'
-        },
+        dayIndex: 2, code: 'J2', title: 'Bessans → Jausiers', kmDay: 230, duration: '5h00',
+        coords: [[45.320, 6.993], [45.202, 6.444], [45.064, 6.408], [45.035, 6.405], [44.898, 6.643], [44.820, 6.735], [44.539, 6.703], [44.418, 6.731]],
+        pois: { resto: [44.898, 6.643], logement: [44.418, 6.731], carburant: [44.892, 6.638], alert: [45.064, 6.408] },
+        seasonalAlert: { pass: 'Col du Galibier (2 642 m)', openMonth: 6, text: 'Le Galibier ouvre habituellement fin mai ou début juin après déneigement.' },
         resto: {
           midi: {
-            heading: 'Repas du midi à Briançon',
-            place: 'Briançon',
-            time: '12:45 à 13:45',
-            main: { name: 'Casa Portugal', phone: '+33 9 54 30 20 44', note: 'Resto portugais sympa, zone Carrefour / Décathlon.', closedDays: [] },
+            heading: 'Repas du midi à Briançon', time: '12:45 à 13:45',
+            main: { name: 'Casa Portugal', phone: '+33 9 54 30 20 44', note: 'Resto portugais sympa, zone Carrefour / Décathlon.' },
             altsTitle: 'Sur place',
-            alts: [{ name: 'Zone Carrefour / Décathlon', phone: '', note: 'Station essence et plusieurs options rapides.' }]
+            alts: [{ name: 'Zone Carrefour Briançon', phone: '', note: 'Station essence, Décathlon et restauration rapide.' }]
           },
           soir: {
-            heading: 'Repas du soir à Jausiers',
-            place: 'Jausiers',
-            time: 'Soir',
-            main: { name: 'La Sonnaille', phone: '04 92 36 38 87', note: 'Bonne table à Jausiers.', closedDays: [] },
+            heading: 'Repas du soir à Jausiers', time: 'Soir',
+            main: { name: 'La Sonnaille', phone: '04 92 36 38 87', note: 'Bonne adresse à Jausiers.' },
             altsTitle: 'Autres adresses à Jausiers',
             alts: [
               { name: 'La P\'tite Loupiote', phone: '06 79 30 45 36', note: 'Snacking rapide si ouvert.' },
               { name: 'Bar des Arcades', phone: '04 92 81 06 37', note: 'Resto et pizzeria (avis inégaux).' },
               { name: 'Restaurant Le Piolet', phone: '+33 4 92 84 61 66', note: 'Pas toujours ouvert.' }
-            ]
+            ],
+            footerNote: 'Courses possibles au Proxi « Épicerie de Jausiers ».'
           }
         },
         logement: {
-          title: 'Nuit à Jausiers',
-          km: '230 km',
-          main: { name: 'La Mexicaine : Bed & Breakfast', phone: '04 92 84 69 63', note: 'Piscine, parking moto fermé dans la cour.' },
+          title: 'Nuit à Jausiers', km: '230 km',
+          main: { name: 'La Mexicaine : Bed & Breakfast', phone: '04 92 84 69 63', note: 'Excellent accueil, piscine, parking fermé dans la cour.' },
           alts: [
-            { name: 'L\'Ardoisière - Gîte d\'étape', phone: '+33 4 92 32 03 82', note: 'Bonne alternative motard.' },
-            { name: 'Camping Le Planet', phone: '+33 6 89 20 64 49', note: 'Option camping.' }
+            { name: 'L\'Ardoisière - Gîte d\'étape', phone: '+33 4 92 32 03 82', note: 'Alternative conviviale.' },
+            { name: 'Camping Le Planet', phone: '+33 6 89 20 64 49', note: 'Option camping à Jausiers.' }
           ],
-          dinnerReminder: 'Dîner au village : La Sonnaille (04 92 36 38 87).'
+          dinnerReminder: 'Pour le dîner à Jausiers, je vous conseille : La Sonnaille.'
         },
         carburant: {
-          title: 'Faire le plein à Briançon',
-          station: 'Carrefour (zone Décathlon)',
-          sub: 'Repérée dans le fichier des points GPS',
-          guideDistanceFromLast: 198,
-          defaultKmSinceFill: 136,
-          kmRemainingToStation: 62,
-          advice: 'Plein conseillé à Briançon avant Izoard et Vars. Complément possible à Jausiers avant la Bonette.',
+          title: 'Faire le plein à Briançon', station: 'Carrefour / Zone Décathlon', sub: 'Sur ma trace à la pause midi',
+          defaultKmSinceFill: 70, kmRemainingToStation: 128,
+          advice: 'Je vous conseille de faire le plein à Briançon (km 128). Si besoin, faites un appoint à Jausiers le soir avant la Bonette.',
           nextStation: 'Saint-Étienne-de-Tinée, jour 3, à 150 km.'
         },
-        pois: { resto: [44.8984, 6.6436], logement: [44.4178, 6.7314], carburant: [44.8950, 6.6390], alert: [45.0642, 6.4078] },
         steps: [
-          { time: '09:30', title: 'Départ Bessans', info: '70 km déjà parcourus depuis BSM.', km: 0 },
-          { time: '11:00', title: 'Col du Télégraphe (1 566 m)', info: 'Liaison Maurienne → Valloire.', km: 66 },
-          { time: '11:30', title: 'Col du Galibier (2 642 m)', info: 'Limite Alpes du Nord / Alpes du Sud.', km: 89 },
-          { time: '12:00', title: 'Col du Lautaret (2 057 m)', info: 'Descente vers Briançon.', km: 98 },
-          { time: '12:45', title: 'Plein & Midi à Briançon', info: 'Carrefour + Casa Portugal.', km: 128 },
-          { time: '14:30', title: 'Col d\'Izoard (2 360 m)', info: 'Arrêt à la Casse Déserte.', km: 148 },
-          { time: '16:00', title: 'Col de Vars (2 108 m)', info: 'Entrée dans l\'Ubaye.', km: 198 },
-          { time: '16:30', title: 'Pont du Châtelet', info: 'Perché à 108 m au-dessus de l\'Ubaye.', km: 211 },
-          { time: '17:00', title: 'Arrivée Jausiers', info: 'La Mexicaine B&B.', km: 230 }
+          { time: '09:30', km: 0, title: 'Départ Bessans', info: '70 km déjà parcourus depuis Bourg-Saint-Maurice.' },
+          { time: '11:00', km: 66, title: 'Col du Télégraphe (1 566 m)', info: 'Liaison Saint-Michel-de-Maurienne → Valloire.' },
+          { time: '11:30', km: 89, title: 'Col du Galibier (2 642 m)', info: 'Limite Alpes du Nord / Alpes du Sud.' },
+          { time: '12:00', km: 98, title: 'Col du Lautaret (2 057 m)', info: 'Descente vers Briançon.' },
+          { time: '12:45', km: 128, title: 'Plein & Midi à Briançon', info: 'Zone Carrefour + Casa Portugal.' },
+          { time: '14:30', km: 148, title: 'Col d\'Izoard (2 360 m)', info: 'La Casse Déserte : bienvenue sur la Lune !' },
+          { time: '16:00', km: 198, title: 'Col de Vars (2 108 m)', info: 'Descente vers la vallée de l\'Ubaye.' },
+          { time: '16:30', km: 211, title: 'Pont du Châtelet', info: 'Perché à 108 m au-dessus de l\'Ubaye.' },
+          { time: '17:00', km: 230, title: 'Arrivée Jausiers', info: 'Au pied de la Bonette.' }
         ]
       },
       {
-        dayIndex: 3,
-        code: 'J3',
-        title: 'Jausiers → Menton → Levens',
-        kmDay: 255,
-        duration: '6h00',
-        coords: [
-          [44.4178, 6.7314], [44.3266, 6.8075], [44.2564, 6.9255],
-          [44.0706, 7.2185], [44.0114, 7.3075], [43.9772, 7.3917],
-          [43.7745, 7.4975], [43.8758, 7.3992], [43.8602, 7.2248]
-        ],
-        seasonalAlert: {
-          pass: 'Cime de la Bonette (2 802 m)',
-          openMonth: 6,
-          text: 'Route goudronnée la plus haute de France (2 802 m). Ouverture tardive selon l\'enneigement (fin mai / juin).'
-        },
+        dayIndex: 3, code: 'J3', title: 'Jausiers → Menton → Levens', kmDay: 255, duration: '6h00',
+        coords: [[44.418, 6.731], [44.326, 6.807], [44.257, 6.925], [44.072, 7.216], [44.011, 7.308], [43.977, 7.391], [43.774, 7.498], [43.874, 7.399], [43.860, 7.224]],
+        pois: { resto: [44.011, 7.308], logement: [43.860, 7.224], carburant: [43.782, 7.491], alert: [44.326, 6.807] },
+        seasonalAlert: { pass: 'Col & Cime de la Bonette (2 802 m)', openMonth: 6, text: 'La boucle de la Cime (2 802 m) reste souvent enneigée jusqu\'à début juin.' },
         resto: {
           midi: {
-            heading: 'Repas du midi à Roquebillière',
-            place: 'Roquebillière',
-            time: '12:30 à 13:30',
-            main: { name: 'Rendez-Vous Vésubien', phone: '04 93 03 04 61', note: 'Resto du village, bonne adresse. Fermé le lundi.', closedDays: [1] },
-            altsTitle: 'Autres adresses',
-            alts: [
-              { name: 'Snack L\'Embegu', phone: '+33 6 32 90 14 74', note: 'Alternative rapide s\'il est ouvert.' },
-              { name: 'Le Café du Parvis (Menton)', phone: '', note: 'Pause café face à la plaque d\'arrivée RGA à 15h45.' }
-            ]
+            heading: 'Repas du midi à Roquebillière', time: '12:30 à 13:30',
+            main: { name: 'Rendez-Vous Vésubien', phone: '04 93 03 04 61', note: 'Resto du village, bonne adresse ! Fermé le lundi.', closedDays: [1] },
+            altsTitle: 'Alternative si fermé',
+            alts: [{ name: 'Snack L\'Embegu', phone: '+33 6 32 90 14 74', note: 'S\'il est ouvert.' }]
           },
           soir: {
-            heading: 'Repas du soir à Levens',
-            place: 'Levens',
-            time: 'Soir',
-            main: { name: 'Hôtel La Vigneraie (sur place)', phone: '04 93 79 77 60', note: 'Repas sympa directement à l\'hôtel.', closedDays: [] },
+            heading: 'Repas du soir à Levens', time: 'Soir',
+            main: { name: 'Hôtel La Vigneraie', phone: '04 93 79 77 60', note: 'Très bien à l\'hôtel, repas sympa sur place.' },
             altsTitle: 'Autres adresses à Levens',
             alts: [
-              { name: 'Brasserie le Félix', phone: '06 41 09 89 65', note: 'Dans le village.' },
-              { name: 'L\'Endroit', phone: '09 87 76 18 26', note: 'Alternative village.' },
-              { name: 'Mac Pizza', phone: '07 83 45 95 90', note: 'Pizzas sur place ou à emporter.' }
+              { name: 'Brasserie le Félix', phone: '06 41 09 89 65', note: 'Brasserie du village.' },
+              { name: 'L\'endroit', phone: '09 87 76 18 26', note: 'Restaurant local.' },
+              { name: 'Mac Pizza', phone: '07 83 45 95 90', note: 'Option pizza rapide.' }
             ]
           }
         },
         logement: {
-          title: 'Nuit à Levens',
-          km: '255 km',
-          main: { name: 'Hôtel La Vigneraie', phone: '04 93 79 77 60', note: 'Super établissement.' },
+          title: 'Nuit à Levens', km: '255 km',
+          main: { name: 'Hôtel La Vigneraie', phone: '04 93 79 77 60', note: 'Super établissement, dîner sur place.' },
           alts: [
             { name: 'Mon gîte à Pélasque', phone: '06 83 96 67 93', note: 'À 20 km si complet.' },
-            { name: 'Le Bellevue Martinon (Utelle)', phone: '04 93 03 17 19', note: 'Au village d\'après (rejoindre Lantosque au Col de Braus).' }
+            { name: 'Le Bellevue Martinon', phone: '04 93 03 17 19', note: 'À Utelle (rejoindre Lantosque depuis Braus).' }
           ],
-          dinnerReminder: 'Repas du soir sur place à La Vigneraie.'
+          dinnerReminder: 'Je vous recommande de dîner sur place à l\'Hôtel La Vigneraie.'
         },
         carburant: {
-          title: 'Pleins : St-Étienne-de-Tinée & Menton',
-          station: 'Total Tinée puis Intermarché Carei Menton',
-          sub: 'Repérées dans le fichier des points GPS',
-          guideDistanceFromLast: 150,
-          defaultKmSinceFill: 124,
-          kmRemainingToStation: 26,
-          advice: 'Assurez impérativement le plein à Menton : après, les stations deviennent rares sur la remontée.',
+          title: 'Pleins : Tinée puis Menton', station: 'Total Tinée + Intermarché Carei (Menton)', sub: 'Je vous ai repéré les stations dans le GPX',
+          defaultKmSinceFill: 102, kmRemainingToStation: 48,
+          advice: 'Je vous conseille de faire le plein à Saint-Étienne-de-Tinée (48 km) puis IMPÉRATIVEMENT à Menton : ensuite les stations deviennent très rares.',
           nextStation: 'Valberg, jour 4, à 176 km.'
         },
-        pois: { resto: [44.0114, 7.3075], logement: [43.8602, 7.2248], carburant: [44.2564, 6.9255], alert: [44.3266, 6.8075] },
         steps: [
-          { time: '10:15', title: 'Col & Cime de la Bonette (2 802 m)', info: 'Faire le tour de la Cime si ouverte.', km: 22 },
-          { time: '11:00', title: 'Plein à Saint-Étienne-de-Tinée', info: 'Chez Total (éviter Dyneff Isola).', km: 48 },
-          { time: '12:00', title: 'Col Saint-Martin (1 503 m)', info: 'Entre Tinée et Vésubie.', km: 93 },
-          { time: '12:30', title: 'Midi à Roquebillière', info: 'Rendez-Vous Vésubien (fermé le lundi).', km: 111 },
-          { time: '14:30', title: 'Col de Turini', info: 'Mythique du rallye Monte-Carlo.', km: 147 },
-          { time: '15:30', title: 'Arrivée RGA à Menton', info: 'Plaque officielle + café + plein Carei.', km: 190 },
-          { time: '16:45', title: 'Col de Braus', info: 'Début de la remontée vers le Nord.', km: 217 },
-          { time: '17:45', title: 'Arrivée Levens', info: 'Hôtel La Vigneraie.', km: 255 }
+          { time: '10:15', km: 22, title: 'Col & Cime de la Bonette (2 802 m)', info: 'Route goudronnée la plus haute de France.' },
+          { time: '11:00', km: 48, title: 'Plein à Saint-Étienne-de-Tinée', info: 'Station Total (éviter Dyneff Isola, chère).' },
+          { time: '12:00', km: 93, title: 'Col Saint-Martin (1 503 m)', info: 'Passage Tinée → Vésubie.' },
+          { time: '12:30', km: 111, title: 'Midi à Roquebillière', info: 'Rendez-Vous Vésubien (fermé le lundi).' },
+          { time: '14:30', km: 147, title: 'Col de Turini', info: 'Virages mythiques du Monte-Carlo.' },
+          { time: '15:30', km: 190, title: 'Arrivée RGA à Menton + Plein', info: 'Plaque officielle, Café du Parvis puis plein Carei.' },
+          { time: '16:45', km: 217, title: 'Col de Braus', info: 'Début de la remontée vers le nord.' },
+          { time: '17:45', km: 255, title: 'Nuit à Levens', info: 'Hôtel La Vigneraie.' }
         ]
       },
       {
-        dayIndex: 4,
-        code: 'J4',
-        title: 'Levens → Savines-le-Lac',
-        kmDay: 246,
-        duration: '5h45',
-        coords: [
-          [43.8602, 7.2248], [44.0220, 6.9960], [44.1003, 7.0228],
-          [44.0953, 6.9286], [44.1753, 6.7014], [44.2975, 6.5944],
-          [44.5262, 6.4050]
-        ],
-        seasonalAlert: {
-          pass: 'Col d\'Allos (2 247 m) & Col de la Couillole (1 678 m)',
-          openMonth: 6,
-          text: 'Couillole et Allos sont fermés l\'hiver (ouverts 6 à 7 mois/an).'
-        },
+        dayIndex: 4, code: 'J4', title: 'Levens → Savines-le-Lac', kmDay: 246, duration: '5h45',
+        coords: [[43.860, 7.224], [44.035, 7.001], [44.101, 7.022], [44.095, 6.929], [44.175, 6.701], [44.297, 6.594], [44.526, 6.405]],
+        pois: { resto: [44.175, 6.701], logement: [44.526, 6.405], carburant: [44.095, 6.929], alert: [44.297, 6.594] },
+        seasonalAlert: { pass: 'Col de la Couillole & Col d\'Allos', openMonth: 6, text: 'La Couillole (1 678 m) et le Col d\'Allos (2 247 m) sont fermés en hiver et ouvrent vers fin mai / juin.' },
         resto: {
           midi: {
-            heading: 'Repas du midi au Col des Champs',
-            place: 'Col des Champs',
-            time: '13:30 à 14:30',
-            main: { name: 'Pique-nique au Col des Champs', phone: '', note: 'Zone sans resto. Courses au Proxi Valberg à 12h15.', closedDays: [] },
-            altsTitle: 'Options courses / repas',
-            alts: [
-              { name: 'Proxi Valberg - L\'Épicerie', phone: '', note: 'Arrêt courses conseillé à 12h15.' },
-              { name: 'Manger tôt à Valberg', phone: '', note: 'Avant midi si vous ne pique-niquez pas.' }
-            ]
+            heading: 'Pique-nique au Col des Champs', time: '13:30 à 14:30',
+            main: { name: 'Proxi Valberg - L\'Épicerie', phone: '', note: 'Courses à 12h15 à Valberg avant la zone sans restos.' },
+            altsTitle: 'Alternative',
+            alts: [{ name: 'Manger tôt à Valberg ou tard à Allos', phone: '', note: 'Difficile de trouver un service après 14h à Allos.' }]
           },
           soir: {
-            heading: 'Repas du soir à Savines-le-Lac',
-            place: 'Savines-le-Lac',
-            time: 'Soir',
-            main: { name: 'Le Resto\'Rond', phone: '+33 6 38 47 34 35', note: 'Excellente adresse à Savines.', closedDays: [] },
+            heading: 'Repas du soir à Savines-le-Lac', time: 'Soir',
+            main: { name: 'Le Resto\'Rond', phone: '+33 6 38 47 34 35', note: 'Excellente adresse !' },
             altsTitle: 'Autres adresses à Savines',
             alts: [
-              { name: 'La Combe d\'Or', phone: '04 92 44 24 30', note: 'Bonne alternative.' },
-              { name: 'Chez Barulo', phone: '04 92 44 20 93', note: 'Autre option au village.' }
+              { name: 'La Combe d\'or', phone: '04 92 44 24 30', note: 'Alternative locale.' },
+              { name: 'Chez Barulo', phone: '04 92 44 20 93', note: 'Autre option au bord du lac.' }
             ]
           }
         },
         logement: {
-          title: 'Nuit à Savines-le-Lac',
-          km: '246 km',
+          title: 'Nuit à Savines-le-Lac', km: '246 km',
           main: { name: 'Hôtel & Camping Les Sources', phone: '+33 4 92 44 20 52', note: 'Chambres, bungalows et emplacements tentes.' },
           alts: [
-            { name: 'Logis Hôtel Eden Lac', phone: '+33 4 92 44 20 53', note: 'Hôtel au bord du lac.' },
             { name: 'Camping Municipal Le Grand Large', phone: '', note: 'Un peu avant Savines.' },
-            { name: 'La Robéyère (Embrun)', phone: '04 92 51 90 78', note: 'Adresse très classe à Embrun.' }
+            { name: 'Logis Hôtel Eden Lac', phone: '+33 4 92 44 20 53', note: 'Hôtel face au lac de Serre-Ponçon.' },
+            { name: 'La Robéyère (Embrun)', phone: '04 92 51 90 78', note: 'Adresse classe à Embrun.' }
           ],
-          dinnerReminder: 'Repas du soir conseillé : Le Resto\'Rond (+33 6 38 47 34 35).'
+          dinnerReminder: 'Pour le soir, je vous conseille : Le Resto\'Rond.'
         },
         carburant: {
-          title: 'Faire le plein à Valberg',
-          station: 'Relais de Valberg',
-          sub: 'Repérée dans le fichier des points GPS',
-          guideDistanceFromLast: 176,
-          defaultKmSinceFill: 113,
-          kmRemainingToStation: 63,
-          advice: 'Faites le plein à Valberg, sinon il faudra tenir jusqu\'à Barcelonnette.',
-          nextStation: 'Gap Leclerc, jour 5, à 165 km.'
+          title: 'Faire le plein à Valberg', station: 'Relais de Valberg', sub: 'Avant les cols des Champs et d\'Allos',
+          defaultKmSinceFill: 65, kmRemainingToStation: 111,
+          advice: 'Je vous conseille impérativement de faire le plein à Valberg (176 km depuis Menton), sinon il faudra tenir jusqu\'à Barcelonnette.',
+          nextStation: 'Leclerc Gap, jour 5, à 165 km.'
         },
-        pois: { resto: [44.1753, 6.7014], logement: [44.5262, 6.4050], carburant: [44.0953, 6.9286], alert: [44.2975, 6.5944] },
         steps: [
-          { time: '10:30', title: 'Gorges du Cians', info: 'Prendre la D428 au croisement de la D28.', km: 48 },
-          { time: '11:45', title: 'Col de la Couillole (1 678 m)', info: 'Petites routes sauvages.', km: 95 },
-          { time: '12:15', title: 'Valberg : Plein + Proxi', info: 'Indispensable avant le Col des Champs.', km: 111 },
-          { time: '13:30', title: 'Pique-nique au Col des Champs', info: 'Pause déjeuner en altitude.', km: 163 },
-          { time: '15:15', title: 'Col d\'Allos (2 247 m)', info: 'Proche de la source du Verdon.', km: 185 },
-          { time: '16:30', title: 'Arrivée Savines-le-Lac', info: 'Profiter du lac de Serre-Ponçon.', km: 246 }
+          { time: '10:30', km: 48, title: 'Gorges du Cians', info: 'Colorado niçois (schiste rouge). Prendre D428 au croisement D28.' },
+          { time: '11:45', km: 95, title: 'Col de la Couillole (1 678 m)', info: 'Petites routes sauvages et splendides.' },
+          { time: '12:15', km: 111, title: 'Valberg : Plein & Courses', info: 'Relais carburant + Proxi pour le pique-nique.' },
+          { time: '13:30', km: 163, title: 'Col des Champs (Pique-nique)', info: 'Pause déjeuner en altitude.' },
+          { time: '15:15', km: 185, title: 'Col d\'Allos (2 247 m)', info: 'Proche de la source du Verdon.' },
+          { time: '16:30', km: 246, title: 'Savines-le-Lac', info: 'Arrivée tôt pour profiter du lac de Serre-Ponçon.' }
         ]
       },
       {
-        dayIndex: 5,
-        code: 'J5',
-        title: 'Savines → Vercors → Grenoble',
-        kmDay: 251,
-        duration: '5h00',
-        coords: [
-          [44.5262, 6.4050], [44.5596, 6.0798], [44.6950, 5.4830],
-          [44.8358, 5.4055], [44.8962, 5.3712], [45.0706, 5.5503],
-          [45.1436, 5.7176], [45.2558, 5.6656]
-        ],
-        seasonalAlert: null,
+        dayIndex: 5, code: 'J5', title: 'Savines → Vercors → Fontanil', kmDay: 251, duration: '5h00',
+        coords: [[44.526, 6.405], [44.559, 6.079], [44.694, 5.483], [44.835, 5.402], [44.896, 5.371], [45.070, 5.550], [45.143, 5.718], [45.255, 5.665]],
+        pois: { resto: [44.835, 5.402], logement: [45.255, 5.665], carburant: [44.559, 6.079] },
         resto: {
           midi: {
-            heading: 'Repas du midi au Col du Rousset',
-            place: 'Station du Col du Rousset',
-            time: '12:30 à 13:30',
-            main: { name: 'Restaurant Carnotzet (ou pique-nique)', phone: '', note: 'En sortant du tunnel à droite. Courses possibles à Intermarché Die.', closedDays: [] },
-            altsTitle: 'Autres options',
-            alts: [
-              { name: 'Intermarché de Die', phone: '', note: 'Pour faire les courses pique-nique avant la montée.' },
-              { name: 'Café des Sports (Villard-de-Lans)', phone: '', note: 'Pause café vers 14h45.' }
-            ]
+            heading: 'Repas au Col du Rousset', time: '12:30 à 13:30',
+            main: { name: 'Restaurant Carnotzet', phone: '', note: 'En sortant du tunnel à droite. Le pique-nique reste une bonne option.' },
+            altsTitle: 'Courses avant la montée',
+            alts: [{ name: 'Intermarché de Die', phone: '', note: 'En bas du col, repéré sur le fichier GPS.' }]
           },
           soir: {
-            heading: 'Repas du soir (Fontanil / Petites Roches)',
-            place: 'Fontanil-Cornillon',
-            time: 'Soir',
-            main: { name: 'Resto sur place (Logis le Néron)', phone: '04 76 75 27 38', note: 'Pratique si vous dormez à l\'hôtel.', closedDays: [] },
-            altsTitle: 'Autres adresses',
+            heading: 'Repas du soir (Fontanil / Petites Roches)', time: 'Soir',
+            main: { name: 'Resto du Logis Hôtel le Néron', phone: '04 76 75 27 38', note: 'Sur place si vous dormez à l\'hôtel.' },
+            altsTitle: 'Alternatives (hôtel ou camping)',
             alts: [
-              { name: 'Sous La Dent (Petites Roches)', phone: '04 76 98 70 31', note: 'Pizzeria sympa (fermée lundi et mardi).', closedDays: [1, 2] },
-              { name: 'Route 61 (Burgers)', phone: '09 53 87 78 05', note: 'À 500 m du camping.' },
-              { name: 'L\'Envol des Saveurs', phone: '04 76 04 80 99', note: 'Pour ceux à l\'hôtel.' }
+              { name: 'Sous La Dent (Pizzeria)', phone: '04 76 98 70 31', note: 'Plateau des Petites Roches. Fermée lundi et mardi.', closedDays: [1, 2] },
+              { name: 'Route 61 (Burgers)', phone: '09 53 87 78 05', note: 'Très bien, à 500 m du camping.' },
+              { name: 'L\'envol des Saveurs', phone: '04 76 04 80 99', note: 'Option proche de l\'hôtel.' },
+              { name: 'Camionnette Nacho Pizza', phone: '06 13 15 35 16', note: 'À emporter.' }
             ]
           }
         },
         logement: {
-          title: 'Nuit à Fontanil-Cornillon',
-          km: '251 km',
+          title: 'Nuit à Fontanil-Cornillon', km: '251 km',
           main: { name: 'Logis Hôtel le Néron', phone: '04 76 75 27 38', note: 'Simple, prix correct.' },
           alts: [
-            { name: 'Camping des Petites Roches', phone: '+33 7 68 96 52 73', note: 'Très agréable, chalets & tentes (ouvre début mai).' },
+            { name: 'Camping des Petites Roches', phone: '+33 7 68 96 52 73', note: 'Très agréable (chalets et tentes, ouvre début mai).' },
             { name: 'Les Jardins de Kuz', phone: '+33 7 82 10 22 36', note: 'Très bonne adresse.' },
             { name: 'ibis Styles Crolles', phone: '+33 4 76 92 84 84', note: 'Moins pratique pour les motos.' }
           ],
-          dinnerReminder: 'Resto sur place au Logis le Néron, ou pizzeria Sous La Dent.'
+          dinnerReminder: 'Je vous conseille le resto sur place au Logis, ou la pizzeria / burgers côté Petites Roches.'
         },
         carburant: {
-          title: 'Pleins : Gap & Échirolles',
-          station: 'Leclerc Gap puis Leclerc Échirolles',
-          sub: 'Ou Intermarché Seyssins / Carrefour Meylan',
-          guideDistanceFromLast: 196,
-          defaultKmSinceFill: 112,
-          kmRemainingToStation: 84,
-          advice: 'Plein à Gap en début de journée, puis à Échirolles avant de rejoindre l\'hôtel.',
-          nextStation: 'Annecy Intermarché, jour 6, à 181 km.'
+          title: 'Pleins : Gap puis Échirolles', station: 'Leclerc Gap (km 30) + Leclerc Échirolles (km 226)', sub: 'Deux grands axes faciles',
+          defaultKmSinceFill: 135, kmRemainingToStation: 30,
+          advice: 'Je vous conseille de faire le plein au Leclerc de Gap dès le matin (165 km depuis Valberg), puis à Échirolles en fin de journée.',
+          nextStation: 'Intermarché Annecy, jour 6, à 181 km.'
         },
-        pois: { resto: [44.8358, 5.4055], logement: [45.2558, 5.6656], carburant: [45.1436, 5.7176] },
         steps: [
-          { time: '09:30', title: 'Départ Savines → Plein à Gap', info: 'Leclerc de Gap au km 30.', km: 30 },
-          { time: '11:15', title: 'Gorges des Gâts (Châtillon-en-Diois)', info: 'Entrée dans la Drôme.', km: 100 },
-          { time: '12:15', title: 'Col du Rousset & Midi', info: 'Porte du Vercors.', km: 142 },
-          { time: '13:45', title: 'Vassieux-en-Vercors', info: 'Nécropole de la Résistance.', km: 152 },
-          { time: '14:45', title: 'Villard-de-Lans', info: 'Café au Café des Sports.', km: 190 },
-          { time: '15:30', title: 'Plein à Échirolles', info: 'Leclerc Échirolles ou Intermarché Seyssins.', km: 226 },
-          { time: '16:15', title: 'Arrivée Fontanil-Cornillon', info: 'Logis Hôtel le Néron.', km: 251 }
+          { time: '09:30', km: 0, title: 'Départ Savines-le-Lac', info: 'Plein prévu rapidement à Gap.' },
+          { time: '10:00', km: 30, title: 'Plein au Leclerc de Gap', info: 'Remise à zéro autonomie.' },
+          { time: '11:15', km: 100, title: 'Gorges des Gâts', info: 'Châtillon-en-Diois.' },
+          { time: '12:30', km: 142, title: 'Col du Rousset & Midi', info: 'Restaurant Carnotzet ou pique-nique.' },
+          { time: '13:45', km: 152, title: 'Vassieux-en-Vercors', info: 'Nécropole de la Résistance.' },
+          { time: '14:45', km: 190, title: 'Villard-de-Lans', info: 'Pause café au Café des Sports.' },
+          { time: '15:45', km: 226, title: 'Plein à Échirolles', info: 'Leclerc Échirolles ou Intermarché Seyssins.' },
+          { time: '16:15', km: 251, title: 'Arrivée Fontanil-Cornillon', info: 'Logis Hôtel le Néron ou Petites Roches.' }
         ]
       },
       {
-        dayIndex: 6,
-        code: 'J6',
-        title: 'Chartreuse → Semnoz → Thonon',
-        kmDay: 236,
-        duration: '5h30',
-        coords: [
-          [45.2558, 5.6656], [45.4631, 5.9255], [45.6825, 5.9756],
-          [45.7985, 6.1038], [45.8992, 6.1294], [46.0669, 6.3125],
-          [46.3709, 6.4797]
-        ],
-        seasonalAlert: null,
+        dayIndex: 6, code: 'J6', title: 'Fontanil → Semnoz → Thonon', kmDay: 236, duration: '5h30',
+        coords: [[45.255, 5.665], [45.463, 5.925], [45.682, 5.975], [45.744, 6.056], [45.798, 6.104], [45.900, 6.129], [46.067, 6.312], [46.3705, 6.4795]],
+        pois: { resto: [45.798, 6.104], logement: [46.391, 6.503], carburant: [45.900, 6.129] },
         resto: {
           midi: {
-            heading: 'Repas du midi au Semnoz',
-            place: 'Semnoz (1 699 m)',
-            time: '12:30 à 13:30',
-            main: { name: 'Bar-Restaurant Le Châtillon au Semnoz', phone: '04 50 05 45 83', note: 'Excellent resto avec spécialités de montagne.', closedDays: [] },
-            altsTitle: 'Autre adresse sur place',
-            alts: [{ name: 'Le Courant d\'Ere', phone: '04 50 01 23 17', note: 'Bien moins bien selon Greg.' }]
+            heading: 'Repas du midi au Semnoz', time: '12:30 à 13:30',
+            main: { name: 'Bar-Restaurant Le Châtillon au Semnoz', phone: '04 50 05 45 83', note: 'Excellent resto avec spécialités de montagne (1 699 m).' },
+            altsTitle: 'Alternative',
+            alts: [{ name: 'Le Courant d\'Ere', phone: '04 50 01 23 17', note: 'Bien moins bien à mon avis.' }]
           },
           soir: {
-            heading: 'Repas du soir à Thonon',
-            place: 'Thonon-les-Bains',
-            time: 'Soir',
-            main: { name: 'L\'Étable du Savoyard', phone: '+33 4 50 71 05 56', note: 'À deux pas du camping. Fermé en début de semaine.', closedDays: [1, 2] },
-            altsTitle: 'Autres adresses à Thonon',
+            heading: 'Repas du soir à Thonon', time: 'Soir',
+            main: { name: 'L\'Etable du Savoyard', phone: '+33 4 50 71 05 56', note: 'À deux pas du camping. Fermé en début de semaine.', closedDays: [1, 2] },
+            altsTitle: 'Dans le centre de Thonon',
             alts: [
-              { name: 'Il Vesuvio', phone: '', note: 'Italien dans le centre.' },
-              { name: 'Bistrot le Cousin Michel', phone: '', note: 'Spécialités savoyardes.' }
+              { name: 'Il Vesuvio', phone: '', note: 'Italien en centre-ville.' },
+              { name: 'Bistrot le Cousin Michel', phone: '', note: 'Spécialités savoyardes !' }
             ]
           }
         },
         logement: {
-          title: 'Dernière nuit à Thonon-les-Bains',
-          km: '236 km (Total 1 477 km)',
-          main: { name: 'Camping de Saint Disdille', phone: '+33 4 50 71 14 11', note: 'Retour au bord du Lac Léman.' },
+          title: 'Nuit retour à Thonon-les-Bains', km: '236 km',
+          main: { name: 'Camping de Saint Disdille', phone: '+33 4 50 71 14 11', note: 'Boucle bouclée au bord du Lac Léman !' },
           alts: [
-            { name: 'Hôtel Arc en Ciel', phone: '+33 4 50 71 90 63', note: 'Garage moto sécurisé.' },
-            { name: 'Hôtel Restaurant Les Cygnes', phone: '+33 4 50 75 01 01', note: 'Au bord du lac, très classe.' }
+            { name: 'Camping Parc de la Dranse', phone: '+33 6 37 26 68 42', note: '' },
+            { name: 'Hôtel Arc en Ciel', phone: '+33 4 50 71 90 63', note: 'Garage sécurisé pour les motos.' }
           ],
-          dinnerReminder: 'Dîner de fin de road trip à L\'Étable du Savoyard.'
+          dinnerReminder: 'Pour fêter la fin de boucle, je vous conseille L\'Etable du Savoyard.'
         },
         carburant: {
-          title: 'Faire le plein à Annecy',
-          station: 'Intermarché station-service Annecy',
-          sub: 'La plus proche de la trace',
-          guideDistanceFromLast: 181,
-          defaultKmSinceFill: 138,
-          kmRemainingToStation: 43,
-          advice: 'Station la plus proche de la trace juste après la descente du Semnoz.',
-          nextStation: 'Thonon-les-Bains, à 80 km.'
+          title: 'Faire le plein à Annecy', station: 'Intermarché station-service Annecy', sub: 'La plus proche de ma trace',
+          defaultKmSinceFill: 25, kmRemainingToStation: 156,
+          advice: 'Je vous conseille de faire le plein à Annecy en redescendant du Semnoz (181 km depuis Échirolles).',
+          nextStation: 'Arrivée à Thonon-les-Bains (80 km).'
         },
-        pois: { resto: [45.7985, 6.1038], logement: [46.3921, 6.5023], carburant: [45.8992, 6.1294] },
         steps: [
-          { time: '09:00', title: 'Départ tôt (Fontanil-Cornillon)', info: 'Pour manger tranquillement au Semnoz.', km: 0 },
-          { time: '10:00', title: 'Col du Granier (Chartreuse)', info: 'Superbe route de montagne.', km: 44 },
-          { time: '11:00', title: 'Belvédère du Revard', info: 'Vue plongeante sur le lac du Bourget.', km: 84 },
-          { time: '11:45', title: 'Pont de l\'Abîme', info: 'Passage spectaculaire.', km: 110 },
-          { time: '12:30', title: 'Semnoz (1 699 m) & Midi', info: 'Le Châtillon au Semnoz.', km: 138 },
-          { time: '14:15', title: 'Plein à Annecy', info: 'Intermarché station-service.', km: 156 },
-          { time: '16:15', title: 'Retour à Thonon-les-Bains', info: 'Temps libre au bord du lac.', km: 236 }
+          { time: '09:00', km: 0, title: 'Départ un peu plus tôt', info: 'Pour arriver à l\'heure au Semnoz.' },
+          { time: '10:00', km: 44, title: 'Col du Granier', info: 'Sortie de Chartreuse.' },
+          { time: '11:00', km: 84, title: 'Belvédère du Revard', info: 'Vue plongeante sur le lac du Bourget.' },
+          { time: '11:45', km: 110, title: 'Pont de l\'Abîme', info: 'Pause photo rapide.' },
+          { time: '12:30', km: 138, title: 'Semnoz (1 699 m) & Midi', info: 'Déjeuner au Châtillon.' },
+          { time: '14:15', km: 156, title: 'Plein à Annecy', info: 'Intermarché station-service.' },
+          { time: '16:15', km: 236, title: 'Retour à Thonon-les-Bains', info: 'Temps libre au bord du lac !' }
         ]
       }
     ];
 
     // =========================================================================
-    // 3. ETAT GLOBAL
+    // 3. ETAT GLOBAL & PERSISTANCE LOCALE
     // =========================================================================
+    const STORAGE_KEY = 'lav_rga_pwa_v5';
+
+    function loadLocal() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      } catch (e) {
+        return {};
+      }
+    }
+
+    const saved = loadLocal();
+
+    // Migration douce si un ancien budget numérique simple existait
+    const normalizedBudgets = {};
+    if (saved.budgets && typeof saved.budgets === 'object') {
+      Object.keys(saved.budgets).forEach((k) => {
+        const v = saved.budgets[k];
+        if (v && typeof v === 'object') {
+          normalizedBudgets[k] = {
+            hebergement: v.hebergement || '',
+            repas: v.repas || '',
+            carburant: v.carburant || '',
+            divers: v.divers || ''
+          };
+        } else if (v) {
+          normalizedBudgets[k] = { hebergement: '', repas: '', carburant: '', divers: String(v) };
+        }
+      });
+    }
+
     const state = {
       view: 'login',
+      loggedIn: false,
       isOffline: false,
-      startDate: '2027-07-15',
-      catalogZone: 'all',
-      ownedGuideIds: ['rga', 'vercors', 'ardeche', 'corse-terres'],
-      updatedGuideIds: [],
-      checkoutGuideId: null,
-      pendingGpxDownload: null,
+      startDate: saved.startDate || '2027-07-15',
       currentDay: 1,
       rideMode: false,
       readerTab: 'resto',
       restoPeriod: 'all',
-      autonomyKm: 250,
-      fuelOverrides: {},
+      catalogZone: 'all',
+      ownedGuideIds: saved.ownedGuideIds || ['rga', 'vercors', 'ardeche', 'corse-terres'],
+      updatedGuides: saved.updatedGuides || {},
+      bookings: saved.bookings || {},
+      budgets: normalizedBudgets,
+      budgetPersons: saved.budgetPersons || 1,
+      autonomyKm: saved.autonomyKm || 250,
+      fuelOverrides: saved.fuelOverrides || {},
       showFuelRecal: false,
-      bookings: {},
-      budgets: {},
+      checkoutGuideId: null,
+      pendingGpxDownload: null,
+      reportDraftTarget: null,
       reports: [
         {
-          id: 'rep-1',
+          id: 'rep-seed-1',
           dayIndex: 1,
           tab: 'resto',
           target: 'La Porte Des Aravis',
           type: 'Changement de téléphone',
-          note: 'Standard vérifié sur place : accueil motard toujours impeccable.',
-          author: 'Marc (Ténéré 700)',
+          note: 'Le restaurant recommande de réserver avant 11h en juillet-août si vous êtes plus de 4 motos.',
+          author: 'Marc (R1250GS)',
           date: 'Il y a 2 jours',
-          status: 'approved',
-          confirmations: 4,
+          status: 'pending',
+          confirmations: 3,
           queuedOffline: false
         },
         {
-          id: 'rep-2',
+          id: 'rep-seed-2',
           dayIndex: 1,
           tab: 'logement',
           target: 'ALPAZUR Hôtel-restaurant',
-          type: 'Fermé temporairement',
-          note: 'Parking moto en travaux cette semaine, se garer sur la place juste en face.',
-          author: 'Julien (GS 1250)',
-          date: 'Aujourd\'hui · 11h20',
-          status: 'pending',
-          confirmations: 2,
+          type: 'Précision parking',
+          note: 'Garage fermé gratuit confirmé pour les motos sur simple demande à l\'arrivée.',
+          author: 'Sophie (Ténéré 700)',
+          date: 'Il y a 5 jours',
+          status: 'approved',
+          confirmations: 6,
           queuedOffline: false
         }
-      ],
-      reportDraftTarget: null
+      ]
     };
-
-    try {
-      const saved = JSON.parse(localStorage.getItem('lav_demo_state_v4') || '{}');
-      if (saved.bookings) state.bookings = saved.bookings;
-      if (saved.budgets) state.budgets = saved.budgets;
-      if (saved.autonomyKm) state.autonomyKm = saved.autonomyKm;
-      if (saved.fuelOverrides) state.fuelOverrides = saved.fuelOverrides;
-    } catch (e) {}
 
     function saveLocal() {
       try {
-        localStorage.setItem('lav_demo_state_v4', JSON.stringify({
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          startDate: state.startDate,
+          ownedGuideIds: state.ownedGuideIds,
+          updatedGuides: state.updatedGuides,
           bookings: state.bookings,
           budgets: state.budgets,
+          budgetPersons: state.budgetPersons,
           autonomyKm: state.autonomyKm,
           fuelOverrides: state.fuelOverrides
         }));
@@ -1121,8 +1011,21 @@
     }
 
     // =========================================================================
-    // 4. UTILITAIRES
+    // 4. UTILITAIRES DATES, MODALES, TOAST & SIMULATION
     // =========================================================================
+    function getDayDate(dayIndex) {
+      const parts = (state.startDate || '2027-07-15').split('-').map(Number);
+      const d = new Date(parts[0], (parts[1] || 7) - 1, parts[2] || 15);
+      d.setDate(d.getDate() + dayIndex);
+      return d;
+    }
+
+    function formatShortDate(dateObj) {
+      const days = ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'];
+      const months = ['jan.', 'fév.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+      return `${days[dateObj.getDay()]} ${dateObj.getDate()} ${months[dateObj.getMonth()]}`;
+    }
+
     let toastTimer = null;
     function showToast(msg) {
       const el = document.getElementById('toast');
@@ -1133,64 +1036,32 @@
       toastTimer = setTimeout(() => el.classList.add('hidden'), 3200);
     }
 
-    function getDayDate(dayIndex) {
-      const parts = state.startDate.split('-').map(Number);
-      return new Date(parts[0], (parts[1] || 7) - 1, (parts[2] || 15) + dayIndex);
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('hidden');
     }
 
-    function formatShortDate(date) {
-      const days = ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'];
-      const months = ['jan.', 'fév.', 'mar.', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
-      return `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]}`;
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
     }
 
-    function navigateTo(viewName) {
-      state.view = viewName;
-      ['login', 'library', 'catalog', 'reader'].forEach((v) => {
-        const el = document.getElementById(`view-${v}`);
-        if (el) el.classList.toggle('hidden', v !== viewName);
-      });
-      if (viewName === 'library') renderLibrary();
-      if (viewName === 'catalog') renderCatalog();
-      if (viewName === 'reader') {
-        renderDaySelector();
-        renderReader();
-        setTimeout(() => initOrUpdateMap(), 80);
-      }
-      updateBadges();
-    }
+    function openMobileSimSheet() { openModal('modal-mobile-sim'); }
+    function dismissUpdateBanner() { document.getElementById('update-banner')?.classList.add('hidden'); }
 
-    function openModal(id) { document.getElementById(id)?.classList.remove('hidden'); }
-    function closeModal(id) { document.getElementById(id)?.classList.add('hidden'); }
-    function openMobileSimSheet() { syncSimControls(); openModal('modal-mobile-sim'); }
+    function updateBadges() {
+      const pendingCount = state.reports.filter((r) => r.status === 'pending' && !r.queuedOffline).length;
+      const queuedCount = state.reports.filter((r) => r.queuedOffline).length;
 
-    // =========================================================================
-    // 5. SIMULATION
-    // =========================================================================
-    function toggleOffline() {
-      state.isOffline = !state.isOffline;
-      document.getElementById('offline-banner')?.classList.toggle('hidden', !state.isOffline);
-      if (!state.isOffline) {
-        let synced = 0;
-        state.reports.forEach((r) => { if (r.queuedOffline) { r.queuedOffline = false; synced++; } });
-        showToast(synced > 0 ? `Réseau retrouvé : ${synced} signalement(s) synchronisé(s)` : 'Connexion rétablie');
-      } else {
-        showToast('Mode hors-ligne activé (données & GPX disponibles)');
-      }
-      syncSimControls();
-      if (state.view === 'reader') renderReader();
-    }
+      const bDesk = document.getElementById('greg-badge-desktop');
+      const bMob = document.getElementById('greg-badge-mobile');
+      if (bDesk) bDesk.textContent = String(pendingCount);
+      if (bMob) bMob.textContent = String(pendingCount);
 
-    function setQuickDate(isoDate) {
-      state.startDate = isoDate;
-      syncSimControls();
-      if (isoDate === '2027-05-12') showToast('Départ le 12 mai : alertes cols fermés activées');
-      else if (isoDate === '2027-07-16') showToast('J3 tombe un lundi : alerte fermeture sur Roquebillière');
-      else showToast('Départ fixé au ' + isoDate);
-      if (state.view === 'reader') {
-        renderDaySelector();
-        renderReader();
-        initOrUpdateMap();
+      const qBadge = document.getElementById('offline-queue-badge');
+      if (qBadge) {
+        qBadge.textContent = `${queuedCount} en attente`;
+        qBadge.classList.toggle('hidden', queuedCount === 0);
       }
     }
 
@@ -1200,83 +1071,129 @@
       if (d1) d1.value = state.startDate;
       if (d2) d2.value = state.startDate;
 
-      const b1 = document.getElementById('sim-offline-btn');
-      const b2 = document.getElementById('sim-offline-btn-mobile');
-      if (b1) {
-        b1.textContent = state.isOffline ? 'Hors-ligne' : '● En ligne';
-        b1.className = state.isOffline
-          ? 'px-2.5 py-1 rounded-full bg-sign text-ink font-bold'
-          : 'px-2.5 py-1 rounded-full bg-emerald-50 text-ok border border-emerald-200 font-semibold';
-      }
-      if (b2) {
-        b2.textContent = state.isOffline ? 'Hors-ligne' : '● En ligne';
-        b2.className = state.isOffline
-          ? 'px-3 py-1.5 rounded-xl bg-sign text-ink text-xs font-bold'
-          : 'px-3 py-1.5 rounded-xl bg-emerald-50 text-ok border border-emerald-200 text-xs font-bold';
+      const bDesk = document.getElementById('sim-offline-btn');
+      const bMob = document.getElementById('sim-offline-btn-mobile');
+      const banner = document.getElementById('offline-banner');
+      const readerBadge = document.getElementById('reader-status-badge');
+
+      const txt = state.isOffline ? '● Hors-ligne' : '● En ligne';
+      const clsDesk = state.isOffline
+        ? 'px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-semibold transition'
+        : 'px-2.5 py-1 rounded-full bg-emerald-50 text-ok border border-emerald-200 font-semibold transition';
+      const clsMob = state.isOffline
+        ? 'px-3 py-1.5 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold'
+        : 'px-3 py-1.5 rounded-xl bg-emerald-50 text-ok border border-emerald-200 text-xs font-bold';
+
+      if (bDesk) { bDesk.textContent = txt; bDesk.className = clsDesk; }
+      if (bMob) { bMob.textContent = txt; bMob.className = clsMob; }
+      if (banner) banner.classList.toggle('hidden', !state.isOffline);
+
+      if (readerBadge) {
+        if (state.isOffline) {
+          readerBadge.textContent = 'Mode hors-ligne';
+          readerBadge.className = 'text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-sign text-ink border border-sign shrink-0';
+        } else {
+          readerBadge.textContent = 'Prêt hors-ligne';
+          readerBadge.className = 'text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-ok border border-emerald-200 shrink-0';
+        }
       }
       updateBadges();
     }
 
-    function updateBadges() {
-      const pending = state.reports.filter((r) => r.status === 'pending' && !r.queuedOffline).length;
-      const queued = state.reports.filter((r) => r.queuedOffline).length;
-      const gd = document.getElementById('greg-badge-desktop');
-      const gm = document.getElementById('greg-badge-mobile');
-      if (gd) gd.textContent = pending;
-      if (gm) gm.textContent = pending;
-      const qb = document.getElementById('offline-queue-badge');
-      if (qb) {
-        qb.textContent = `${queued} en attente`;
-        qb.classList.toggle('hidden', queued === 0);
+    function toggleOffline() {
+      state.isOffline = !state.isOffline;
+      if (!state.isOffline) {
+        let synced = 0;
+        state.reports.forEach((r) => {
+          if (r.queuedOffline) { r.queuedOffline = false; synced++; }
+        });
+        if (synced > 0) showToast(`${synced} signalement(s) synchronisé(s) avec le serveur`);
+        else showToast('Connexion rétablie');
+      } else {
+        showToast('Mode hors-ligne simulé — le guide reste 100 % consultable');
+      }
+      syncSimControls();
+      if (state.view === 'reader') renderSheetContent();
+    }
+
+    function setQuickDate(isoDate) {
+      state.startDate = isoDate;
+      saveLocal();
+      syncSimControls();
+      if (state.view === 'reader') {
+        renderDaySelector();
+        renderReader();
+        initOrUpdateMap();
+      }
+      showToast(`Date de départ (J0) calée au ${formatShortDate(getDayDate(0))}`);
+    }
+
+    // =========================================================================
+    // 5. NAVIGATION & CONNEXION
+    // =========================================================================
+    function navigateTo(viewName) {
+      state.view = viewName;
+      ['login', 'library', 'catalog', 'reader'].forEach((v) => {
+        const el = document.getElementById(`view-${v}`);
+        if (el) el.classList.toggle('hidden', v !== viewName);
+      });
+
+      if (viewName === 'library') renderLibrary();
+      if (viewName === 'catalog') renderCatalog();
+      if (viewName === 'reader') {
+        renderDaySelector();
+        renderReader();
+        setTimeout(() => initOrUpdateMap(), 60);
       }
     }
 
-    function dismissUpdateBanner() { document.getElementById('update-banner')?.classList.add('hidden'); }
-
-    // =========================================================================
-    // 6. CONNEXION, BIBLIOTHEQUE & CATALOGUE
-    // =========================================================================
     function prefillDemoAccount() {
-      const e = document.getElementById('login-email');
-      const p = document.getElementById('login-password');
-      if (e) e.value = 'motard.rga@lesapprentisvoyageurs.fr';
-      if (p) p.value = 'tenere700';
-      showToast('Compte démo pré-rempli');
+      document.getElementById('login-email').value = 'motard.rga@lesapprentisvoyageurs.fr';
+      document.getElementById('login-password').value = 'tenere700';
+      showToast('Identifiants démo réinitialisés');
     }
 
     function handleLogin() {
-      if (!(document.getElementById('login-email')?.value || '').trim()) prefillDemoAccount();
-      showToast('4 guides synchronisés hors-ligne');
+      state.loggedIn = true;
+      showToast('Compte synchronisé — 4 guides disponibles hors-ligne');
       navigateTo('library');
     }
 
-    function browseCatalogGuest() { navigateTo('catalog'); }
+    function browseCatalogGuest() {
+      navigateTo('catalog');
+    }
 
+    // =========================================================================
+    // 6. BIBLIOTHEQUE & CATALOGUE
+    // =========================================================================
     function renderLibrary() {
       const container = document.getElementById('library-list');
       if (!container) return;
       const owned = CATALOG_GUIDES.filter((g) => state.ownedGuideIds.includes(g.id));
 
       container.innerHTML = owned.map((g) => {
-        const needsUpdate = g.hasUpdate && !state.updatedGuideIds.includes(g.id);
+        const needsUpdate = g.hasUpdate && !state.updatedGuides[g.id];
+        const isFullDemo = g.id === 'rga';
         return `
-          <div class="bg-white rounded-2xl p-4 border ${g.fullDemo ? 'border-2 border-sign' : 'border-slate-200'} space-y-3">
-            <div>
-              <div class="flex items-center gap-1.5 mb-1">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-ok border border-emerald-200">Prêt hors-ligne</span>
-                ${g.fullDemo ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sign text-ink">Démo complète</span>' : ''}
-                ${needsUpdate ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200">MàJ dispo</span>' : ''}
+          <div class="bg-white rounded-2xl p-4 border ${isFullDemo ? 'border-2 border-sign' : 'border-slate-200'} shadow-xs space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap mb-0.5">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-ok border border-emerald-200">Prêt hors-ligne</span>
+                  ${needsUpdate ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">Mise à jour dispo</span>' : ''}
+                  ${isFullDemo ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sign text-ink">Démo complète J0–J6</span>' : ''}
+                </div>
+                <h3 class="font-display font-extrabold text-base text-ink">${g.name}</h3>
+                <p class="text-xs text-muted">${g.region} · ${g.days} · ${g.km}</p>
               </div>
-              <h3 class="font-display font-extrabold text-base text-ink">${g.name}</h3>
-              <p class="text-xs text-muted">${g.region} · ${g.days} · ${g.km}</p>
             </div>
 
             <div class="flex items-center gap-2">
-              <button type="button" onclick="openGuide('${g.id}')" class="flex-1 py-2.5 px-3 rounded-xl ${g.fullDemo ? 'bg-ink text-white' : 'bg-paper text-ink border border-slate-200'} font-display font-bold text-xs transition">
-                ${g.fullDemo ? 'Ouvrir le guide (J0–J6)' : 'Aperçu du guide'}
+              <button type="button" onclick="openGuide('${g.id}')" class="flex-1 py-2.5 px-3 rounded-xl bg-ink text-white font-display font-bold text-xs">
+                Ouvrir le guide
               </button>
               ${needsUpdate ? `
-                <button type="button" onclick="updateOwnedGuide('${g.id}')" class="py-2.5 px-3 rounded-xl bg-sign text-ink font-bold text-xs">
+                <button type="button" onclick="updateGuideNow('${g.id}')" class="py-2.5 px-3 rounded-xl bg-sign text-ink font-bold text-xs">
                   Mettre à jour
                 </button>
               ` : `
@@ -1290,23 +1207,31 @@
       }).join('');
     }
 
-    function updateOwnedGuide(id) {
-      if (state.isOffline) { showToast('Connexion requise pour télécharger la mise à jour'); return; }
-      state.updatedGuideIds.push(id);
+    function updateGuideNow(guideId) {
+      if (state.isOffline) {
+        showToast('Impossible hors-ligne — la mise à jour se fera au retour du réseau');
+        return;
+      }
+      state.updatedGuides[guideId] = true;
+      saveLocal();
       renderLibrary();
-      showToast('Corse par les terres mis à jour (v2027.2)');
+      showToast('Guide mis à jour avec mes dernières corrections');
     }
 
-    function openGuide(id) {
-      if (id === 'rga') navigateTo('reader');
-      else showToast('Dans cette démo, ouvrez « Alpes / RGA » pour tester les 7 étapes complètes.');
+    function openGuide(guideId) {
+      if (guideId === 'rga') {
+        navigateTo('reader');
+      } else {
+        showToast('Seule ma RGA (J0–J6) est chargée en détail dans cette démo — je vous l\'ouvre');
+        navigateTo('reader');
+      }
     }
 
     function setCatalogZone(zone) {
       state.catalogZone = zone;
-      document.querySelectorAll('.cat-zone-btn').forEach((btn) => {
-        const active = btn.dataset.zone === zone;
-        btn.className = active
+      document.querySelectorAll('.cat-zone-btn').forEach((b) => {
+        const active = b.dataset.zone === zone;
+        b.className = active
           ? 'cat-zone-btn px-3 py-1 rounded-full text-xs font-bold bg-ink text-white shrink-0'
           : 'cat-zone-btn px-3 py-1 rounded-full text-xs font-semibold bg-paper text-muted shrink-0';
       });
@@ -1317,16 +1242,12 @@
       const container = document.getElementById('catalog-list');
       if (!container) return;
       const q = (document.getElementById('catalog-search')?.value || '').trim().toLowerCase();
+
       const filtered = CATALOG_GUIDES.filter((g) => {
         if (state.catalogZone !== 'all' && g.zone !== state.catalogZone) return false;
-        if (q && !(g.name.toLowerCase().includes(q) || g.region.toLowerCase().includes(q) || g.tag.toLowerCase().includes(q))) return false;
+        if (q && !`${g.name} ${g.region} ${g.tag}`.toLowerCase().includes(q)) return false;
         return true;
       });
-
-      if (!filtered.length) {
-        container.innerHTML = '<div class="text-center text-sm text-muted py-10">Aucun guide trouvé.</div>';
-        return;
-      }
 
       container.innerHTML = filtered.map((g) => {
         const owned = state.ownedGuideIds.includes(g.id);
@@ -1366,30 +1287,54 @@
 
     function confirmPurchase() {
       const id = state.checkoutGuideId;
-      if (id && !state.ownedGuideIds.includes(id)) state.ownedGuideIds.push(id);
+      if (id && !state.ownedGuideIds.includes(id)) {
+        state.ownedGuideIds.push(id);
+        saveLocal();
+      }
       closeModal('modal-checkout');
       showToast('Guide débloqué et ajouté à votre bibliothèque hors-ligne');
       navigateTo('library');
     }
 
     // =========================================================================
-    // 7. CARTE INTERACTIVE (Esri World Topo Map — sans clé API, sans blocage)
+    // 7. CARTE INTERACTIVE (Chargement à la demande — Esri World Topo Map)
     // =========================================================================
     let leafletMap = null;
     let mapLayerGroup = null;
-    let mapRetryCount = 0;
+    let leafletLoading = false;
+
+    function ensureLeafletLoaded(onReady) {
+      if (typeof L !== 'undefined') {
+        onReady();
+        return;
+      }
+      if (leafletLoading) return;
+      leafletLoading = true;
+
+      const css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+      document.head.appendChild(css);
+
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+      script.onload = () => {
+        leafletLoading = false;
+        onReady();
+      };
+      script.onerror = () => {
+        leafletLoading = false;
+      };
+      document.head.appendChild(script);
+    }
 
     function initOrUpdateMap() {
       const container = document.getElementById('map-container');
       if (!container) return;
       if (typeof L === 'undefined') {
-        if (mapRetryCount < 20) {
-          mapRetryCount++;
-          setTimeout(initOrUpdateMap, 250);
-        }
+        ensureLeafletLoaded(() => initOrUpdateMap());
         return;
       }
-      mapRetryCount = 0;
 
       if (!leafletMap) {
         leafletMap = L.map('map-container', {
@@ -1397,7 +1342,6 @@
           attributionControl: true
         }).setView([45.65, 6.65], 9);
 
-        // Esri World Topo Map : gratuit, 0 clé API, relief montagneux lisible, jamais bloqué en iframe / GitHub Pages
         L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
           attribution: 'Tiles &copy; Esri',
           maxZoom: 18
@@ -1412,7 +1356,6 @@
       const day = RGA_DAYS[state.currentDay];
       if (!day) return;
 
-      // Halo blanc + tracé bleu comme sur les maquettes
       L.polyline(day.coords, { color: '#ffffff', weight: 9, opacity: 0.9, lineJoin: 'round' }).addTo(mapLayerGroup);
       const poly = L.polyline(day.coords, { color: '#1f5fbf', weight: 5, opacity: 1, lineJoin: 'round' }).addTo(mapLayerGroup);
 
@@ -1452,8 +1395,84 @@
     }
 
     // =========================================================================
-    // 8. LECTEUR RGA (PRESENTATION FIDELE AUX MAQUETTES)
+    // 8. LECTEUR RGA & GESTION BUDGET DETAILLEE
     // =========================================================================
+    function getDayBudgetEntry(dayIndex) {
+      return state.budgets[dayIndex] || { hebergement: '', repas: '', carburant: '', divers: '' };
+    }
+
+    function computeBudgetStats() {
+      const cats = { hebergement: 0, repas: 0, carburant: 0, divers: 0 };
+      let filledDays = 0;
+
+      RGA_DAYS.forEach((d) => {
+        const b = getDayBudgetEntry(d.dayIndex);
+        const h = parseFloat(b.hebergement) || 0;
+        const r = parseFloat(b.repas) || 0;
+        const c = parseFloat(b.carburant) || 0;
+        const dv = parseFloat(b.divers) || 0;
+        cats.hebergement += h;
+        cats.repas += r;
+        cats.carburant += c;
+        cats.divers += dv;
+        if (h + r + c + dv > 0) filledDays++;
+      });
+
+      const totalTrip = cats.hebergement + cats.repas + cats.carburant + cats.divers;
+      const cur = getDayBudgetEntry(state.currentDay);
+      const totalDay = (parseFloat(cur.hebergement) || 0) + (parseFloat(cur.repas) || 0) + (parseFloat(cur.carburant) || 0) + (parseFloat(cur.divers) || 0);
+      const persons = state.budgetPersons || 1;
+
+      return {
+        cats,
+        totalDay,
+        totalTrip,
+        perPersonTrip: totalTrip / persons,
+        perPersonDay: totalDay / persons,
+        avgPerDay: filledDays > 0 ? totalTrip / filledDays : 0,
+        filledDays
+      };
+    }
+
+    function updateBudgetDisplayOnly() {
+      const stats = computeBudgetStats();
+      const setTxt = (id, txt) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = txt;
+      };
+      setTxt('budget-day-total', `${stats.totalDay.toFixed(0)} €`);
+      setTxt('budget-day-per-pers', `${stats.perPersonDay.toFixed(0)} € / pers.`);
+      setTxt('budget-trip-total', `${stats.totalTrip.toFixed(0)} €`);
+      setTxt('budget-trip-per-pers', `${stats.perPersonTrip.toFixed(0)} € / pers.`);
+      setTxt('budget-cat-heb', `${stats.cats.hebergement.toFixed(0)} €`);
+      setTxt('budget-cat-rep', `${stats.cats.repas.toFixed(0)} €`);
+      setTxt('budget-cat-carb', `${stats.cats.carburant.toFixed(0)} €`);
+      setTxt('budget-cat-div', `${stats.cats.divers.toFixed(0)} €`);
+      setTxt('budget-avg-day', stats.filledDays > 0 ? `Moyenne : ${stats.avgPerDay.toFixed(0)} € / jour (${stats.filledDays} j saisi${stats.filledDays > 1 ? 's' : ''})` : 'Saisissez vos dépenses au fil de la route');
+    }
+
+    function updateDayBudgetCategory(dayIndex, category, val) {
+      if (!state.budgets[dayIndex]) {
+        state.budgets[dayIndex] = { hebergement: '', repas: '', carburant: '', divers: '' };
+      }
+      state.budgets[dayIndex][category] = val;
+      saveLocal();
+      updateBudgetDisplayOnly();
+    }
+
+    function setBudgetPersons(n) {
+      state.budgetPersons = n;
+      saveLocal();
+      renderSheetContent();
+    }
+
+    function resetAllBudgets() {
+      state.budgets = {};
+      saveLocal();
+      renderSheetContent();
+      showToast('Budget du road trip réinitialisé');
+    }
+
     function renderDaySelector() {
       const wrap = document.getElementById('day-selector');
       if (!wrap) return;
@@ -1526,13 +1545,18 @@
       const modeBtn = document.getElementById('mode-toggle-btn');
       modeBtn.textContent = state.rideMode ? 'À l\'arrêt' : 'En roulant';
       modeBtn.className = state.rideMode
-        ? 'px-2.5 py-1.5 rounded-xl bg-sign text-ink text-[11px] font-bold'
-        : 'px-2.5 py-1.5 rounded-xl bg-ink text-white text-[11px] font-bold';
+        ? 'px-3.5 py-2 rounded-xl bg-sign text-ink text-xs font-extrabold shadow-xs active:scale-95 transition'
+        : 'px-3.5 py-2 rounded-xl bg-ink text-white text-xs font-extrabold shadow-xs active:scale-95 transition';
 
       document.getElementById('riding-hud').classList.toggle('hidden', !state.rideMode);
-      document.getElementById('stopped-sheet').classList.toggle('hidden', state.rideMode);
+      const stoppedSheet = document.getElementById('stopped-sheet');
+      if (stoppedSheet) {
+        stoppedSheet.style.transform = '';
+        stoppedSheet.style.transition = '';
+        stoppedSheet.classList.toggle('hidden', state.rideMode);
+      }
 
-      const dmdTxt = `Envoyer trace ${day.code} + POI vers DMD2`;
+      const dmdTxt = `Envoyer ma trace ${day.code} + POI vers DMD2`;
       document.getElementById('sheet-dmd-label').textContent = dmdTxt;
       document.getElementById('hud-dmd-label').textContent = dmdTxt;
 
@@ -1544,7 +1568,6 @@
       document.getElementById('hud-hotel-dist').textContent = day.logement.main.name;
       document.getElementById('hud-fuel-dist').textContent = fuelInfo.kmRemaining > 0 ? `${fuelInfo.kmRemaining} km` : 'Sur place';
 
-      // Onglets fidèles aux maquettes : pilule jaune plein sur l'actif, texte gris neutre sur les autres
       document.querySelectorAll('.reader-tab-btn').forEach((btn) => {
         const active = btn.dataset.tab === state.readerTab;
         btn.className = active
@@ -1586,8 +1609,8 @@
                 ${r.queuedOffline
                   ? '<span class="px-2 py-0.5 rounded-full bg-ink text-white text-[10px] font-bold">En attente réseau</span>'
                   : r.status === 'approved'
-                    ? '<span class="px-2 py-0.5 rounded-full bg-ok text-white text-[10px] font-bold">Validé Greg</span>'
-                    : '<span class="px-2 py-0.5 rounded-full bg-sign text-ink text-[10px] font-bold">Non vérifié</span>'
+                    ? '<span class="px-2 py-0.5 rounded-full bg-ok text-white text-[10px] font-bold">Validé par mes soins</span>'
+                    : '<span class="px-2 py-0.5 rounded-full bg-sign text-ink text-[10px] font-bold">En attente de ma vérif</span>'
                 }
               </div>
               <p class="text-ink/85 mb-2">${r.note}</p>
@@ -1620,17 +1643,15 @@
             </div>
           ` : ''}
 
-          <!-- Encadré Choix du guide (bordure jaune fidèle maquette) -->
           <div class="rounded-2xl border-2 border-sign bg-white p-3.5 flex items-center justify-between gap-3">
             <div class="min-w-0">
-              <div class="text-xs font-bold text-ink mb-0.5">Choix du guide, ${data.time}</div>
+              <div class="text-xs font-bold text-ink mb-0.5">Mon choix, ${data.time}</div>
               <div class="font-display font-extrabold text-[17px] text-ink leading-snug">${data.main.name}</div>
               <div class="text-sm text-muted mt-0.5">${data.main.note}${data.main.phone ? ' ' + data.main.phone : ''}</div>
             </div>
             ${svgPhoneButton(data.main.phone)}
           </div>
 
-          <!-- Liste plate avec filets fins (fidèle maquette) -->
           ${data.alts && data.alts.length ? `
             <div>
               <div class="text-xs font-bold text-muted pb-2 border-b border-slate-200">${data.altsTitle || 'Autres adresses'}</div>
@@ -1717,7 +1738,7 @@
           <div class="rounded-2xl border-2 border-sign bg-white p-3.5 space-y-3">
             <div class="flex items-center justify-between gap-3">
               <div class="min-w-0">
-                <div class="text-xs font-bold text-ink mb-0.5">Choix du guide, ${day.logement.km}</div>
+                <div class="text-xs font-bold text-ink mb-0.5">Mon choix, ${day.logement.km}</div>
                 <div class="font-display font-extrabold text-[17px] text-ink leading-snug">${day.logement.main.name}</div>
                 ${day.logement.main.note ? `<div class="text-sm text-muted">${day.logement.main.note}</div>` : ''}
                 <div class="text-sm text-muted mt-0.5">${day.logement.main.phone}</div>
@@ -1778,17 +1799,15 @@
             </button>
           </div>
 
-          <!-- Encadré Choix du guide (fidèle maquette Carburant) -->
           <div class="rounded-2xl border-2 border-sign bg-white p-3.5 flex items-center justify-between gap-3">
             <div class="min-w-0">
-              <div class="text-xs font-bold text-ink mb-0.5">Choix du guide, à ${fuel.kmRemaining} km</div>
+              <div class="text-xs font-bold text-ink mb-0.5">Mon choix, à ${fuel.kmRemaining} km</div>
               <div class="font-display font-extrabold text-[17px] text-ink leading-snug">${day.carburant.station}</div>
               <div class="text-sm text-muted mt-0.5">${day.carburant.sub}</div>
             </div>
             ${svgNavButton()}
           </div>
 
-          <!-- Carte jauge carburant fidèle maquette + autonomie -->
           <div class="rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
             <div class="flex items-baseline justify-between">
               <span class="text-sm text-muted">Depuis le dernier plein ${fuel.lastFillTime ? `(${fuel.lastFillTime})` : ''}</span>
@@ -1840,7 +1859,6 @@
             </div>
           ` : ''}
 
-          <!-- Conseil beige chaleureux fidèle maquette Carburant -->
           <div class="rounded-2xl bg-[#fbf0d5] p-3.5 text-sm text-[#5c3d00] leading-snug">
             ${day.carburant.advice}
           </div>
@@ -1851,8 +1869,8 @@
       }
 
       if (state.readerTab === 'roadbook') {
-        const dayBudget = state.budgets[day.dayIndex] || '';
-        const totalBudget = Object.values(state.budgets).reduce((acc, v) => acc + (parseFloat(v) || 0), 0);
+        const entry = getDayBudgetEntry(day.dayIndex);
+        const stats = computeBudgetStats();
 
         html += `
           <div class="flex items-center justify-between">
@@ -1873,15 +1891,68 @@
             `).join('')}
           </div>
 
-          <div class="rounded-2xl bg-[#fbf0d5] p-3.5 space-y-2 mt-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-[#5c3d00]">Mon budget réel ${day.code} (cellule xlsx)</span>
-              <span id="budget-total-label" class="text-xs font-bold text-ink">Total trip : ${totalBudget.toFixed(0)} €</span>
+          <!-- GESTION BUDGET COMPLETE (Hors-ligne, par catégorie + Solo/Duo) -->
+          <div class="rounded-2xl border border-slate-200 bg-paper p-3.5 space-y-3 mt-2">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <div class="font-display font-extrabold text-sm text-ink">Suivi budget · ${day.code}</div>
+                <div class="text-[11px] text-muted">Sauvegardé en local (remplace les cellules orange de mon tableau)</div>
+              </div>
+              <div class="inline-flex bg-white p-0.5 rounded-xl border border-slate-200 text-[11px] font-bold shrink-0">
+                <button type="button" onclick="setBudgetPersons(1)" class="px-2 py-1 rounded-lg ${state.budgetPersons === 1 ? 'bg-ink text-white' : 'text-muted'}">Solo</button>
+                <button type="button" onclick="setBudgetPersons(2)" class="px-2 py-1 rounded-lg ${state.budgetPersons === 2 ? 'bg-ink text-white' : 'text-muted'}">Duo (÷2)</button>
+              </div>
             </div>
-            <div class="flex items-center gap-2">
-              <input type="number" min="0" step="1" placeholder="Ex : 95" value="${dayBudget}" oninput="updateDayBudget(${day.dayIndex}, this.value)" class="flex-1 px-3 py-2 rounded-xl bg-white border border-amber-300 text-sm font-bold text-ink focus:outline-none" />
-              <span class="text-xs font-bold text-[#5c3d00]">€ / pers.</span>
+
+            <div class="grid grid-cols-2 gap-2">
+              <label class="bg-white rounded-xl p-2.5 border border-slate-200 block">
+                <span class="block text-[11px] font-bold text-muted mb-1">Hébergement (€)</span>
+                <input type="number" min="0" step="1" placeholder="Ex : 65" value="${entry.hebergement}" oninput="updateDayBudgetCategory(${day.dayIndex}, 'hebergement', this.value)" class="w-full text-sm font-extrabold text-ink focus:outline-none" />
+              </label>
+              <label class="bg-white rounded-xl p-2.5 border border-slate-200 block">
+                <span class="block text-[11px] font-bold text-muted mb-1">Repas / Café (€)</span>
+                <input type="number" min="0" step="1" placeholder="Ex : 38" value="${entry.repas}" oninput="updateDayBudgetCategory(${day.dayIndex}, 'repas', this.value)" class="w-full text-sm font-extrabold text-ink focus:outline-none" />
+              </label>
+              <label class="bg-white rounded-xl p-2.5 border border-slate-200 block">
+                <span class="block text-[11px] font-bold text-muted mb-1">Carburant (€)</span>
+                <input type="number" min="0" step="1" placeholder="Ex : 24" value="${entry.carburant}" oninput="updateDayBudgetCategory(${day.dayIndex}, 'carburant', this.value)" class="w-full text-sm font-extrabold text-ink focus:outline-none" />
+              </label>
+              <label class="bg-white rounded-xl p-2.5 border border-slate-200 block">
+                <span class="block text-[11px] font-bold text-muted mb-1">Divers / Péages (€)</span>
+                <input type="number" min="0" step="1" placeholder="Ex : 10" value="${entry.divers}" oninput="updateDayBudgetCategory(${day.dayIndex}, 'divers', this.value)" class="w-full text-sm font-extrabold text-ink focus:outline-none" />
+              </label>
             </div>
+
+            <div class="rounded-xl bg-[#fbf0d5] p-3 space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-[#5c3d00]">Total ${day.code} : <strong id="budget-day-total">${stats.totalDay.toFixed(0)} €</strong></span>
+                <span id="budget-day-per-pers" class="font-semibold text-[#5c3d00]">${stats.perPersonDay.toFixed(0)} € / pers.</span>
+              </div>
+              <div class="border-t border-amber-300/70 pt-2 flex items-baseline justify-between">
+                <div>
+                  <div class="text-[11px] font-bold text-[#5c3d00]">Total road trip (J0–J6)</div>
+                  <div id="budget-avg-day" class="text-[10px] text-[#5c3d00]/80">
+                    ${stats.filledDays > 0 ? `Moyenne : ${stats.avgPerDay.toFixed(0)} € / jour (${stats.filledDays} j saisi${stats.filledDays > 1 ? 's' : ''})` : 'Saisissez vos dépenses au fil de la route'}
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div id="budget-trip-total" class="font-display font-extrabold text-lg text-ink leading-none">${stats.totalTrip.toFixed(0)} €</div>
+                  <div id="budget-trip-per-pers" class="text-[11px] font-bold text-route">${stats.perPersonTrip.toFixed(0)} € / pers.</div>
+                </div>
+              </div>
+              <div class="grid grid-cols-4 gap-1 pt-1 text-center text-[10px] text-[#5c3d00]">
+                <div class="bg-white/70 rounded-lg py-1"><div class="opacity-75">Nuits</div><strong id="budget-cat-heb">${stats.cats.hebergement.toFixed(0)} €</strong></div>
+                <div class="bg-white/70 rounded-lg py-1"><div class="opacity-75">Repas</div><strong id="budget-cat-rep">${stats.cats.repas.toFixed(0)} €</strong></div>
+                <div class="bg-white/70 rounded-lg py-1"><div class="opacity-75">Essence</div><strong id="budget-cat-carb">${stats.cats.carburant.toFixed(0)} €</strong></div>
+                <div class="bg-white/70 rounded-lg py-1"><div class="opacity-75">Divers</div><strong id="budget-cat-div">${stats.cats.divers.toFixed(0)} €</strong></div>
+              </div>
+            </div>
+
+            ${stats.totalTrip > 0 ? `
+              <button type="button" onclick="resetAllBudgets()" class="w-full py-1.5 text-[11px] font-semibold text-muted hover:text-danger transition">
+                Réinitialiser le budget saisi
+              </button>
+            ` : ''}
           </div>
         `;
       }
@@ -1895,14 +1966,6 @@
       saveLocal();
       renderSheetContent();
       showToast(state.bookings[dayIndex] ? 'Réservation enregistrée hors-ligne' : 'Réservation retirée');
-    }
-
-    function updateDayBudget(dayIndex, val) {
-      state.budgets[dayIndex] = val;
-      saveLocal();
-      const total = Object.values(state.budgets).reduce((acc, v) => acc + (parseFloat(v) || 0), 0);
-      const lbl = document.getElementById('budget-total-label');
-      if (lbl) lbl.textContent = `Total trip : ${total.toFixed(0)} €`;
     }
 
     function setAutonomy(km) { state.autonomyKm = km; saveLocal(); renderReader(); }
@@ -1934,7 +1997,7 @@
       state.showFuelRecal = false;
       saveLocal();
       renderReader();
-      showToast('Repère carburant du guide restauré');
+      showToast('Mon repère carburant est restauré');
     }
 
     // =========================================================================
@@ -2061,7 +2124,7 @@ ${trkpts}
       closeModal('modal-report');
       updateBadges();
       renderSheetContent();
-      showToast(state.isOffline ? 'Signalement mis en file (partira au retour du réseau)' : 'Signalement publié et envoyé à Greg');
+      showToast(state.isOffline ? 'Signalement mis en file (je le recevrai au retour du réseau)' : 'Merci ! Votre signalement m\'a bien été envoyé');
     }
 
     function confirmReport(id) {
@@ -2099,7 +2162,7 @@ ${trkpts}
         const r = state.reports.find((x) => x.id === id);
         if (r) {
           r.status = 'approved';
-          document.getElementById('update-banner-text').textContent = `Mise à jour validée par Greg : ${r.target} (${r.type})`;
+          document.getElementById('update-banner-text').textContent = `J'ai validé une mise à jour : ${r.target} (${r.type})`;
           document.getElementById('update-banner').classList.remove('hidden');
         }
       } else {
@@ -2111,13 +2174,92 @@ ${trkpts}
     }
 
     // =========================================================================
-    // 11. INITIALISATION
+    // 11. GESTE SWIPE VERS LE BAS SUR LA POIGNEE (PASSAGE EN MODE "EN ROULANT")
+    // =========================================================================
+    function initSheetSwipeGesture() {
+      const handle = document.getElementById('sheet-drag-handle');
+      const sheet = document.getElementById('stopped-sheet');
+      if (!handle || !sheet) return;
+
+      let dragging = false;
+      let startY = 0;
+      let deltaY = 0;
+      let startTime = 0;
+
+      const onStart = (clientY) => {
+        if (state.rideMode) return;
+        dragging = true;
+        startY = clientY;
+        deltaY = 0;
+        startTime = Date.now();
+        sheet.style.transition = 'none';
+      };
+
+      const onMove = (clientY) => {
+        if (!dragging) return;
+        deltaY = Math.max(0, clientY - startY);
+        sheet.style.transform = `translateY(${deltaY}px)`;
+      };
+
+      const onEnd = () => {
+        if (!dragging) return;
+        dragging = false;
+        const elapsed = Date.now() - startTime;
+        const velocity = elapsed > 0 ? deltaY / elapsed : 0;
+
+        // Si on glisse de plus de 55 px vers le bas ou d'un geste vif, on replie en mode "En roulant"
+        if (deltaY > 55 || (deltaY > 25 && velocity > 0.35)) {
+          sheet.style.transition = 'transform 180ms ease-out';
+          sheet.style.transform = 'translateY(100%)';
+          setTimeout(() => {
+            sheet.style.transform = '';
+            sheet.style.transition = '';
+            state.rideMode = true;
+            renderReader();
+            setTimeout(() => initOrUpdateMap(), 60);
+          }, 170);
+        } else {
+          sheet.style.transition = 'transform 180ms ease-out';
+          sheet.style.transform = 'translateY(0px)';
+          setTimeout(() => {
+            sheet.style.transform = '';
+            sheet.style.transition = '';
+          }, 190);
+        }
+      };
+
+      // Tactile (mobile)
+      handle.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches.length === 1) onStart(e.touches[0].clientY);
+      }, { passive: true });
+      handle.addEventListener('touchmove', (e) => {
+        if (!dragging || !e.touches || !e.touches.length) return;
+        if (e.cancelable) e.preventDefault();
+        onMove(e.touches[0].clientY);
+      }, { passive: false });
+      handle.addEventListener('touchend', onEnd);
+      handle.addEventListener('touchcancel', onEnd);
+
+      // Souris (test sur PC)
+      handle.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        onStart(e.clientY);
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (dragging) onMove(e.clientY);
+      });
+      window.addEventListener('mouseup', onEnd);
+    }
+
+    // =========================================================================
+    // 12. INITIALISATION
     // =========================================================================
     function initApp() {
       const d1 = document.getElementById('sim-start-date');
       const d2 = document.getElementById('mobile-start-date');
       if (d1) d1.addEventListener('change', (e) => { if (e.target.value) setQuickDate(e.target.value); });
       if (d2) d2.addEventListener('change', (e) => { if (e.target.value) setQuickDate(e.target.value); });
+      initSheetSwipeGesture();
       syncSimControls();
       navigateTo('login');
     }
