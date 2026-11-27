@@ -25,7 +25,7 @@
             colors: {
               paper: '#f4f5f0',
               ink: '#182026',
-              muted: '#5c6970',
+              muted: '#525f66',
               sign: '#f5b800',
               route: '#1f5fbf',
               ok: '#1d7a46',
@@ -76,6 +76,36 @@
         border-radius: 30px;
         box-shadow: 0 22px 55px rgba(24, 32, 38, 0.18), 0 0 0 1px rgba(24, 32, 38, 0.08);
       }
+    }
+
+    /* =========================================================
+       MODE GRAND CONFORT (A+) — LISIBILITE & GROS DOIGTS
+       ========================================================= */
+    html.large-ui {
+      font-size: 18px;
+    }
+    html.large-ui .text-muted {
+      color: #374349 !important;
+    }
+    html.large-ui .text-\[10px\],
+    html.large-ui .text-\[11px\],
+    html.large-ui .text-xs {
+      font-size: 0.84rem !important;
+      line-height: 1.35 !important;
+    }
+    html.large-ui .text-sm {
+      font-size: 0.96rem !important;
+      line-height: 1.42 !important;
+    }
+    html.large-ui .app-shell button,
+    html.large-ui .app-shell a[href^="tel:"],
+    html.large-ui .app-shell a[target="_blank"],
+    html.large-ui .app-shell input,
+    html.large-ui .app-shell select {
+      min-height: 46px;
+    }
+    html.large-ui #stopped-sheet {
+      max-height: 77% !important;
     }
 
     /* Carte Leaflet */
@@ -147,46 +177,51 @@
     <!-- ========================================================= -->
     <!-- VUE 1 : CONNEXION WOOCOMMERCE                             -->
     <!-- ========================================================= -->
-    <section id="view-login" class="flex-1 flex flex-col justify-between p-6 overflow-y-auto bg-paper text-ink">
-      <div class="pt-4">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-ink text-xs font-bold mb-5 shadow-xs">
-          <span class="w-2 h-2 rounded-full bg-sign"></span>
-          <span>Mon compagnon hors-ligne · PWA</span>
+    <section id="view-login" class="flex-1 flex flex-col justify-between p-5 overflow-y-auto bg-paper text-ink">
+      <div class="pt-1">
+        <div class="flex items-center justify-between gap-2 mb-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200 text-ink text-xs font-bold shadow-xs">
+            <span class="w-2 h-2 rounded-full bg-sign"></span>
+            <span>Compagnon hors-ligne · PWA</span>
+          </div>
+          <button type="button" onclick="toggleLargeUI()" class="font-size-toggle-btn px-3 py-1.5 rounded-xl bg-white border border-slate-300 text-ink text-xs font-extrabold shadow-xs active:scale-95 transition" aria-label="Changer la taille du texte">
+            A / A+
+          </button>
         </div>
 
         <h1 class="font-display font-extrabold text-3xl leading-tight text-ink mb-2">
           Les Apprentis <span class="underline decoration-sign decoration-4 underline-offset-4">Voyageurs</span>
         </h1>
         <p class="text-muted text-sm leading-relaxed">
-          Connectez votre compte <span class="text-ink font-semibold">lesapprentisvoyageurs.fr</span> pour retrouver mes guides que vous avez achetés, mes traces GPX et toutes mes adresses hors-ligne.
+          Connectez votre compte <span class="text-ink font-semibold">lesapprentisvoyageurs.fr</span> pour retrouver mes guides achetés, mes traces GPX et toutes mes adresses hors-ligne.
         </p>
 
-        <div class="mt-6 bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-sm">
+        <div class="mt-5 bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5 shadow-sm">
           <div>
-            <label for="login-email" class="block text-xs font-semibold text-muted mb-1">Email du compte client</label>
+            <label for="login-email" class="block text-xs font-bold text-muted mb-1">Email du compte client</label>
             <input id="login-email" type="email" value="motard.rga@lesapprentisvoyageurs.fr" placeholder="pilote@exemple.fr" class="w-full px-3.5 py-2.5 rounded-xl bg-paper border border-slate-200 text-ink text-sm focus:border-ink focus:bg-white focus:outline-none" />
           </div>
           <div>
-            <label for="login-password" class="block text-xs font-semibold text-muted mb-1">Mot de passe</label>
+            <label for="login-password" class="block text-xs font-bold text-muted mb-1">Mot de passe</label>
             <input id="login-password" type="password" value="tenere700" placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-paper border border-slate-200 text-ink text-sm focus:border-ink focus:bg-white focus:outline-none" />
           </div>
 
           <button type="button" onclick="handleLogin()" class="w-full py-3.5 px-4 rounded-2xl bg-ink hover:bg-slate-800 text-white font-display font-bold text-base shadow-sm transition">
-            Se connecter & synchroniser (compte démo)
+            Se connecter & synchroniser
           </button>
 
-          <button type="button" onclick="prefillDemoAccount()" class="w-full py-2 px-3 rounded-xl bg-paper hover:bg-slate-200/70 border border-slate-200 text-muted text-xs font-semibold transition">
+          <button type="button" onclick="prefillDemoAccount()" class="w-full py-2.5 px-3 rounded-xl bg-paper hover:bg-slate-200/70 border border-slate-200 text-muted text-xs font-semibold transition">
             Réinitialiser les identifiants démo
           </button>
         </div>
       </div>
 
-      <div class="pt-6 pb-[calc(env(safe-area-inset-bottom,0px)+16px)] space-y-3 text-center">
-        <button type="button" onclick="browseCatalogGuest()" class="w-full py-3 rounded-2xl bg-white border border-slate-200 text-ink hover:bg-slate-50 text-sm font-bold transition">
-          Découvrir mes 27 guides moto →
+      <div class="pt-5 pb-[calc(env(safe-area-inset-bottom,0px)+16px)] space-y-2.5 text-center">
+        <button type="button" onclick="browseCatalogGuest()" class="w-full py-3.5 rounded-2xl bg-white border border-slate-300 text-ink hover:bg-slate-50 text-sm font-bold transition">
+          Découvrir mes 28 guides moto →
         </button>
         <p class="text-[11px] text-muted">
-          Synchronisation directe avec ma boutique · 0 % commission store · GPX ouverts DMD2 / OsmAnd / TomTom
+          Synchronisation directe avec mon site · GPX ouverts DMD2 / OsmAnd / TomTom
         </p>
       </div>
     </section>
@@ -195,75 +230,83 @@
     <!-- VUE 2 : MA BIBLIOTHEQUE HORS-LIGNE                        -->
     <!-- ========================================================= -->
     <section id="view-library" class="hidden flex-1 flex flex-col overflow-hidden bg-paper">
-      <header class="px-4 pt-4 pb-3 bg-white border-b border-slate-200 flex items-center justify-between shrink-0">
-        <div>
-          <p class="text-[11px] font-semibold uppercase tracking-wider text-muted">Compte synchronisé</p>
-          <h2 class="font-display font-extrabold text-xl text-ink">Ma Bibliothèque</h2>
+      <header class="px-4 pt-3.5 pb-3 bg-white border-b border-slate-200 flex items-center justify-between gap-2 shrink-0">
+        <div class="min-w-0">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-muted">Compte synchronisé</p>
+          <h2 class="font-display font-extrabold text-xl text-ink truncate">Mes Guides</h2>
         </div>
-        <div class="flex items-center gap-1.5">
-          <button type="button" onclick="openMobileSimSheet()" class="md:hidden px-2.5 py-1.5 rounded-xl bg-paper text-ink text-xs font-bold border border-slate-200">
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button type="button" onclick="toggleLargeUI()" class="font-size-toggle-btn px-2.5 py-2 rounded-xl bg-paper text-ink text-xs font-extrabold border border-slate-300 active:scale-95 transition" aria-label="Changer la taille du texte">
+            A / A+
+          </button>
+          <button type="button" onclick="openMobileSimSheet()" class="md:hidden px-2.5 py-2 rounded-xl bg-paper text-ink text-xs font-bold border border-slate-200">
             Démo
           </button>
-          <button type="button" onclick="navigateTo('login')" class="px-2.5 py-1.5 rounded-xl bg-paper text-muted text-xs font-semibold hover:bg-slate-200/60">
-            Déco.
+          <button type="button" onclick="navigateTo('login')" class="px-2.5 py-2 rounded-xl bg-paper text-muted text-xs font-bold border border-slate-200 hover:bg-slate-200/60">
+            Quitter
           </button>
         </div>
       </header>
 
-      <div id="library-list" class="flex-1 overflow-y-auto p-4 space-y-3 pb-20">
+      <div id="library-list" class="flex-1 overflow-y-auto p-4 space-y-3.5 pb-24">
         <!-- Généré par JS -->
       </div>
 
-      <nav class="bg-white border-t border-slate-200 px-4 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+18px)] flex items-center justify-around shrink-0">
-        <button type="button" onclick="navigateTo('library')" class="px-5 py-1.5 rounded-xl bg-sign text-ink font-bold text-xs">
-          Bibliothèque
+      <nav class="bg-white border-t border-slate-200 px-3 pt-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+18px)] grid grid-cols-2 gap-2 shrink-0">
+        <button type="button" onclick="navigateTo('library')" class="py-2.5 px-3 rounded-2xl bg-sign text-ink font-display font-extrabold text-xs shadow-xs">
+          Mes Guides (4)
         </button>
-        <button type="button" onclick="navigateTo('catalog')" class="px-5 py-1.5 rounded-xl text-muted hover:bg-paper font-semibold text-xs">
-          Catalogue (27)
+        <button type="button" onclick="navigateTo('catalog')" class="py-2.5 px-3 rounded-2xl bg-paper text-ink border border-slate-200 font-display font-bold text-xs">
+          Tous mes guides (28)
         </button>
       </nav>
     </section>
 
     <!-- ========================================================= -->
-    <!-- VUE 3 : CATALOGUE DES 27 GUIDES                           -->
+    <!-- VUE 3 : CATALOGUE DES 28 GUIDES (LIENS BOUTIQUE OFFICIELLE)-->
     <!-- ========================================================= -->
     <section id="view-catalog" class="hidden flex-1 flex flex-col overflow-hidden bg-paper">
-      <header class="px-4 pt-4 pb-3 bg-white border-b border-slate-200 shrink-0 space-y-2.5">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-[11px] font-semibold uppercase tracking-wider text-muted">Ma boutique directe · 0 % commission</p>
-            <h2 class="font-display font-extrabold text-xl text-ink">Tous mes guides (27)</h2>
+      <header class="px-4 pt-3.5 pb-3 bg-white border-b border-slate-200 shrink-0 space-y-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-muted">Boutique lesapprentisvoyageurs.fr</p>
+            <h2 class="font-display font-extrabold text-xl text-ink truncate">Tous mes guides (28)</h2>
           </div>
-          <button type="button" onclick="openMobileSimSheet()" class="md:hidden px-2.5 py-1.5 rounded-xl bg-paper text-ink text-xs font-bold border border-slate-200">
-            Démo
-          </button>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button type="button" onclick="toggleLargeUI()" class="font-size-toggle-btn px-2.5 py-2 rounded-xl bg-paper text-ink text-xs font-extrabold border border-slate-300 active:scale-95 transition" aria-label="Changer la taille du texte">
+              A / A+
+            </button>
+            <button type="button" onclick="openMobileSimSheet()" class="md:hidden px-2.5 py-2 rounded-xl bg-paper text-ink text-xs font-bold border border-slate-200">
+              Démo
+            </button>
+          </div>
         </div>
 
-        <input id="catalog-search" type="search" oninput="renderCatalog()" placeholder="Rechercher (Corse, Pyrénées, Dolomites, Vosges...)" class="w-full px-3.5 py-2 rounded-xl bg-paper border border-slate-200 text-sm focus:border-ink focus:bg-white focus:outline-none" />
+        <input id="catalog-search" type="search" oninput="renderCatalog()" placeholder="Rechercher (Corse, Pyrénées, Dolomites, Vosges...)" class="w-full px-3.5 py-2.5 rounded-xl bg-paper border border-slate-200 text-sm focus:border-ink focus:bg-white focus:outline-none" />
 
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
-          <button type="button" data-zone="all" onclick="setCatalogZone('all')" class="cat-zone-btn px-3 py-1 rounded-full text-xs font-bold bg-ink text-white shrink-0">Tous (27)</button>
-          <button type="button" data-zone="france" onclick="setCatalogZone('france')" class="cat-zone-btn px-3 py-1 rounded-full text-xs font-semibold bg-paper text-muted shrink-0">France (19)</button>
-          <button type="button" data-zone="europe" onclick="setCatalogZone('europe')" class="cat-zone-btn px-3 py-1 rounded-full text-xs font-semibold bg-paper text-muted shrink-0">Europe & Maroc (8)</button>
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
+          <button type="button" data-zone="all" onclick="setCatalogZone('all')" class="cat-zone-btn px-3.5 py-2 rounded-full text-xs font-bold bg-ink text-white shrink-0">Tous (28)</button>
+          <button type="button" data-zone="france" onclick="setCatalogZone('france')" class="cat-zone-btn px-3.5 py-2 rounded-full text-xs font-semibold bg-paper text-muted shrink-0">France (19)</button>
+          <button type="button" data-zone="europe" onclick="setCatalogZone('europe')" class="cat-zone-btn px-3.5 py-2 rounded-full text-xs font-semibold bg-paper text-muted shrink-0">Europe & Maroc (9)</button>
         </div>
       </header>
 
-      <div id="catalog-list" class="flex-1 overflow-y-auto p-4 space-y-2.5 pb-20">
+      <div id="catalog-list" class="flex-1 overflow-y-auto p-4 space-y-3 pb-24">
         <!-- Généré par JS -->
       </div>
 
-      <nav class="bg-white border-t border-slate-200 px-4 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+18px)] flex items-center justify-around shrink-0">
-        <button type="button" onclick="navigateTo('library')" class="px-5 py-1.5 rounded-xl text-muted hover:bg-paper font-semibold text-xs">
-          Bibliothèque
+      <nav class="bg-white border-t border-slate-200 px-3 pt-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+18px)] grid grid-cols-2 gap-2 shrink-0">
+        <button type="button" onclick="navigateTo('library')" class="py-2.5 px-3 rounded-2xl bg-paper text-ink border border-slate-200 font-display font-bold text-xs">
+          Mes Guides (4)
         </button>
-        <button type="button" onclick="navigateTo('catalog')" class="px-5 py-1.5 rounded-xl bg-sign text-ink font-bold text-xs">
-          Catalogue (27)
+        <button type="button" onclick="navigateTo('catalog')" class="py-2.5 px-3 rounded-2xl bg-sign text-ink font-display font-extrabold text-xs shadow-xs">
+          Tous mes guides (28)
         </button>
       </nav>
     </section>
 
     <!-- ========================================================= -->
-    <!-- VUE 4 : LECTEUR RGA (PRESENTATION FIDELE AUX MAQUETTES)   -->
+    <!-- VUE 4 : LECTEUR RGA                                       -->
     <!-- ========================================================= -->
     <section id="view-reader" class="hidden flex-1 flex flex-col overflow-hidden relative bg-[#e6eadf]">
 
@@ -272,8 +315,8 @@
 
       <!-- BANDEAU SUPERIEUR FLOTTANT -->
       <div class="relative z-20 px-3 pt-3 pb-1 pointer-events-none">
-        <div class="pointer-events-auto bg-white/95 rounded-2xl shadow-sm border border-slate-200/90 px-2.5 py-2 flex items-center justify-between gap-2">
-          <button type="button" onclick="navigateTo('library')" class="w-8 h-8 rounded-xl bg-paper hover:bg-slate-200/70 flex items-center justify-center text-ink font-bold shrink-0" aria-label="Retour bibliothèque">
+        <div class="pointer-events-auto bg-white/95 rounded-2xl shadow-sm border border-slate-200/90 px-2.5 py-2 flex items-center justify-between gap-1.5">
+          <button type="button" onclick="navigateTo('library')" class="w-10 h-10 rounded-xl bg-paper hover:bg-slate-200/70 border border-slate-200 flex items-center justify-center text-ink font-extrabold text-base shrink-0" aria-label="Retour à mes guides">
             ←
           </button>
           <div class="min-w-0 flex-1">
@@ -284,7 +327,10 @@
             <p id="reader-subtitle" class="text-[11px] text-muted truncate">J1 · Thonon → Val-Cenis · 259 km</p>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
-            <button type="button" id="mode-toggle-btn" onclick="toggleRideMode()" class="px-3.5 py-2 rounded-xl bg-ink text-white text-xs font-extrabold shadow-xs active:scale-95 transition">
+            <button type="button" onclick="toggleLargeUI()" class="font-size-toggle-btn px-2.5 py-2 rounded-xl bg-paper text-ink border border-slate-300 text-xs font-extrabold active:scale-95 transition" aria-label="Changer la taille du texte">
+              A/A+
+            </button>
+            <button type="button" id="mode-toggle-btn" onclick="toggleRideMode()" class="px-3 py-2 rounded-xl bg-ink text-white text-xs font-extrabold shadow-xs active:scale-95 transition">
               En roulant
             </button>
             <button type="button" onclick="openMobileSimSheet()" class="md:hidden px-2 py-2 rounded-xl bg-paper text-ink border border-slate-200 text-[11px] font-bold">
@@ -294,7 +340,7 @@
         </div>
 
         <!-- SELECTEUR J0 à J6 -->
-        <div id="day-selector" class="pointer-events-auto mt-2 flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+        <div id="day-selector" class="pointer-events-auto mt-2 flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
           <!-- Généré par JS -->
         </div>
       </div>
@@ -330,18 +376,18 @@
         </div>
 
         <button type="button" onclick="sendCurrentDayToDMD()" class="pointer-events-auto w-full py-4 px-4 rounded-2xl bg-ink hover:bg-slate-800 active:scale-[0.99] text-white font-display font-bold text-[15px] shadow-lg transition">
-          <span id="hud-dmd-label">Envoyer trace J1 + POI vers DMD2</span>
+          <span id="hud-dmd-label">Envoyer ma trace J1 + POI vers DMD2</span>
         </button>
       </div>
 
-      <!-- FEUILLE BASSE MODE "A L'ARRET" (STYLE MAQUETTES ORIGINALES) -->
+      <!-- FEUILLE BASSE MODE "A L'ARRET" -->
       <div id="stopped-sheet" class="relative z-20 mt-auto bg-white rounded-t-[28px] shadow-[0_-8px_30px_rgba(0,0,0,0.14)] flex flex-col max-h-[72%] will-change-transform">
-        <!-- Poignée de swipe vers le bas pour replier vers le mode "En roulant" -->
-        <div id="sheet-drag-handle" class="w-full flex flex-col items-center justify-center pt-3 pb-2.5 shrink-0 cursor-grab active:cursor-grabbing touch-none select-none" title="Glisser vers le bas pour passer en mode En roulant">
-          <div class="w-12 h-1.5 rounded-full bg-slate-300"></div>
+        <!-- Poignée élargie pour le swipe vers le bas -->
+        <div id="sheet-drag-handle" class="w-full flex flex-col items-center justify-center pt-3.5 pb-3 shrink-0 cursor-grab active:cursor-grabbing touch-none select-none" title="Glisser vers le bas pour passer en mode En roulant">
+          <div class="w-14 h-1.5 rounded-full bg-slate-300"></div>
         </div>
 
-        <!-- Onglets façon maquette (pilule jaune active, icônes SVG fines) -->
+        <!-- Onglets -->
         <div class="px-4 pb-3 grid grid-cols-4 gap-1.5 shrink-0">
           <button type="button" data-tab="resto" onclick="setReaderTab('resto')" class="reader-tab-btn py-2.5 px-1 rounded-2xl flex flex-col items-center gap-1 text-xs font-bold transition">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>
@@ -369,7 +415,7 @@
         <!-- Bouton noir DMD2 remonté pour protéger la barre de swipe Android -->
         <div class="px-4 pt-2.5 pb-[calc(env(safe-area-inset-bottom,0px)+28px)] bg-white border-t border-slate-100 shrink-0">
           <button type="button" onclick="sendCurrentDayToDMD()" class="w-full py-3.5 px-4 rounded-2xl bg-ink hover:bg-slate-800 active:scale-[0.99] text-white font-display font-bold text-[15px] shadow-md transition">
-            <span id="sheet-dmd-label">Envoyer trace J1 + POI vers DMD2</span>
+            <span id="sheet-dmd-label">Envoyer ma trace J1 + POI vers DMD2</span>
           </button>
         </div>
       </div>
@@ -382,7 +428,7 @@
       <div class="bg-white rounded-3xl w-full max-w-md p-5 shadow-2xl max-h-[90%] overflow-y-auto">
         <div class="flex items-center justify-between mb-2">
           <h3 class="font-display font-extrabold text-lg text-ink">Me signaler un changement</h3>
-          <button type="button" onclick="closeModal('modal-report')" class="w-8 h-8 rounded-full bg-paper text-ink font-bold">✕</button>
+          <button type="button" onclick="closeModal('modal-report')" class="w-10 h-10 rounded-full bg-paper text-ink font-bold">✕</button>
         </div>
         <p id="report-target-label" class="text-xs font-semibold text-route bg-blue-50 px-3 py-1.5 rounded-xl mb-3"></p>
 
@@ -421,40 +467,12 @@
       <div class="bg-white rounded-3xl w-full max-w-md p-5 shadow-2xl max-h-[88%] flex flex-col">
         <div class="flex items-center justify-between mb-1">
           <h3 class="font-display font-extrabold text-lg text-ink">Ma modération · Greg</h3>
-          <button type="button" onclick="closeModal('modal-greg')" class="w-8 h-8 rounded-full bg-paper text-ink font-bold">✕</button>
+          <button type="button" onclick="closeModal('modal-greg')" class="w-10 h-10 rounded-full bg-paper text-ink font-bold">✕</button>
         </div>
         <p class="text-xs text-muted mb-3">Si j'approuve, le guide se met à jour pour tous mes acheteurs dès le retour du réseau.</p>
         <div id="greg-queue-list" class="flex-1 overflow-y-auto space-y-2.5 pr-0.5">
           <!-- Généré par JS -->
         </div>
-      </div>
-    </div>
-
-    <!-- ========================================================= -->
-    <!-- MODALE : ACHAT DIRECT WOOCOMMERCE                         -->
-    <!-- ========================================================= -->
-    <div id="modal-checkout" class="hidden absolute inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-3">
-      <div class="bg-white rounded-3xl w-full max-w-md p-5 shadow-2xl">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-ok border border-emerald-200">WooCommerce Direct · 0 % commission</span>
-          <button type="button" onclick="closeModal('modal-checkout')" class="w-8 h-8 rounded-full bg-paper text-ink font-bold">✕</button>
-        </div>
-        <h3 id="checkout-title" class="font-display font-extrabold text-xl text-ink mb-1"></h3>
-        <p id="checkout-meta" class="text-xs text-muted mb-4"></p>
-
-        <div class="bg-paper rounded-2xl p-3.5 border border-slate-200 space-y-1.5 text-xs text-ink mb-4">
-          <div class="flex justify-between"><span>Accès hors-ligne dans l'appli</span><span class="font-bold text-ok">Inclus</span></div>
-          <div class="flex justify-between"><span>Traces GPX ouvertes (DMD2, OsmAnd, TomTom)</span><span class="font-bold text-ok">Inclus</span></div>
-          <div class="flex justify-between"><span>Mises à jour & alertes communautaires</span><span class="font-bold text-ok">Inclus</span></div>
-          <div class="border-t border-slate-200 pt-2 mt-2 flex justify-between text-base font-display font-extrabold">
-            <span>Total TTC</span>
-            <span id="checkout-price"></span>
-          </div>
-        </div>
-
-        <button type="button" onclick="confirmPurchase()" class="w-full py-3.5 rounded-2xl bg-sign text-ink font-display font-bold text-sm">
-          Payer & débloquer immédiatement
-        </button>
       </div>
     </div>
 
@@ -465,7 +483,7 @@
       <div class="bg-white rounded-3xl w-full max-w-md p-5 shadow-2xl space-y-3.5">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200">GPX ouvert · Usage personnel</span>
-          <button type="button" onclick="closeModal('modal-gpx-warning')" class="w-8 h-8 rounded-full bg-paper text-ink font-bold">✕</button>
+          <button type="button" onclick="closeModal('modal-gpx-warning')" class="w-10 h-10 rounded-full bg-paper text-ink font-bold">✕</button>
         </div>
 
         <div>
@@ -497,12 +515,19 @@
       <div class="bg-white rounded-3xl w-full p-5 shadow-2xl space-y-3.5 pb-[calc(env(safe-area-inset-bottom,0px)+20px)]">
         <div class="flex items-center justify-between">
           <h3 class="font-display font-extrabold text-lg text-ink">Options de démonstration</h3>
-          <button type="button" onclick="closeModal('modal-mobile-sim')" class="w-8 h-8 rounded-full bg-paper text-ink font-bold">✕</button>
+          <button type="button" onclick="closeModal('modal-mobile-sim')" class="w-10 h-10 rounded-full bg-paper text-ink font-bold">✕</button>
+        </div>
+
+        <div class="flex items-center justify-between bg-paper p-3 rounded-2xl border border-slate-200">
+          <span class="text-sm font-bold text-ink">Taille d'affichage</span>
+          <button type="button" onclick="toggleLargeUI()" class="font-size-toggle-btn px-3.5 py-2 rounded-xl bg-white text-ink border border-slate-300 text-xs font-extrabold">
+            A / A+
+          </button>
         </div>
 
         <div class="flex items-center justify-between bg-paper p-3 rounded-2xl border border-slate-200">
           <span class="text-sm font-bold text-ink">Réseau mobile</span>
-          <button type="button" id="sim-offline-btn-mobile" onclick="toggleOffline()" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-ok border border-emerald-200 text-xs font-bold">
+          <button type="button" id="sim-offline-btn-mobile" onclick="toggleOffline()" class="px-3.5 py-2 rounded-xl bg-emerald-50 text-ok border border-emerald-200 text-xs font-bold">
             ● En ligne
           </button>
         </div>
@@ -513,13 +538,13 @@
             <input type="date" id="mobile-start-date" class="bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs font-semibold" value="2027-07-15" />
           </div>
           <div class="grid grid-cols-3 gap-1.5">
-            <button type="button" onclick="setQuickDate('2027-05-12'); closeModal('modal-mobile-sim');" class="py-1.5 px-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold">12 mai</button>
-            <button type="button" onclick="setQuickDate('2027-07-16'); closeModal('modal-mobile-sim');" class="py-1.5 px-2 rounded-xl bg-rose-50 border border-rose-200 text-danger text-xs font-bold">J3 Lun.</button>
-            <button type="button" onclick="setQuickDate('2027-07-15'); closeModal('modal-mobile-sim');" class="py-1.5 px-2 rounded-xl bg-white border border-slate-200 text-ink text-xs font-bold">15 juil.</button>
+            <button type="button" onclick="setQuickDate('2027-05-12'); closeModal('modal-mobile-sim');" class="py-2 px-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold">12 mai</button>
+            <button type="button" onclick="setQuickDate('2027-07-16'); closeModal('modal-mobile-sim');" class="py-2 px-2 rounded-xl bg-rose-50 border border-rose-200 text-danger text-xs font-bold">J3 Lun.</button>
+            <button type="button" onclick="setQuickDate('2027-07-15'); closeModal('modal-mobile-sim');" class="py-2 px-2 rounded-xl bg-white border border-slate-200 text-ink text-xs font-bold">15 juil.</button>
           </div>
         </div>
 
-        <button type="button" onclick="closeModal('modal-mobile-sim'); openGregModal();" class="w-full py-3 rounded-2xl bg-sign text-ink font-display font-bold text-sm flex items-center justify-center gap-2">
+        <button type="button" onclick="closeModal('modal-mobile-sim'); openGregModal();" class="w-full py-3.5 rounded-2xl bg-sign text-ink font-display font-bold text-sm flex items-center justify-center gap-2">
           <span>Modération Greg</span>
           <span id="greg-badge-mobile" class="px-2 py-0.5 rounded-full bg-ink text-white text-xs">1</span>
         </button>
@@ -533,38 +558,41 @@
 
   <script>
     // =========================================================================
-    // 1. CATALOGUE DES 27 GUIDES REELS (lesapprentisvoyageurs.fr)
+    // 1. CATALOGUE DES 28 GUIDES REELS + URLS OFFICIELLES BOUTIQUE GREG
     // =========================================================================
+    const SHOP_CATEGORY_URL = 'https://lesapprentisvoyageurs.fr/categorie-produit/guides-road-trip-moto/';
+
     const CATALOG_GUIDES = [
       // FRANCE (19)
-      { id: 'rga', name: 'Alpes / RGA Aller-Retour', zone: 'france', region: 'Savoie, Hautes-Alpes & Alpes-Maritimes', days: '6 jours', km: '~1 477 km', price: '49,90 €', tag: 'Léman → Menton' },
-      { id: 'vercors', name: 'Le Vercors (Offert)', zone: 'france', region: 'Isère & Drôme · Massif du Vercors', days: '2 jours', km: '~380 km', price: 'Offert', tag: 'Découverte' },
-      { id: 'ardeche', name: 'Ardèche : 42 cols', zone: 'france', region: 'Auvergne-Rhône-Alpes · Sud-Est', days: '3 jours', km: '750 km', price: '29,90 €', tag: '42 cols · Sportif' },
-      { id: 'corse-terres', name: 'Corse par les terres', zone: 'france', region: 'Corte, Niolo & Alta Rocca', days: '5 jours', km: '~1 100 km', price: '49,90 €', tag: 'Intérieur sauvage', hasUpdate: true },
-      { id: 'auvergne', name: 'Auvergne magique', zone: 'france', region: 'Puy-de-Dôme & Cantal', days: '3 jours', km: '~800 km', price: '29,90 €', tag: 'Volcans & Livradois' },
-      { id: 'drome', name: 'Cols de la Drôme', zone: 'france', region: 'Drôme provençale, Diois & Baronnies', days: '4 jours', km: '~900 km', price: '29,90 €', tag: 'Sud-Est' },
-      { id: 'verdon', name: 'Verdon & Ventoux', zone: 'france', region: 'Provence · Vaucluse, 04 & Var', days: '3 jours', km: '~800 km', price: '29,90 €', tag: 'Provence & Gorges' },
-      { id: 'cevennes', name: 'Le meilleur des Cévennes', zone: 'france', region: 'Lozère & Gard · Sud', days: '3 jours', km: '~740 km', price: '29,90 €', tag: 'Corniche & Aigoual' },
-      { id: 'haute-loire', name: 'Haute-Loire', zone: 'france', region: 'Massif Central · Velay & Allier', days: '3 jours', km: '~650 km', price: '29,90 €', tag: 'Accessible' },
-      { id: 'aubrac', name: 'Aubrac', zone: 'france', region: 'Aveyron · Plateaux & Tarn', days: '2 jours', km: '+600 km', price: '29,90 €', tag: 'Week-end repos' },
-      { id: 'limousin', name: 'Limousin surprenant', zone: 'france', region: 'Plateau de Millevaches & Vassivière', days: '3 jours', km: '~700 km', price: '29,90 €', tag: 'Accessible' },
-      { id: 'morvan', name: 'Morvan', zone: 'france', region: 'Bourgogne · Centre-Est', days: '2 jours', km: '~520 km', price: '29,90 €', tag: 'Week-end au vert' },
-      { id: 'jura', name: 'Jura & Doubs', zone: 'france', region: 'Franche-Comté · Lacs & Cascades', days: '3 jours', km: '~750 km', price: '29,90 €', tag: 'Nature' },
-      { id: 'vosges', name: 'Vosges à moto', zone: 'france', region: 'Grand Est · Route des Crêtes', days: '3 jours', km: '~800 km', price: '29,90 €', tag: 'Forêts & Lacs' },
-      { id: 'pyrenees', name: 'Pyrénées (Traversée)', zone: 'france', region: 'Océan à Méditerranée', days: '6 jours', km: '~1 350 km', price: '49,90 €', tag: 'Ouest → Est' },
-      { id: 'pyrenees-ar', name: 'Pyrénées A/R (FR/ES)', zone: 'france', region: 'Versant français + versant espagnol', days: '8 jours', km: '~1 950 km', price: '49,90 €', tag: 'Aller-Retour' },
-      { id: 'corse-classique', name: 'Corse (Classique)', zone: 'france', region: 'Cap Corse, Piana, Bonifacio & Bavella', days: '7 jours', km: '~1 300 km', price: '49,90 €', tag: 'Côtes & sites mythiques' },
-      { id: 'demi-tour-ouest', name: 'Demi-Tour de France Ouest', zone: 'france', region: 'Normandie aux Pyrénées sans autoroute', days: '12 jours', km: '~4 000 km', price: '59,90 €', tag: 'Grand Tour' },
-      { id: 'demi-tour-est', name: 'Demi-Tour de France Est', zone: 'france', region: 'Ardennes à Méditerranée', days: '12 jours', km: '~3 900 km', price: '59,90 €', tag: 'Grand Tour' },
-      // EUROPE & MAROC (8)
-      { id: 'sardaigne', name: 'Tour de Sardaigne', zone: 'europe', region: 'Italie · Routes côtières & montagne', days: '7 jours', km: '~1 400 km', price: '49,90 €', tag: 'Italie' },
-      { id: 'dolomites', name: 'Dolomites en Italie', zone: 'europe', region: 'Italie · Grands cols mythiques', days: '5 jours', km: '~1 100 km', price: '49,90 €', tag: 'Italie' },
-      { id: 'sud-espagne', name: 'Le Sud de l\'Espagne', zone: 'europe', region: 'Espagne · Andalousie & Sierras', days: '10 jours', km: '~2 600 km', price: '49,90 €', tag: 'Espagne' },
-      { id: 'picos', name: 'Picos de Europa', zone: 'europe', region: 'Espagne · Cantabrie & Asturies', days: '5 jours', km: '~1 200 km', price: '49,90 €', tag: 'Espagne' },
-      { id: 'bardenas', name: 'Désert des Bardenas', zone: 'europe', region: 'Espagne · Navarre & Aragon', days: '4 jours', km: '~950 km', price: '29,90 €', tag: 'Espagne' },
-      { id: 'tyrol', name: 'Tyrol Autriche / Italie', zone: 'europe', region: 'Autriche & Italie · Grossglockner', days: '6 jours', km: '~1 450 km', price: '49,90 €', tag: 'Autriche / Italie' },
-      { id: 'maroc', name: 'Maroc à moto par la route', zone: 'europe', region: 'Maroc · Atlas, Gorges & Désert', days: '14 jours', km: '~3 800 km', price: '59,90 €', tag: 'Maroc' },
-      { id: 'irlande', name: 'Irlande : le tour à moto', zone: 'europe', region: 'Irlande · Wild Atlantic Way', days: '10 jours', km: '~2 500 km', price: '49,90 €', tag: 'Irlande' }
+      { id: 'rga', name: 'Alpes / RGA Aller-Retour', zone: 'france', region: 'Savoie, Hautes-Alpes & Alpes-Maritimes', days: '6 jours', km: '~1 500 km', price: '49,90 €', tag: 'Léman → Menton', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/la-rga-a-moto-road-trip-de-6-jours-dans-les-alpes/' },
+      { id: 'vercors', name: 'Le Vercors (Offert)', zone: 'france', region: 'Isère & Drôme · Massif du Vercors', days: '2 jours', km: '~500 km', price: 'Offert', tag: 'Découverte', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/le-vercors-sur-un-weekend/' },
+      { id: 'ardeche', name: 'Ardèche : 42 cols', zone: 'france', region: 'Auvergne-Rhône-Alpes · Sud-Est', days: '3 jours', km: '750 km', price: '29,90 €', tag: '42 cols · Sportif', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-ardeche-3-jours/' },
+      { id: 'corse-terres', name: 'Corse par les terres', zone: 'france', region: 'Corte, Niolo & Alta Rocca', days: '5 jours', km: '~1 100 km', price: '49,90 €', tag: 'Intérieur sauvage', hasUpdate: true, shopUrl: 'https://lesapprentisvoyageurs.fr/produit/corse-a-moto-par-les-terres/' },
+      { id: 'auvergne', name: 'Auvergne magique', zone: 'france', region: 'Puy-de-Dôme & Cantal', days: '3 jours', km: '~800 km', price: '29,90 €', tag: 'Volcans & Livradois', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/road-trip-en-auvergne-sur-3-jours-a-moto/' },
+      { id: 'drome', name: 'Cols de la Drôme', zone: 'france', region: 'Drôme provençale, Diois & Baronnies', days: '4 jours', km: '~950 km', price: '29,90 €', tag: 'Sud-Est', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/roadtrip-moto-cols-drome/' },
+      { id: 'verdon', name: 'Verdon & Ventoux', zone: 'france', region: 'Provence · Vaucluse, 04 & Var', days: '3 jours', km: '~800 km', price: '29,90 €', tag: 'Provence & Gorges', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/entre-verdon-et-ventoux-road-trip-moto/' },
+      { id: 'cevennes', name: 'Le meilleur des Cévennes', zone: 'france', region: 'Lozère & Gard · Sud', days: '3 jours', km: '~750 km', price: '29,90 €', tag: 'Corniche & Aigoual', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/le-meilleur-des-cevennes-a-moto/' },
+      { id: 'haute-loire', name: 'Haute-Loire', zone: 'france', region: 'Massif Central · Velay & Allier', days: '3 jours', km: '~890 km', price: '29,90 €', tag: 'Velay & Allier', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/road-trip-a-moto-haute-loire/' },
+      { id: 'aubrac', name: 'Aubrac', zone: 'france', region: 'Aveyron · Plateaux & Tarn', days: '2 jours', km: '500 km', price: '29,90 €', tag: 'Week-end repos', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/guide-road-trip-en-aubrac-a-moto/' },
+      { id: 'limousin', name: 'Limousin surprenant', zone: 'france', region: 'Plateau de Millevaches & Vassivière', days: '3 jours', km: '~700 km', price: '29,90 €', tag: 'Millevaches & Lacs', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/faire-le-limousin-a-moto/' },
+      { id: 'morvan', name: 'Morvan', zone: 'france', region: 'Bourgogne · Centre-Est', days: '2 jours', km: '~550 km', price: '29,90 €', tag: 'Week-end au vert', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/morvan-a-moto-en-2-jours/' },
+      { id: 'jura', name: 'Jura & Doubs', zone: 'france', region: 'Franche-Comté · Lacs & Cascades', days: '3 jours', km: '~750 km', price: '29,90 €', tag: 'Lacs & Cascades', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/jura-et-doubs-a-moto/' },
+      { id: 'vosges', name: 'Vosges à moto', zone: 'france', region: 'Grand Est · Route des Crêtes', days: '3 jours', km: '~800 km', price: '29,90 €', tag: 'Route des Crêtes', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/vosges-a-moto-guide-complet/' },
+      { id: 'pyrenees', name: 'Pyrénées (Traversée)', zone: 'france', region: 'Océan à Méditerranée', days: '6 jours', km: '~1 000 km', price: '49,90 €', tag: 'Traversée Est → Ouest', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-traversee-des-pyrenees/' },
+      { id: 'pyrenees-ar', name: 'Pyrénées A/R (FR/ES)', zone: 'france', region: 'Versant français + versant espagnol', days: '8 jours', km: '~2 000 km', price: '49,90 €', tag: 'Aller-Retour', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/la-meilleure-traversee-des-pyrenees-aller-retour-france-espagne/' },
+      { id: 'corse-classique', name: 'Corse (Classique)', zone: 'france', region: 'Cap Corse, Piana, Bonifacio & Bavella', days: '7 jours', km: '~1 450 km', price: '49,90 €', tag: 'Côtes & sites mythiques', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/guide-tour-de-corse-moto/' },
+      { id: 'demi-tour-ouest', name: 'Demi-Tour de France Ouest', zone: 'france', region: 'Normandie aux Pyrénées sans autoroute', days: '12 jours', km: '~4 000 km', price: '59,90 €', tag: 'Grand Tour', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/demi-tour-de-france-a-moto-partie-ouest/' },
+      { id: 'demi-tour-est', name: 'Demi-Tour de France Est', zone: 'france', region: 'Ardennes à Méditerranée', days: '12 jours', km: '~3 900 km', price: '59,90 €', tag: 'Grand Tour', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/demi-tour-de-france-moto-est/' },
+      // EUROPE & MAROC (9)
+      { id: 'sardaigne', name: 'Tour de Sardaigne', zone: 'europe', region: 'Italie · Routes côtières & montagne', days: '7 jours', km: '~1 500 km', price: '49,90 €', tag: 'Italie', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/tour-de-sardaigne-a-moto/' },
+      { id: 'sardaigne-sauvage', name: 'Sardaigne sauvage', zone: 'europe', region: 'Italie · Terres secrètes & falaises', days: '6 jours', km: '~1 400 km', price: '49,90 €', tag: 'Italie · Sauvage', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-en-sardaigne-sauvage-sur-6-jours/' },
+      { id: 'dolomites', name: 'Dolomites en Italie', zone: 'europe', region: 'Italie · Grands cols mythiques', days: '6 jours', km: '~1 600 km', price: '49,90 €', tag: 'Italie', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/visiter-les-dolomites-en-road-trip/' },
+      { id: 'sud-espagne', name: 'Le Sud de l\'Espagne', zone: 'europe', region: 'Espagne · Andalousie & Sierras', days: '6 jours', km: '~1 800 km', price: '49,90 €', tag: 'Espagne', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-sud-espagne/' },
+      { id: 'picos', name: 'Picos de Europa', zone: 'europe', region: 'Espagne · Cantabrie & Asturies', days: '10 jours', km: '~2 500 km', price: '59,90 €', tag: 'Espagne', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/picos-de-europa-a-moto-road-trip-espagne/' },
+      { id: 'bardenas', name: 'Désert des Bardenas', zone: 'europe', region: 'Espagne · Navarre & Aragon', days: '3 jours', km: '~700 km', price: '29,90 €', tag: 'Espagne', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/les-bardenas-moto/' },
+      { id: 'tyrol', name: 'Tyrol Autriche / Italie', zone: 'europe', region: 'Autriche & Italie · Grossglockner', days: '11 jours', km: '~2 300 km', price: '59,90 €', tag: 'Autriche / Italie', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/visiter-le-tyrol-et-les-dolomites-en-road-trip/' },
+      { id: 'maroc', name: 'Maroc à moto par la route', zone: 'europe', region: 'Maroc · Atlas, Gorges & Désert', days: '12 jours', km: '~3 300 km', price: '59,90 €', tag: 'Maroc', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/le-maroc-a-moto-en-12-jours/' },
+      { id: 'irlande', name: 'Irlande : le tour à moto', zone: 'europe', region: 'Irlande · Wild Atlantic Way', days: '9 jours', km: '~2 300 km', price: '59,90 €', tag: 'Irlande', shopUrl: 'https://lesapprentisvoyageurs.fr/produit/tour-irlande-a-moto-en-9-jours/' }
     ];
 
     // =========================================================================
@@ -914,7 +942,7 @@
     // =========================================================================
     // 3. ETAT GLOBAL & PERSISTANCE LOCALE
     // =========================================================================
-    const STORAGE_KEY = 'lav_rga_pwa_v5';
+    const STORAGE_KEY = 'lav_rga_pwa_v6';
 
     function loadLocal() {
       try {
@@ -926,7 +954,6 @@
 
     const saved = loadLocal();
 
-    // Migration douce si un ancien budget numérique simple existait
     const normalizedBudgets = {};
     if (saved.budgets && typeof saved.budgets === 'object') {
       Object.keys(saved.budgets).forEach((k) => {
@@ -948,6 +975,7 @@
       view: 'login',
       loggedIn: false,
       isOffline: false,
+      largeUI: Boolean(saved.largeUI),
       startDate: saved.startDate || '2027-07-15',
       currentDay: 1,
       rideMode: false,
@@ -962,7 +990,6 @@
       autonomyKm: saved.autonomyKm || 250,
       fuelOverrides: saved.fuelOverrides || {},
       showFuelRecal: false,
-      checkoutGuideId: null,
       pendingGpxDownload: null,
       reportDraftTarget: null,
       reports: [
@@ -998,6 +1025,7 @@
     function saveLocal() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          largeUI: state.largeUI,
           startDate: state.startDate,
           ownedGuideIds: state.ownedGuideIds,
           updatedGuides: state.updatedGuides,
@@ -1011,7 +1039,35 @@
     }
 
     // =========================================================================
-    // 4. UTILITAIRES DATES, MODALES, TOAST & SIMULATION
+    // 4. MODE GRAND CONFORT (A / A+)
+    // =========================================================================
+    function applyLargeUI() {
+      document.documentElement.classList.toggle('large-ui', state.largeUI);
+      document.querySelectorAll('.font-size-toggle-btn').forEach((btn) => {
+        if (state.largeUI) {
+          btn.textContent = 'A+ actif';
+          btn.classList.remove('bg-white', 'bg-paper', 'text-ink', 'border-slate-300');
+          btn.classList.add('bg-sign', 'text-ink', 'border-sign');
+        } else {
+          btn.textContent = 'A / A+';
+          btn.classList.remove('bg-sign', 'border-sign');
+          btn.classList.add('bg-paper', 'text-ink', 'border-slate-300');
+        }
+      });
+      if (state.view === 'reader' && leafletMap) {
+        setTimeout(() => leafletMap.invalidateSize(), 80);
+      }
+    }
+
+    function toggleLargeUI() {
+      state.largeUI = !state.largeUI;
+      saveLocal();
+      applyLargeUI();
+      showToast(state.largeUI ? 'Mode Grand confort (A+) activé' : 'Taille d\'affichage standard');
+    }
+
+    // =========================================================================
+    // 5. UTILITAIRES DATES, MODALES, TOAST & SIMULATION
     // =========================================================================
     function getDayDate(dayIndex) {
       const parts = (state.startDate || '2027-07-15').split('-').map(Number);
@@ -1081,8 +1137,8 @@
         ? 'px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-semibold transition'
         : 'px-2.5 py-1 rounded-full bg-emerald-50 text-ok border border-emerald-200 font-semibold transition';
       const clsMob = state.isOffline
-        ? 'px-3 py-1.5 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold'
-        : 'px-3 py-1.5 rounded-xl bg-emerald-50 text-ok border border-emerald-200 text-xs font-bold';
+        ? 'px-3.5 py-2 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold'
+        : 'px-3.5 py-2 rounded-xl bg-emerald-50 text-ok border border-emerald-200 text-xs font-bold';
 
       if (bDesk) { bDesk.textContent = txt; bDesk.className = clsDesk; }
       if (bMob) { bMob.textContent = txt; bMob.className = clsMob; }
@@ -1129,7 +1185,7 @@
     }
 
     // =========================================================================
-    // 5. NAVIGATION & CONNEXION
+    // 6. NAVIGATION & CONNEXION
     // =========================================================================
     function navigateTo(viewName) {
       state.view = viewName;
@@ -1164,7 +1220,7 @@
     }
 
     // =========================================================================
-    // 6. BIBLIOTHEQUE & CATALOGUE
+    // 7. BIBLIOTHEQUE & CATALOGUE (LIENS DIRECTS VERS LA BOUTIQUE OFFICIELLE)
     // =========================================================================
     function renderLibrary() {
       const container = document.getElementById('library-list');
@@ -1178,10 +1234,10 @@
           <div class="bg-white rounded-2xl p-4 border ${isFullDemo ? 'border-2 border-sign' : 'border-slate-200'} shadow-xs space-y-3">
             <div class="flex items-start justify-between gap-2">
               <div class="min-w-0">
-                <div class="flex items-center gap-1.5 flex-wrap mb-0.5">
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-ok border border-emerald-200">Prêt hors-ligne</span>
-                  ${needsUpdate ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">Mise à jour dispo</span>' : ''}
-                  ${isFullDemo ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sign text-ink">Démo complète J0–J6</span>' : ''}
+                <div class="flex items-center gap-1.5 flex-wrap mb-1">
+                  <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-ok border border-emerald-200">Prêt hors-ligne</span>
+                  ${needsUpdate ? '<span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">Mise à jour dispo</span>' : ''}
+                  ${isFullDemo ? '<span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-sign text-ink">Démo complète J0–J6</span>' : ''}
                 </div>
                 <h3 class="font-display font-extrabold text-base text-ink">${g.name}</h3>
                 <p class="text-xs text-muted">${g.region} · ${g.days} · ${g.km}</p>
@@ -1189,22 +1245,28 @@
             </div>
 
             <div class="flex items-center gap-2">
-              <button type="button" onclick="openGuide('${g.id}')" class="flex-1 py-2.5 px-3 rounded-xl bg-ink text-white font-display font-bold text-xs">
+              <button type="button" onclick="openGuide('${g.id}')" class="flex-1 py-3 px-3.5 rounded-xl bg-ink text-white font-display font-bold text-sm">
                 Ouvrir le guide
               </button>
               ${needsUpdate ? `
-                <button type="button" onclick="updateGuideNow('${g.id}')" class="py-2.5 px-3 rounded-xl bg-sign text-ink font-bold text-xs">
+                <button type="button" onclick="updateGuideNow('${g.id}')" class="py-3 px-3.5 rounded-xl bg-sign text-ink font-bold text-xs">
                   Mettre à jour
                 </button>
               ` : `
-                <button type="button" onclick="downloadOpenGpx('${g.id}', '${g.name.replace(/'/g, "\\'")}')" class="py-2.5 px-3 rounded-xl bg-paper border border-slate-200 text-ink font-bold text-xs">
+                <button type="button" onclick="downloadOpenGpx('${g.id}', '${g.name.replace(/'/g, "\\'")}')" class="py-3 px-3.5 rounded-xl bg-paper border border-slate-200 text-ink font-bold text-xs">
                   GPX ↓
                 </button>
               `}
             </div>
           </div>
         `;
-      }).join('');
+      }).join('') + `
+        <div class="pt-1 text-center">
+          <button type="button" onclick="navigateTo('catalog')" class="w-full py-3.5 px-4 rounded-2xl bg-white border border-slate-300 text-ink font-display font-bold text-sm">
+            Explorer mes 28 guides sur la boutique →
+          </button>
+        </div>
+      `;
     }
 
     function updateGuideNow(guideId) {
@@ -1232,8 +1294,8 @@
       document.querySelectorAll('.cat-zone-btn').forEach((b) => {
         const active = b.dataset.zone === zone;
         b.className = active
-          ? 'cat-zone-btn px-3 py-1 rounded-full text-xs font-bold bg-ink text-white shrink-0'
-          : 'cat-zone-btn px-3 py-1 rounded-full text-xs font-semibold bg-paper text-muted shrink-0';
+          ? 'cat-zone-btn px-3.5 py-2 rounded-full text-xs font-bold bg-ink text-white shrink-0'
+          : 'cat-zone-btn px-3.5 py-2 rounded-full text-xs font-semibold bg-paper text-muted shrink-0';
       });
       renderCatalog();
     }
@@ -1251,53 +1313,45 @@
 
       container.innerHTML = filtered.map((g) => {
         const owned = state.ownedGuideIds.includes(g.id);
+        const targetUrl = g.shopUrl || SHOP_CATEGORY_URL;
         return `
-          <div class="bg-white rounded-2xl p-3.5 border border-slate-200 flex items-center justify-between gap-3">
-            <div class="min-w-0 flex-1">
-              <div class="text-[11px] font-semibold text-muted">${g.tag} · ${g.days} · ${g.km}</div>
-              <h3 class="font-display font-extrabold text-sm text-ink truncate">${g.name}</h3>
-              <p class="text-xs text-muted truncate">${g.region}</p>
+          <div class="bg-white rounded-2xl p-4 border border-slate-200 space-y-2.5">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-bold text-muted">${g.tag} · ${g.days} · ${g.km}</div>
+                <h3 class="font-display font-extrabold text-base text-ink leading-snug">${g.name}</h3>
+                <p class="text-xs text-muted mt-0.5">${g.region}</p>
+              </div>
+              <div class="shrink-0 font-display font-extrabold text-sm text-ink bg-paper px-2.5 py-1 rounded-xl border border-slate-200">
+                ${g.price}
+              </div>
             </div>
-            <div class="shrink-0 text-right">
-              <div class="font-display font-extrabold text-sm text-ink mb-1">${g.price}</div>
+
+            <div class="pt-0.5">
               ${owned ? `
-                <button type="button" onclick="openGuide('${g.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-ok border border-emerald-200 font-bold text-xs">
-                  Dans ma biblio
+                <button type="button" onclick="openGuide('${g.id}')" class="w-full py-2.5 px-3.5 rounded-xl bg-emerald-50 text-ok border border-emerald-200 font-display font-bold text-xs">
+                  Déjà dans mes guides · Ouvrir
                 </button>
               ` : `
-                <button type="button" onclick="openCheckout('${g.id}')" class="px-3 py-1.5 rounded-xl bg-sign text-ink font-bold text-xs">
-                  Acheter
-                </button>
+                <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-3.5 rounded-xl bg-sign text-ink font-display font-bold text-xs flex items-center justify-center gap-1.5">
+                  <span>Voir sur ma boutique</span>
+                  <span aria-hidden="true">↗</span>
+                </a>
               `}
             </div>
           </div>
         `;
-      }).join('');
-    }
-
-    function openCheckout(guideId) {
-      const g = CATALOG_GUIDES.find((x) => x.id === guideId);
-      if (!g) return;
-      state.checkoutGuideId = guideId;
-      document.getElementById('checkout-title').textContent = g.name;
-      document.getElementById('checkout-meta').textContent = `${g.region} · ${g.days} · ${g.km}`;
-      document.getElementById('checkout-price').textContent = g.price;
-      openModal('modal-checkout');
-    }
-
-    function confirmPurchase() {
-      const id = state.checkoutGuideId;
-      if (id && !state.ownedGuideIds.includes(id)) {
-        state.ownedGuideIds.push(id);
-        saveLocal();
-      }
-      closeModal('modal-checkout');
-      showToast('Guide débloqué et ajouté à votre bibliothèque hors-ligne');
-      navigateTo('library');
+      }).join('') + `
+        <div class="pt-1 pb-2 text-center">
+          <a href="${SHOP_CATEGORY_URL}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-1.5 text-xs font-bold text-route underline py-2">
+            <span>Ouvrir la page complète de mes 28 guides sur lesapprentisvoyageurs.fr ↗</span>
+          </a>
+        </div>
+      `;
     }
 
     // =========================================================================
-    // 7. CARTE INTERACTIVE (Chargement à la demande — Esri World Topo Map)
+    // 8. CARTE INTERACTIVE (Chargement à la demande — Esri World Topo Map)
     // =========================================================================
     let leafletMap = null;
     let mapLayerGroup = null;
@@ -1387,7 +1441,7 @@
       const bounds = poly.getBounds();
       if (bounds.isValid()) {
         leafletMap.fitBounds(bounds, {
-          paddingTopLeft: [24, 110],
+          paddingTopLeft: [24, 115],
           paddingBottomRight: state.rideMode ? [24, 240] : [24, 380],
           maxZoom: 12
         });
@@ -1395,7 +1449,7 @@
     }
 
     // =========================================================================
-    // 8. LECTEUR RGA & GESTION BUDGET DETAILLEE
+    // 9. LECTEUR RGA & GESTION BUDGET DETAILLEE
     // =========================================================================
     function getDayBudgetEntry(dayIndex) {
       return state.budgets[dayIndex] || { hebergement: '', repas: '', carburant: '', divers: '' };
@@ -1484,13 +1538,13 @@
         const hasRestoAlert =
           (d.resto.midi?.main?.closedDays?.includes(dow)) ||
           (d.resto.soir?.main?.closedDays?.includes(dow));
-        const dot = (hasSeasonAlert || hasRestoAlert) ? '<span class="w-1.5 h-1.5 rounded-full bg-danger inline-block ml-1"></span>' : '';
+        const dot = (hasSeasonAlert || hasRestoAlert) ? '<span class="w-2 h-2 rounded-full bg-danger inline-block ml-1.5"></span>' : '';
 
         return `
-          <button type="button" onclick="selectDay(${d.dayIndex})" class="px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 shadow-xs border transition ${
+          <button type="button" onclick="selectDay(${d.dayIndex})" class="px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 shadow-xs border transition ${
             active ? 'bg-sign text-ink border-sign' : 'bg-white/95 text-ink border-slate-200'
           }">
-            ${d.code} <span class="font-normal opacity-75">${formatShortDate(dateObj)}</span>${dot}
+            ${d.code} <span class="font-normal opacity-80">${formatShortDate(dateObj)}</span>${dot}
           </button>
         `;
       }).join('');
@@ -1545,8 +1599,8 @@
       const modeBtn = document.getElementById('mode-toggle-btn');
       modeBtn.textContent = state.rideMode ? 'À l\'arrêt' : 'En roulant';
       modeBtn.className = state.rideMode
-        ? 'px-3.5 py-2 rounded-xl bg-sign text-ink text-xs font-extrabold shadow-xs active:scale-95 transition'
-        : 'px-3.5 py-2 rounded-xl bg-ink text-white text-xs font-extrabold shadow-xs active:scale-95 transition';
+        ? 'px-3 py-2 rounded-xl bg-sign text-ink text-xs font-extrabold shadow-xs active:scale-95 transition'
+        : 'px-3 py-2 rounded-xl bg-ink text-white text-xs font-extrabold shadow-xs active:scale-95 transition';
 
       document.getElementById('riding-hud').classList.toggle('hidden', !state.rideMode);
       const stoppedSheet = document.getElementById('stopped-sheet');
@@ -1582,7 +1636,7 @@
       if (!phone) return '';
       const clean = phone.replace(/\s+/g, '');
       return `
-        <a href="tel:${clean}" class="w-11 h-11 rounded-2xl bg-white border border-slate-200 hover:bg-paper flex items-center justify-center text-ink shrink-0 transition" aria-label="Appeler ${phone}">
+        <a href="tel:${clean}" class="w-12 h-12 rounded-2xl bg-white border border-slate-300 hover:bg-paper flex items-center justify-center text-ink shrink-0 transition" aria-label="Appeler ${phone}">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         </a>
       `;
@@ -1590,7 +1644,7 @@
 
     function svgNavButton() {
       return `
-        <button type="button" onclick="sendCurrentDayToDMD()" class="w-11 h-11 rounded-2xl bg-white border border-slate-200 hover:bg-paper flex items-center justify-center text-ink shrink-0 transition" aria-label="Ouvrir dans DMD2">
+        <button type="button" onclick="sendCurrentDayToDMD()" class="w-12 h-12 rounded-2xl bg-white border border-slate-300 hover:bg-paper flex items-center justify-center text-ink shrink-0 transition" aria-label="Ouvrir dans DMD2">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
         </button>
       `;
@@ -1617,7 +1671,7 @@
               <div class="flex items-center justify-between text-[11px] text-muted">
                 <span>${r.author} · ${r.date}</span>
                 ${r.status !== 'approved' ? `
-                  <button type="button" onclick="confirmReport('${r.id}')" class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 font-bold text-ink">
+                  <button type="button" onclick="confirmReport('${r.id}')" class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-bold text-ink">
                     Toujours vrai (${r.confirmations})
                   </button>
                 ` : ''}
@@ -1703,11 +1757,11 @@
         html += `
           <div class="flex items-center justify-between gap-2">
             <div class="inline-flex bg-paper p-1 rounded-xl border border-slate-200 text-xs font-bold">
-              <button type="button" onclick="setRestoPeriod('all')" class="px-2.5 py-1 rounded-lg ${state.restoPeriod === 'all' ? 'bg-white text-ink shadow-xs' : 'text-muted'}">Tout</button>
-              ${hasMidi ? `<button type="button" onclick="setRestoPeriod('midi')" class="px-2.5 py-1 rounded-lg ${state.restoPeriod === 'midi' ? 'bg-white text-ink shadow-xs' : 'text-muted'}">Midi</button>` : ''}
-              <button type="button" onclick="setRestoPeriod('soir')" class="px-2.5 py-1 rounded-lg ${state.restoPeriod === 'soir' ? 'bg-white text-ink shadow-xs' : 'text-muted'}">Soir</button>
+              <button type="button" onclick="setRestoPeriod('all')" class="px-3 py-1.5 rounded-lg ${state.restoPeriod === 'all' ? 'bg-white text-ink shadow-xs' : 'text-muted'}">Tout</button>
+              ${hasMidi ? `<button type="button" onclick="setRestoPeriod('midi')" class="px-3 py-1.5 rounded-lg ${state.restoPeriod === 'midi' ? 'bg-white text-ink shadow-xs' : 'text-muted'}">Midi</button>` : ''}
+              <button type="button" onclick="setRestoPeriod('soir')" class="px-3 py-1.5 rounded-lg ${state.restoPeriod === 'soir' ? 'bg-white text-ink shadow-xs' : 'text-muted'}">Soir</button>
             </div>
-            <button type="button" onclick="openReportModal('resto', '${(day.resto.midi ? day.resto.midi.main.name : day.resto.soir.main.name).replace(/'/g, "\\'")}')" class="px-3 py-1.5 rounded-xl bg-paper border border-slate-200 text-ink text-xs font-semibold">
+            <button type="button" onclick="openReportModal('resto', '${(day.resto.midi ? day.resto.midi.main.name : day.resto.soir.main.name).replace(/'/g, "\\'")}')" class="px-3.5 py-2 rounded-xl bg-paper border border-slate-200 text-ink text-xs font-bold">
               Signaler
             </button>
           </div>
@@ -1730,7 +1784,7 @@
         html += `
           <div class="flex items-center justify-between gap-2">
             <h3 class="font-display font-extrabold text-[22px] leading-tight text-ink">${day.logement.title}</h3>
-            <button type="button" onclick="openReportModal('logement', '${day.logement.main.name.replace(/'/g, "\\'")}')" class="px-3 py-1.5 rounded-xl bg-paper border border-slate-200 text-ink text-xs font-semibold shrink-0">
+            <button type="button" onclick="openReportModal('logement', '${day.logement.main.name.replace(/'/g, "\\'")}')" class="px-3.5 py-2 rounded-xl bg-paper border border-slate-200 text-ink text-xs font-bold shrink-0">
               Signaler
             </button>
           </div>
@@ -1745,7 +1799,7 @@
               </div>
               ${svgPhoneButton(day.logement.main.phone)}
             </div>
-            <button type="button" onclick="toggleBooking(${day.dayIndex})" class="w-full py-2 rounded-xl text-xs font-bold border transition ${
+            <button type="button" onclick="toggleBooking(${day.dayIndex})" class="w-full py-2.5 rounded-xl text-xs font-bold border transition ${
               isBooked ? 'bg-ok text-white border-ok' : 'bg-paper text-ink border-slate-200'
             }">
               ${isBooked ? 'Nuit réservée (enregistré hors-ligne)' : 'Marquer cette nuit comme réservée'}
@@ -1794,7 +1848,7 @@
         html += `
           <div class="flex items-center justify-between gap-2">
             <h3 class="font-display font-extrabold text-[22px] leading-tight text-ink">${day.carburant.title}</h3>
-            <button type="button" onclick="openReportModal('carburant', '${day.carburant.station.replace(/'/g, "\\'")}')" class="px-3 py-1.5 rounded-xl bg-paper border border-slate-200 text-ink text-xs font-semibold shrink-0">
+            <button type="button" onclick="openReportModal('carburant', '${day.carburant.station.replace(/'/g, "\\'")}')" class="px-3.5 py-2 rounded-xl bg-paper border border-slate-200 text-ink text-xs font-bold shrink-0">
               Signaler
             </button>
           </div>
@@ -1829,21 +1883,21 @@
               ${badgeTxt}
             </div>
 
-            <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">
               <span class="text-xs text-muted font-semibold">Autonomie moto :</span>
-              <div class="flex items-center gap-1">
+              <div class="flex items-center gap-1.5">
                 ${[200, 250, 300, 350].map((v) => `
-                  <button type="button" onclick="setAutonomy(${v})" class="px-2 py-1 rounded-lg text-xs font-bold ${state.autonomyKm === v ? 'bg-ink text-white' : 'bg-paper text-ink'}">${v}</button>
+                  <button type="button" onclick="setAutonomy(${v})" class="px-2.5 py-1.5 rounded-lg text-xs font-bold ${state.autonomyKm === v ? 'bg-ink text-white' : 'bg-paper text-ink'}">${v}</button>
                 `).join('')}
               </div>
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-2">
-            <button type="button" onclick="markFilledHere()" class="py-2.5 px-3 rounded-xl bg-sign text-ink font-display font-bold text-xs active:scale-95 transition">
+            <button type="button" onclick="markFilledHere()" class="py-3 px-3 rounded-xl bg-sign text-ink font-display font-bold text-xs active:scale-95 transition">
               J'ai fait le plein ici
             </button>
-            <button type="button" onclick="toggleFuelRecal()" class="py-2.5 px-3 rounded-xl bg-paper border border-slate-200 text-ink font-semibold text-xs">
+            <button type="button" onclick="toggleFuelRecal()" class="py-3 px-3 rounded-xl bg-paper border border-slate-200 text-ink font-semibold text-xs">
               Recaler mon Trip
             </button>
           </div>
@@ -1891,7 +1945,7 @@
             `).join('')}
           </div>
 
-          <!-- GESTION BUDGET COMPLETE (Hors-ligne, par catégorie + Solo/Duo) -->
+          <!-- GESTION BUDGET COMPLETE -->
           <div class="rounded-2xl border border-slate-200 bg-paper p-3.5 space-y-3 mt-2">
             <div class="flex items-center justify-between gap-2">
               <div>
@@ -1899,8 +1953,8 @@
                 <div class="text-[11px] text-muted">Sauvegardé en local (remplace les cellules orange de mon tableau)</div>
               </div>
               <div class="inline-flex bg-white p-0.5 rounded-xl border border-slate-200 text-[11px] font-bold shrink-0">
-                <button type="button" onclick="setBudgetPersons(1)" class="px-2 py-1 rounded-lg ${state.budgetPersons === 1 ? 'bg-ink text-white' : 'text-muted'}">Solo</button>
-                <button type="button" onclick="setBudgetPersons(2)" class="px-2 py-1 rounded-lg ${state.budgetPersons === 2 ? 'bg-ink text-white' : 'text-muted'}">Duo (÷2)</button>
+                <button type="button" onclick="setBudgetPersons(1)" class="px-2.5 py-1.5 rounded-lg ${state.budgetPersons === 1 ? 'bg-ink text-white' : 'text-muted'}">Solo</button>
+                <button type="button" onclick="setBudgetPersons(2)" class="px-2.5 py-1.5 rounded-lg ${state.budgetPersons === 2 ? 'bg-ink text-white' : 'text-muted'}">Duo (÷2)</button>
               </div>
             </div>
 
@@ -1949,7 +2003,7 @@
             </div>
 
             ${stats.totalTrip > 0 ? `
-              <button type="button" onclick="resetAllBudgets()" class="w-full py-1.5 text-[11px] font-semibold text-muted hover:text-danger transition">
+              <button type="button" onclick="resetAllBudgets()" class="w-full py-2 text-[11px] font-semibold text-muted hover:text-danger transition">
                 Réinitialiser le budget saisi
               </button>
             ` : ''}
@@ -2001,7 +2055,7 @@
     }
 
     // =========================================================================
-    // 9. EXPORT & PARTAGE GPX VERS DMD2
+    // 10. EXPORT & PARTAGE GPX VERS DMD2
     // =========================================================================
     function buildGpxXml(day, watermarkOrder) {
       const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -2093,7 +2147,7 @@ ${trkpts}
     }
 
     // =========================================================================
-    // 10. COMMUNAUTE & MODERATION GREG
+    // 11. COMMUNAUTE & MODERATION GREG
     // =========================================================================
     function openReportModal(tab, targetName) {
       state.reportDraftTarget = { dayIndex: state.currentDay, tab, target: targetName };
@@ -2148,8 +2202,8 @@ ${trkpts}
             <p class="text-xs text-ink/85 m-0">${r.note}</p>
             <div class="text-[11px] text-muted">${r.author} · ${r.date}</div>
             <div class="grid grid-cols-2 gap-2 pt-1">
-              <button type="button" onclick="moderateReport('${r.id}', 'approve')" class="py-2 rounded-xl bg-ok text-white text-xs font-bold">Approuver</button>
-              <button type="button" onclick="moderateReport('${r.id}', 'reject')" class="py-2 rounded-xl bg-white border border-slate-300 text-danger text-xs font-bold">Rejeter</button>
+              <button type="button" onclick="moderateReport('${r.id}', 'approve')" class="py-2.5 rounded-xl bg-ok text-white text-xs font-bold">Approuver</button>
+              <button type="button" onclick="moderateReport('${r.id}', 'reject')" class="py-2.5 rounded-xl bg-white border border-slate-300 text-danger text-xs font-bold">Rejeter</button>
             </div>
           </div>
         `).join('');
@@ -2174,7 +2228,7 @@ ${trkpts}
     }
 
     // =========================================================================
-    // 11. GESTE SWIPE VERS LE BAS SUR LA POIGNEE (PASSAGE EN MODE "EN ROULANT")
+    // 12. GESTE SWIPE VERS LE BAS SUR LA POIGNEE (PASSAGE EN MODE "EN ROULANT")
     // =========================================================================
     function initSheetSwipeGesture() {
       const handle = document.getElementById('sheet-drag-handle');
@@ -2207,7 +2261,6 @@ ${trkpts}
         const elapsed = Date.now() - startTime;
         const velocity = elapsed > 0 ? deltaY / elapsed : 0;
 
-        // Si on glisse de plus de 55 px vers le bas ou d'un geste vif, on replie en mode "En roulant"
         if (deltaY > 55 || (deltaY > 25 && velocity > 0.35)) {
           sheet.style.transition = 'transform 180ms ease-out';
           sheet.style.transform = 'translateY(100%)';
@@ -2228,7 +2281,6 @@ ${trkpts}
         }
       };
 
-      // Tactile (mobile)
       handle.addEventListener('touchstart', (e) => {
         if (e.touches && e.touches.length === 1) onStart(e.touches[0].clientY);
       }, { passive: true });
@@ -2240,7 +2292,6 @@ ${trkpts}
       handle.addEventListener('touchend', onEnd);
       handle.addEventListener('touchcancel', onEnd);
 
-      // Souris (test sur PC)
       handle.addEventListener('mousedown', (e) => {
         e.preventDefault();
         onStart(e.clientY);
@@ -2252,13 +2303,14 @@ ${trkpts}
     }
 
     // =========================================================================
-    // 12. INITIALISATION
+    // 13. INITIALISATION
     // =========================================================================
     function initApp() {
       const d1 = document.getElementById('sim-start-date');
       const d2 = document.getElementById('mobile-start-date');
       if (d1) d1.addEventListener('change', (e) => { if (e.target.value) setQuickDate(e.target.value); });
       if (d2) d2.addEventListener('change', (e) => { if (e.target.value) setQuickDate(e.target.value); });
+      applyLargeUI();
       initSheetSwipeGesture();
       syncSimControls();
       navigateTo('login');
