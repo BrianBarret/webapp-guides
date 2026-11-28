@@ -456,6 +456,11 @@
             <span class="text-xs font-bold">⛶</span>
           </button>
 
+          <button type="button" onclick="forceAppUpdate()" class="w-full py-3 px-4 rounded-xl bg-slate-100 text-ink font-semibold text-sm flex items-center justify-between">
+            <span>Forcer la mise à jour (vider le cache)</span>
+            <span class="text-xs font-bold">🔄</span>
+          </button>
+
           <button type="button" onclick="closeModal('modal-demo'); openGregModal();" class="w-full py-3 px-4 rounded-xl bg-amber-50 border border-sign text-ink font-bold text-sm flex items-center justify-between">
             <span>Modération Greg (signalements)</span>
             <span id="demo-reports-count" class="px-2 py-0.5 rounded-full bg-sign text-ink text-xs font-extrabold">1</span>
@@ -642,34 +647,34 @@
        2. CATALOGUE COMPLET DES 28 GUIDES (LIENS BOUTIQUE OFFICIELS)
        ========================================================= */
     const CATALOG_GUIDES = [
-      { id: 'vercors', title: 'Le Vercors sur un weekend (v2)', region: 'france', days: '2 jours (+J0/J3)', km: '504 km', price: 'Offert', owned: true, ready: true, dataUrl: './guides/vercors/guide.json', url: 'https://lesapprentisvoyageurs.fr/produit/le-vercors-sur-un-weekend/' },
-      { id: 'rga', title: 'La RGA Aller-Retour (v2027-1)', region: 'france', days: '6 jours (+J0/J7)', km: '1 477 km', price: '36,40 €', owned: true, ready: true, dataUrl: './guides/rga/guide.json', url: 'https://lesapprentisvoyageurs.fr/produit/la-rga-a-moto-road-trip-de-6-jours-dans-les-alpes/' },
-      { id: 'ardeche', title: 'Ardèche : 42 cols sur 3 jours', region: 'france', days: '3 jours', km: '750 km', price: '21,80 €', owned: true, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-en-ardeche-en-42-cols-sur-3-jours/' },
-      { id: 'cevennes', title: 'Le meilleur des Cévennes (v2)', region: 'france', days: '3 jours (+J0/J4)', km: '779 km', price: '21,80 €', owned: true, ready: true, dataUrl: './guides/cevennes/guide.json', url: 'https://lesapprentisvoyageurs.fr/produit/le-meilleur-des-cevennes-a-moto/' },
-      { id: 'auvergne', title: 'Auvergne sur 3 jours (+Livradois)', region: 'france', days: '3 jours', km: '~800 km', price: '21,80 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-en-auvergne-sur-3-jours-a-moto-livradois/' },
-      { id: 'drome', title: 'Cols de la Drôme', region: 'france', days: '4 jours', km: '~950 km', price: '21,80 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-cols-de-la-drome/' },
-      { id: 'verdon', title: 'Entre Verdon et Ventoux', region: 'france', days: '3 jours', km: '~800 km', price: '21,80 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/entre-verdon-et-ventoux-road-trip-moto/' },
-      { id: 'haute-loire', title: 'Haute-Loire : guide complet', region: 'france', days: '3 jours', km: '~890 km', price: '21,80 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/haute-loire-en-road-trip-a-moto-guide-complet/' },
-      { id: 'aubrac', title: 'Road trip en Aubrac', region: 'france', days: '2 jours', km: '500 km', price: '21,80 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/guide-de-road-trip-en-aubrac-a-moto/' },
-      { id: 'limousin', title: 'Faire le Limousin à moto', region: 'france', days: '3 jours', km: '~700 km', price: '21,80 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/faire-le-limousin-a-moto/' },
-      { id: 'morvan', title: 'Le Morvan en 2 jours', region: 'france', days: '2 jours', km: '~550 km', price: '21,80 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/le-morvan-a-moto-en-2-jours/' },
-      { id: 'jura', title: 'Jura et Doubs à moto', region: 'france', days: '3 jours', km: '~750 km', price: '21,80 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/jura-et-doubs-a-moto/' },
-      { id: 'vosges', title: 'Les Vosges sur 3 jours', region: 'france', days: '3 jours', km: '~800 km', price: '21,80 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/les-vosges-a-moto-en-road-trip-de-3-jours-guide-complet/' },
-      { id: 'pyrenees', title: 'Traversée des Pyrénées', region: 'france', days: '6 jours', km: '~1 000 km', price: '36,40 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-traversee-des-pyrenees/' },
-      { id: 'pyrenees-ar', title: 'Pyrénées Aller-Retour (FR/ES)', region: 'france', days: '8 jours', km: '~2 000 km', price: '36,40 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/la-meilleure-traversee-des-pyrenees-aller-et-retour-entre-france-et-espagne/' },
-      { id: 'corse-classique', title: 'Tour de Corse (Classique)', region: 'france', days: '7 jours', km: '~1 450 km', price: '36,40 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/guide-complet-du-tour-de-corse-a-moto/' },
-      { id: 'corse-terres', title: 'Corse par les terres', region: 'france', days: '5 jours', km: '~1 100 km', price: '36,40 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/la-corse-a-moto-par-les-terres-oserez-vous-laventure/' },
-      { id: 'dtf-ouest', title: 'Demi-Tour de France : OUEST', region: 'france', days: '12 jours', km: '~4 000 km', price: '43,70 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/demi-tour-de-france-a-moto-partie-ouest/' },
-      { id: 'dtf-est', title: 'Demi-Tour de France : EST', region: 'france', days: '12 jours', km: '~3 900 km', price: '43,70 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/demi-tour-de-france-a-moto-en-12-jours-lest/' },
-      { id: 'sardaigne-sauvage', title: 'Sardaigne sauvage sur 6 jours', region: 'europe', days: '6 jours', km: '~1 400 km', price: '36,40 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-en-sardaigne-sauvage-sur-6-jours/' },
-      { id: 'sardaigne-tour', title: 'Tour de Sardaigne à moto', region: 'europe', days: '8 jours', km: '~1 700 km', price: '36,40 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/tour-de-sardaigne-a-moto/' },
-      { id: 'dolomites', title: 'Dolomites en Italie', region: 'europe', days: '5 jours', km: '~1 150 km', price: '36,40 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/dolomites-en-italie-a-moto/' },
-      { id: 'tyrol', title: 'Tyrol Autriche / Italie', region: 'europe', days: '6 jours', km: '~1 500 km', price: '36,40 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/tyrol-autriche-italie-a-moto/' },
-      { id: 'espagne-sud', title: 'Le Sud de l\'Espagne (Andalousie)', region: 'europe', days: '6 jours', km: '~1 800 km', price: '36,40 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-a-moto-dans-le-sud-de-lespagne/' },
-      { id: 'picos', title: 'Picos de Europa (Espagne)', region: 'europe', days: '5 jours', km: '~1 200 km', price: '36,40 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/picos-de-europa-espagne-a-moto/' },
-      { id: 'bardenas', title: 'Désert des Bardenas', region: 'europe', days: '4 jours', km: '~950 km', price: '29,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/desert-des-bardenas-a-moto/' },
-      { id: 'irlande', title: 'Tour d\'Irlande à moto', region: 'europe', days: '10 jours', km: '~2 600 km', price: '43,70 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/irlande-le-tour-a-moto/' },
-      { id: 'maroc', title: 'Maroc à moto par la route', region: 'europe', days: '12 jours', km: '~3 300 km', price: '43,70 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/guide-moto-maroc-pret-a-voyager-traces-gpx-et-etapes/' }
+      { id: 'vercors', wcId: 15901, title: 'Le Vercors sur un weekend (v2)', region: 'france', days: '2 jours (+J0/J3)', km: '504 km', price: 'Offert', owned: true, ready: true, dataUrl: './guides/vercors/guide.json', url: 'https://lesapprentisvoyageurs.fr/produit/le-vercors-sur-un-weekend/' },
+      { id: 'rga', wcId: 6440, title: 'La RGA Aller-Retour (v2027-1)', region: 'france', days: '6 jours (+J0/J7)', km: '1 477 km', price: '49,90 €', owned: true, ready: true, dataUrl: './guides/rga/guide.json', url: 'https://lesapprentisvoyageurs.fr/produit/la-rga-a-moto-road-trip-de-6-jours-dans-les-alpes/' },
+      { id: 'ardeche', wcId: 5313, title: 'Ardèche : 42 cols sur 3 jours', region: 'france', days: '3 jours', km: '750 km', price: '29,90 €', owned: true, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-ardeche-3-jours/' },
+      { id: 'cevennes', wcId: 10497, title: 'Le meilleur des Cévennes (v2)', region: 'france', days: '3 jours (+J0/J4)', km: '779 km', price: '29,90 €', owned: true, ready: true, dataUrl: './guides/cevennes/guide.json', url: 'https://lesapprentisvoyageurs.fr/produit/le-meilleur-des-cevennes-a-moto/' },
+      { id: 'auvergne', wcId: 17156, title: 'Auvergne sur 3 jours (+Livradois)', region: 'france', days: '3 jours', km: '~800 km', price: '29,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-en-auvergne-sur-3-jours-a-moto/' },
+      { id: 'drome', wcId: 3644, title: 'Cols de la Drôme', region: 'france', days: '4 jours', km: '~950 km', price: '29,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/roadtrip-moto-cols-drome/' },
+      { id: 'verdon', wcId: 9944, title: 'Entre Verdon et Ventoux', region: 'france', days: '3 jours', km: '~800 km', price: '29,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/entre-verdon-et-ventoux-road-trip-moto/' },
+      { id: 'haute-loire', wcId: 9638, title: 'Haute-Loire : guide complet', region: 'france', days: '3 jours', km: '~890 km', price: '29,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-a-moto-haute-loire/' },
+      { id: 'aubrac', wcId: 18342, title: 'Road trip en Aubrac', region: 'france', days: '2 jours', km: '500 km', price: '29,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/guide-road-trip-en-aubrac-a-moto/' },
+      { id: 'limousin', wcId: 26065, title: 'Faire le Limousin à moto', region: 'france', days: '3 jours', km: '~700 km', price: '29,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/faire-le-limousin-a-moto/' },
+      { id: 'morvan', wcId: 13762, title: 'Le Morvan en 2 jours', region: 'france', days: '2 jours', km: '~550 km', price: '29,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/morvan-a-moto-en-2-jours/' },
+      { id: 'jura', wcId: 10785, title: 'Jura et Doubs à moto', region: 'france', days: '3 jours', km: '~750 km', price: '29,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/jura-et-doubs-a-moto/' },
+      { id: 'vosges', wcId: 9644, title: 'Les Vosges sur 3 jours', region: 'france', days: '3 jours', km: '~800 km', price: '29,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/vosges-a-moto-guide-complet/' },
+      { id: 'pyrenees', wcId: 3684, title: 'Traversée des Pyrénées', region: 'france', days: '6 jours', km: '~1 000 km', price: '49,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-traversee-des-pyrenees/' },
+      { id: 'pyrenees-ar', wcId: 19033, title: 'Pyrénées Aller-Retour (FR/ES)', region: 'france', days: '8 jours', km: '~2 000 km', price: '49,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/la-meilleure-traversee-des-pyrenees-aller-retour-france-espagne/' },
+      { id: 'corse-classique', wcId: 4388, title: 'Tour de Corse (Classique)', region: 'france', days: '7 jours', km: '~1 450 km', price: '49,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/guide-tour-de-corse-moto/' },
+      { id: 'corse-terres', wcId: 16238, title: 'Corse par les terres', region: 'france', days: '5 jours', km: '~1 100 km', price: '49,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/corse-a-moto-par-les-terres/' },
+      { id: 'dtf-ouest', wcId: 20174, title: 'Demi-Tour de France : OUEST', region: 'france', days: '12 jours', km: '~4 000 km', price: '59,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/demi-tour-de-france-a-moto-partie-ouest/' },
+      { id: 'dtf-est', wcId: 5685, title: 'Demi-Tour de France : EST', region: 'france', days: '12 jours', km: '~3 900 km', price: '59,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/demi-tour-de-france-moto-est/' },
+      { id: 'sardaigne-sauvage', wcId: 26956, title: 'Sardaigne sauvage sur 6 jours', region: 'europe', days: '6 jours', km: '~1 400 km', price: '49,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-en-sardaigne-sauvage-sur-6-jours/' },
+      { id: 'sardaigne-tour', wcId: 3913, title: 'Tour de Sardaigne à moto', region: 'europe', days: '8 jours', km: '~1 700 km', price: '49,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/tour-de-sardaigne-a-moto/' },
+      { id: 'dolomites', wcId: 3771, title: 'Dolomites en Italie', region: 'europe', days: '5 jours', km: '~1 150 km', price: '49,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/visiter-les-dolomites-en-road-trip/' },
+      { id: 'tyrol', wcId: 3778, title: 'Tyrol & Dolomites en Road trip', region: 'europe', days: '6 jours', km: '~1 500 km', price: '59,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/visiter-le-tyrol-et-les-dolomites-en-road-trip/' },
+      { id: 'espagne-sud', wcId: 25430, title: 'Le Sud de l\'Espagne (Andalousie)', region: 'europe', days: '6 jours', km: '~1 800 km', price: '49,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/road-trip-moto-sud-espagne/' },
+      { id: 'picos', wcId: 4307, title: 'Picos de Europa (Espagne)', region: 'europe', days: '12 jours', km: '~1 200 km', price: '59,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/picos-de-europa-a-moto-road-trip-espagne/' },
+      { id: 'bardenas', wcId: 4664, title: 'Désert des Bardenas', region: 'europe', days: '5 jours', km: '~950 km', price: '29,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/les-bardenas-moto/' },
+      { id: 'irlande', wcId: 6207, title: 'Tour d\'Irlande à moto', region: 'europe', days: '9 jours', km: '~2 600 km', price: '59,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/tour-irlande-a-moto-en-9-jours/' },
+      { id: 'maroc', wcId: 27356, title: 'Maroc à moto par la route', region: 'europe', days: '12 jours', km: '~3 300 km', price: '59,90 €', owned: false, ready: false, url: 'https://lesapprentisvoyageurs.fr/produit/le-maroc-a-moto-en-12-jours/' }
     ];
 
 
@@ -2074,8 +2079,40 @@ ${allTracks.join('\n')}
       if (btn) btn.classList.add('hidden');
     }
 
+    async function forceAppUpdate() {
+      showToast('Mise à jour en cours…');
+      try {
+        await idbClearGuides();
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(k => caches.delete(k)));
+        }
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map(r => r.unregister()));
+        }
+      } catch (e) {}
+      location.reload();
+    }
+
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
+      let swRefreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (swRefreshing) return;
+        swRefreshing = true;
+        location.reload();
+      });
+
+      navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+        .then(reg => {
+          reg.update().catch(() => {});
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && navigator.onLine) {
+              reg.update().catch(() => {});
+            }
+          });
+        })
+        .catch(() => {});
     }
 
     window.addEventListener('online', updateNetworkBadges);

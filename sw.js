@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lav-pwa-v7';
+const CACHE_NAME = 'lav-pwa-v9';
 const APP_ASSETS = [
   './',
   './index.html',
@@ -19,12 +19,14 @@ self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(async cache => {
       for (const url of APP_ASSETS) {
-        try { await cache.add(url); } catch (err) { /* Asset local optionnel */ }
+        try {
+          const res = await fetch(new Request(url, { cache: 'no-cache' }));
+          if (res && res.ok) await cache.put(url, res);
+        } catch (err) { /* Asset local optionnel */ }
       }
       for (const url of EXTERNAL_ASSETS) {
         try {
-          const req = new Request(url, { mode: 'no-cors' });
-          const res = await fetch(req);
+          const res = await fetch(new Request(url, { mode: 'no-cors' }));
           if (res) await cache.put(url, res);
         } catch (err) { /* Hors-ligne lors de l'installation */ }
       }
@@ -48,13 +50,15 @@ self.addEventListener('fetch', e => {
   // Ne jamais mettre en cache les appels API WordPress/WooCommerce
   if (reqUrl.pathname.includes('/wp-json/')) return;
 
-  // Tuiles carte Esri : réseau seul (trop volumineux pour le cache PWA ; la trace et les POI s'affichent sans tuiles hors-ligne)
+  // Tuiles carte Esri : réseau seul
   if (reqUrl.hostname.includes('arcgisonline.com')) return;
 
   const isSameOrigin = reqUrl.origin === self.location.origin;
 
-  // Stratégie : réseau avec délai court (2,5s) puis repli immédiat sur le cache
-  const netPromise = fetch(e.request)
+  // Pour les fichiers locaux (index.html, guide.json...), contourner le cache HTTP navigateur (max-age GitHub Pages)
+  const netReq = isSameOrigin ? new Request(e.request, { cache: 'no-cache' }) : e.request;
+
+  const netPromise = fetch(netReq)
     .then(res => {
       if (res && (res.ok || res.type === 'opaque')) {
         const copy = res.clone();
